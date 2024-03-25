@@ -1,19 +1,17 @@
 // Entry file for HPcarver
 // Author: Will Morris
+
+// BE ADVISED: your IDE probably won't find this!
+// This is because ImageMagick has to use a helper script to actually compile; see the makefile.
+// If you try to make it, you'll see it works. :/
+#include <Magick++.h>
 #include <iostream>
-#include "netpbm.h"
 
 void usage();
 
-int main(int argc, char* argv[]) {
-    if (argc != 2) {
-        usage();
-        return 1;
-    }
-    std::cout << "Hello, world!" << std::endl;
-}
+using namespace Magick;
 
-void usage() {
-    std::cout << "Usage:" << std::endl;
-    std::cout << "hpcarver [source.ppm]" << std::endl;
+int main(int argc, char* argv[]) {
+    InitializeMagick(*argv);
+    std::cout << "Hello, world!" << std::endl;
 }
