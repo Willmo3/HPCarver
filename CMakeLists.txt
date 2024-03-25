@@ -16,21 +16,21 @@ FetchContent_Declare(
 set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
 FetchContent_MakeAvailable(googletest)
 
-# Build tests
-enable_testing()
-add_executable(test_imagemagick test/test_imagemagick.cpp)
-
-target_link_libraries(test_imagemagick GTest::gtest_main)
-include(GoogleTest)
-gtest_discover_tests(test_imagemagick)
-
-add_executable(hpcarver src/hpcarver.cpp)
-
 # Prepare ImageMagick
 add_definitions( -DMAGICKCORE_QUANTUM_DEPTH=16 )
 add_definitions( -DMAGICKCORE_HDRI_ENABLE=0 )
 find_package(ImageMagick COMPONENTS Magick++)
 include_directories(${ImageMagick_INCLUDE_DIRS})
+
+# Build tests
+enable_testing()
+add_executable(test_imagemagick test/test_imagemagick.cpp)
+target_link_libraries(test_imagemagick GTest::gtest_main)
+include(GoogleTest)
+gtest_discover_tests(test_imagemagick)
+
+# Build carver
+add_executable(hpcarver src/hpcarver.cpp)
 
 # Link all to ImageMagick
 target_link_libraries(hpcarver ${ImageMagick_LIBRARIES})
