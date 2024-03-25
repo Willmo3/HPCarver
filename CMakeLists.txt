@@ -26,9 +26,13 @@ gtest_discover_tests(test_imagemagick)
 
 add_executable(hpcarver src/hpcarver.cpp)
 
-# Link to ImageMagick
+# Prepare ImageMagick
 add_definitions( -DMAGICKCORE_QUANTUM_DEPTH=16 )
 add_definitions( -DMAGICKCORE_HDRI_ENABLE=0 )
 find_package(ImageMagick COMPONENTS Magick++)
 include_directories(${ImageMagick_INCLUDE_DIRS})
+
+# Link all to ImageMagick
 target_link_libraries(hpcarver ${ImageMagick_LIBRARIES})
+target_link_libraries(test_imagemagick ${ImageMagick_LIBRARIES})
+
