@@ -1,6 +1,9 @@
 cmake_minimum_required(VERSION 3.5)
 project(hpcarver)
 
+# Set output directory
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ../out)
+
 # GoogleTest install:
 # GoogleTest requires at least C++14
 set(CMAKE_CXX_STANDARD 14)
