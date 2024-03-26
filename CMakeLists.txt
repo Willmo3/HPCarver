@@ -35,4 +35,3 @@ add_executable(hpcarver src/hpcarver.cpp)
 # Link all to ImageMagick
 target_link_libraries(hpcarver ${ImageMagick_LIBRARIES})
 target_link_libraries(test_imagemagick ${ImageMagick_LIBRARIES})
-
