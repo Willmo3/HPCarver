@@ -3,7 +3,7 @@
 //
 
 #include <gtest/gtest.h>
-#include "../src/hpimage.h"
+#include "../src/hpimage/hpimage.h"
 
 using namespace Magick;
 using namespace hpcarver;
