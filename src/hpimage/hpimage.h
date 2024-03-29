@@ -12,6 +12,13 @@ namespace hpcarver {
      * Initialization function for hpcarver
      */
     void init();
+
+    /**
+     * Load an image from filesystem given filename
+     * @param filename name of the file to use
+     * @return the loaded image
+     */
+    Magick::Image *load_image(const char *filename);
 }
 
 #endif //HPCARVER_HPIMAGE_H

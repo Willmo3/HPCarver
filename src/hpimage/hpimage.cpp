@@ -10,4 +10,8 @@ namespace hpcarver {
         // We don't use custom args here, do not provide Magick with args.
         InitializeMagick(nullptr);
     }
+
+    Magick::Image *load_image(const char *filename) {
+        return new Magick::Image(filename);
+    }
 }
