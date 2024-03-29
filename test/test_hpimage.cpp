@@ -9,11 +9,11 @@ using namespace Magick;
 using namespace hpcarver;
 
 // Test that init works.
-TEST(hpcarverload, init) {
+TEST(hpimage, init) {
     hpcarver::init();
 }
 
-TEST(hpcarverimg, load_image) {
+TEST(hpimage, load_image) {
     hpcarver::init();
     hpcarver::load_image("img/3x4.png");
 }

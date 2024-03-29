@@ -12,12 +12,12 @@
  FetchContent_MakeAvailable(googletest)
 
  # Build tests
- add_executable(test_imagemagick test_imagemagick.cpp)
- target_link_libraries(test_imagemagick GTest::gtest_main)
+ add_executable(test_hpimage test_hpimage.cpp)
+ target_link_libraries(test_hpimage GTest::gtest_main)
  include(GoogleTest)
- gtest_discover_tests(test_imagemagick)
+ gtest_discover_tests(test_hpimage)
 
  # Link all to ImageMagick
- target_link_libraries(test_imagemagick
+ target_link_libraries(test_hpimage
  ${ImageMagick_LIBRARIES}
  hpimage)
