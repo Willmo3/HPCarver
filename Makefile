@@ -9,3 +9,6 @@ tests: test/test_imagemagick.cpp
 	cmake cmake-build-debug
 	cmake --build cmake-build-debug
 	./out/test_imagemagick
+
+clean:
+	cd out && rm *
