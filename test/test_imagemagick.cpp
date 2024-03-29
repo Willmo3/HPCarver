@@ -3,11 +3,12 @@
 //
 
 #include <gtest/gtest.h>
-#include <Magick++.h>
+#include "../src/hpimage.h"
 
 using namespace Magick;
+using namespace hpcarver;
 
-TEST(magickloadimage, BasicAssertions) {
-    char *path = "";
-    InitializeMagick(path);
+// Test that init works.
+TEST(hpcarverload, BasicAssertions) {
+    hpcarver::init();
 }
