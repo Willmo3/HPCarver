@@ -17,4 +17,5 @@ TEST(hpimage, load_image) {
     hpcarver::init();
     Image *img = hpcarver::load_image("img/3x4.png");
     ASSERT_STREQ("PN6Magick5ImageE", typeid(img).name());
+    delete img;
 }
