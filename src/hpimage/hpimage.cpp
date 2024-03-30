@@ -6,9 +6,9 @@
 using namespace Magick;
 
 namespace hpcarver {
-    void init(const char *path) {
+    void init() {
         // We don't use custom args here, do not provide Magick with args.
-        InitializeMagick(path);
+        InitializeMagick(nullptr);
     }
 
     // Load an image using our defaults.
