@@ -11,7 +11,7 @@ using namespace hpcarver;
 // Testing helper.
 Image *test() {
     hpcarver::init();
-    return hpcarver::load_image("img/3x4.png");
+    return hpcarver::load_image("/nfs/home/morri2wj/research/hpcarver/img/3x4.png");
 }
 
 // Test that init works.
@@ -27,7 +27,21 @@ TEST(hpimage, load_image) {
 
 TEST(hpimage, get_pixels) {
     Image *img = test();
-    Pixels *pixels = get_pixels(*img);
+    size_t rows = img->rows();
+    size_t cols = img->columns();
+
+    PixelPacket *pixels = img->getPixels(0, 0, rows, cols);
+    // Set the upper pixel to 0,0
+    pixels->red = 0;
+    pixels->blue = 0;
+    pixels->green = 0;
+
+    img->syncPixels();
+
+    pixels = img->getPixels(0, 0, 1, 1);
+    ASSERT_EQ(0, pixels->red);
+    ASSERT_EQ(0, pixels->blue);
+    ASSERT_EQ(0, pixels->green);
+    
     delete img;
-    delete pixels;
 }

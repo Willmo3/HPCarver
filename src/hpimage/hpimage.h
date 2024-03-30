@@ -21,12 +21,6 @@ namespace hpcarver {
      * @return the loaded image
      */
     Magick::Image *load_image(const char *filename);
-
-    /**
-     * @param image image to get pixels from
-     * @return pixels from the image
-     */
-    Magick::Pixels *get_pixels(Magick::Image &image);
 }
 
 #endif //HPCARVER_HPIMAGE_H
