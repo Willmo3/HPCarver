@@ -42,6 +42,6 @@ TEST(hpimage, get_pixels) {
     ASSERT_EQ(0, pixels->red);
     ASSERT_EQ(0, pixels->blue);
     ASSERT_EQ(0, pixels->green);
-    
+
     delete img;
 }
