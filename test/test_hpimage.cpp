@@ -20,17 +20,17 @@ TEST(hpimage, init) {
 }
 
 TEST(hpimage, load_image) {
-    Image *img = test();
+    auto *img = test();
     ASSERT_STREQ("PN6Magick5ImageE", typeid(img).name());
     delete img;
 }
 
 TEST(hpimage, get_pixels) {
-    Image *img = test();
+    auto *img = test();
     size_t rows = img->rows();
     size_t cols = img->columns();
 
-    PixelPacket *pixels = img->getPixels(0, 0, rows, cols);
+    auto *pixels = img->getPixels(0, 0, rows, cols);
     // Set the upper pixel to 0,0
     pixels->red = 0;
     pixels->blue = 0;
