@@ -15,6 +15,8 @@ namespace hpcarver {
 
     /**
      * Load an image from filesystem given filename
+     * Use our defaults.
+     * Heap allocate -- this could be big!
      * @param filename name of the file to use
      * @return the loaded image
      */

@@ -11,7 +11,14 @@ namespace hpcarver {
         InitializeMagick(nullptr);
     }
 
-    Magick::Image *load_image(const char *filename) {
-        return new Magick::Image(filename);
+    // Load an image using our defaults.
+    // Heap allocating -- this could be large!
+    Image *load_image(const char *filename) {
+        auto *image = new Image(filename);
+        image->type(TrueColorType);
+        // Internal to hpcarver
+        image->modifyImage();
+
+        return image;
     }
 }
