@@ -14,6 +14,8 @@ int main(int argc, char* argv[]) {
 // -- Write image
 // -- Entry point (one terminal entry)
 //    -- Delegate to CUDA library.
+// -- Update image
+//    -- Reduce size? Probably a common function.
 
 // API:
 // -- GetVertEnergy

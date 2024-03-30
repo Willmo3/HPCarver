@@ -1,9 +1,12 @@
-# Add hpimage library
-# Treating as library to ease linking with testing.
+# Add hpimage library -- base
 add_library(hpimage hpimage/hpimage.cpp hpimage/hpimage.h)
 
+# Serial execution library
+add_library(serial serial/serial.cpp serial/serial.h)
+
+# Final entry point executable
 add_executable(hpcarver hpcarver.cpp)
-# Link carver to ImageMagick and hpimage.
 target_link_libraries(hpcarver
         ${ImageMagick_LIBRARIES}
-        hpimage)
+        hpimage
+        serial)
