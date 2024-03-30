@@ -21,6 +21,13 @@ namespace hpcarver {
      * @return the loaded image
      */
     Magick::Image *load_image(const char *filename);
+
+    /**
+     * Write an image to file
+     * @param img image to write
+     * @param path path to file to write
+     */
+    void write_image(Magick::Image *img, std::string &path);
 }
 
 #endif //HPCARVER_HPIMAGE_H

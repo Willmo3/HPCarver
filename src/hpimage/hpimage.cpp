@@ -21,4 +21,9 @@ namespace hpcarver {
 
         return image;
     }
+
+    // Write an image to specified directory
+    void write_image(Image *img, std::string &path) {
+        img->write(path);
+    }
 }

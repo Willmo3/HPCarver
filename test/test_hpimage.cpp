@@ -45,3 +45,17 @@ TEST(hpimage, get_pixels) {
 
     delete img;
 }
+
+TEST(hpimage, write_image) {
+    Image *img = test();
+
+    PixelPacket *pixels = img->getPixels(0, 0, 1, 1);
+    pixels->red = 0;
+    pixels->blue = 0;
+    pixels->green = 0;
+    img->syncPixels();
+
+    auto test = std::string("test/test.png");
+    write_image(img, test);
+    delete img;
+}
