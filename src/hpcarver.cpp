@@ -1,7 +1,6 @@
 // Entry file for HPcarver
 // Author: Will Morris
 
-#include <iostream>
 #include "hpimage/hpimage.h"
 
 // For now, only horizontal carving.
