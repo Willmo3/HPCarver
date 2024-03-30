@@ -10,8 +10,9 @@
 namespace hpcarver {
     /**
      * Initialization function for hpcarver
+     * ImageMagick needs the path to the program to properly link!
      */
-    void init();
+    void init(const char *path);
 
     /**
      * Load an image from filesystem given filename

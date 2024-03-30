@@ -10,7 +10,7 @@ using namespace hpcarver;
 
 // Testing helper.
 Image *test() {
-    hpcarver::init();
+    hpcarver::init("/nfs/home/morri2wj/research/hpcarver/out/test_hpimage");
     return hpcarver::load_image("img/3x4.png");
 }
 
@@ -25,9 +25,30 @@ TEST(hpimage, load_image) {
     delete img;
 }
 
+// Test that we can sync pixels.
 TEST(hpimage, get_pixels) {
     Image *img = test();
-    Pixels *pixels = get_pixels(*img);
+    Pixels *view = get_pixels(*img);
+
+    size_t rows = view->rows();
+    size_t cols = view->columns();
+
+    PixelPacket *pixels = view->get(0, 0, cols, rows);
+    // Set the upper pixel to 0,0
+    //pixels->red = 0;
+//    pixels->blue = 0;
+//    pixels->green = 0;
+//
+//    view->sync();
+
+    delete view;
+//    view = get_pixels(*img);
+//
+//    pixels = view->get(0, 0, cols, rows);
+//    ASSERT_EQ(0, pixels->red);
+//    ASSERT_EQ(0, pixels->blue);
+//    ASSERT_EQ(0, pixels->green);
+//
+//    delete view;
     delete img;
-    delete pixels;
 }
