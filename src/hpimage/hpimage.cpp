@@ -21,4 +21,10 @@ namespace hpcarver {
 
         return image;
     }
+
+    // Load a pixels view using our defaults
+    // Heap allocating -- this could be large!
+    Pixels *get_pixels(Image &image) {
+        return new Pixels(image);
+    }
 }

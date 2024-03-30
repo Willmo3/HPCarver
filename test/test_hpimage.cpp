@@ -24,3 +24,10 @@ TEST(hpimage, load_image) {
     ASSERT_STREQ("PN6Magick5ImageE", typeid(img).name());
     delete img;
 }
+
+TEST(hpimage, get_pixels) {
+    Image *img = test();
+    Pixels *pixels = get_pixels(*img);
+    delete img;
+    delete pixels;
+}
