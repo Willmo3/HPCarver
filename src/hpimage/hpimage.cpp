@@ -7,7 +7,6 @@ using namespace Magick;
 
 namespace hpcarver {
     void init() {
-        // We don't use custom args here, do not provide Magick with args.
         InitializeMagick(nullptr);
     }
 
@@ -15,10 +14,9 @@ namespace hpcarver {
     // Heap allocating -- this could be large!
     Image *load_image(const char *filename) {
         auto *image = new Image(filename);
+        // Required by Magick++
         image->type(TrueColorType);
-        // Internal to hpcarver
         image->modifyImage();
-
         return image;
     }
 
