@@ -2,4 +2,4 @@
 .vscode
 out
 cmake-build-debug
-test/*.png
+test/junk

@@ -55,7 +55,7 @@ TEST(hpimage, write_image) {
     pixels->green = 0;
     img->syncPixels();
 
-    auto test = std::string("test/test.png");
+    auto test = std::string("test/junk/test.png");
     write_image(img, test);
     delete img;
 }
