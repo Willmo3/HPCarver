@@ -93,3 +93,23 @@ TEST(hpimage, write_then_cut) {
 
     delete img;
 }
+
+TEST(hpimage, cut_beyond_bounds) {
+    Image *img = test();
+    cut_width(img);
+    cut_width(img);
+
+    ASSERT_DEATH({
+        cut_width(img);
+    }, "");
+
+    cut_height(img);
+    cut_height(img);
+    cut_height(img);
+
+    ASSERT_DEATH({
+        cut_height(img);
+    }, "");
+
+    delete img;
+}
