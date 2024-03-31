@@ -70,3 +70,26 @@ TEST(hpimage, cut_image) {
 
     delete img;
 }
+
+TEST(hpimage, write_then_cut) {
+    Image *img = test();
+
+    PixelPacket *pixel = img->getPixels(1, 1, 1, 1);
+    pixel->red = 0;
+    pixel->blue = 0;
+    pixel->green = 0;
+    img->syncPixels();
+
+    cut_width(img);
+    cut_height(img);
+    ASSERT_EQ(2, img->columns());
+    ASSERT_EQ(3, img->rows());
+
+    pixel = img->getPixels(1, 1, 1, 1);
+    ASSERT_EQ(0, pixel->blue);
+
+    auto test = std::string("test/junk/testsmall.png");
+    write_image(img, test);
+
+    delete img;
+}
