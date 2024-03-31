@@ -24,4 +24,16 @@ namespace hpcarver {
     void write_image(Image *img, std::string &path) {
         img->write(path);
     }
+
+    // Reduce width of image by one.
+    void cut_width(Magick::Image *img) {
+        Geometry crop = Geometry(img->columns() - 1, img->rows());
+        img->crop(crop);
+    }
+
+    // Reduce height of image by one.
+    void cut_height(Magick::Image *img) {
+        Geometry crop = Geometry(img->columns(), img->rows() - 1);
+        img->crop(crop);
+    }
 }

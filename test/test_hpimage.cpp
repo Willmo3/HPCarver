@@ -59,3 +59,14 @@ TEST(hpimage, write_image) {
     write_image(img, test);
     delete img;
 }
+
+TEST(hpimage, cut_image) {
+    Image *img = test();
+    cut_width(img); 
+    ASSERT_EQ(2, img->columns());
+    
+    cut_height(img);
+    ASSERT_EQ(3, img->rows());
+
+    delete img;
+}

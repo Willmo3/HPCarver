@@ -28,6 +28,22 @@ namespace hpcarver {
      * @param path path to file to write
      */
     void write_image(Magick::Image *img, std::string &path);
+
+    /**
+     * Crop from the edges of an image.
+     * new_width should be less than img->width!
+     *
+     * @param img Image to resize
+     */
+    void cut_width(Magick::Image *img);
+
+    /**
+     * Crop from the top and bottom of an image.
+     * new_height should be less than img->height!
+     *
+     * @param img Image to resize
+     */
+    void cut_height(Magick::Image *img);
 }
 
 #endif //HPCARVER_HPIMAGE_H
