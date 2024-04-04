@@ -12,6 +12,23 @@ Its purpose is not to be used as a production application, but rather, to test t
    (https://dl.acm.org/doi/10.1145/1276377.1276390)
 
 ## Working Notes
+### RAJA Setup
+Setting up RAJA has been a big ordeal!
+
+Firstly, it's important to note that RAJA should not just be made, it should be *make installed*, with a path for an installation directory provided. Simply making does not appear to be enough!
+
+Crucially, do not allow RAJA to use the default make install directory! This will likely require superuser perms. 
+I ran cmake -DCMAKE_INSTALL_PREFIX=/nfs/home/morri2wj/applications/raja ../ within the build directory to tell RAJA where to install itself when make install is called. You must do this before you even make!
+
+Then, you will be able to link with RAJA using the raja-config.cmake files in that library directory.
+Be sure to pass the path to this library to cmake, NOT what the RAJA people suggest! As far as I can tell, this works.
+
+In my case, I built RAJA to ~/applications/raja, so when I built hpcarver I passed -DRAJADIR="~/applications/raja/lib/cmake/raja". I have not tested this extensively, but it was at least able to find the headers.
+
+#### RAJA Dependencies
+For the most part, RAJA appears to install its own dependencies, such as the blt build system and the camp metaprogramming library (both from Lawrence Livermore).
+If we need these for other purposes, we would need to configure RAJA to use our own installed version. I doubt this will be a problem.
+
 ### Testing
 I've copied simple examples from the Princeton programming assignment for basic energy. 
 

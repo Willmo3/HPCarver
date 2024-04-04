@@ -1,6 +1,12 @@
 cmake_minimum_required(VERSION 3.5)
 project(hpcarver)
 
+set(CMAKE_CXX_STANDARD 14)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+
+# BLT needed for RAJA
+find_package(RAJA)
+
 # Done because of nested cmake structure
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ../../out)
 
@@ -15,3 +21,5 @@ enable_testing()
 # Deferring to cmake
 add_subdirectory(src)
 add_subdirectory(test)
+
+# For right now, ignore tests -- see if it fixes the issue!

@@ -2,6 +2,7 @@
 // Author: Will Morris
 
 #include "hpimage/hpimage.h"
+#include "RAJA/RAJA.hpp"
 
 // For now, only horizontal carving.
 // end goal: specify target dimensions

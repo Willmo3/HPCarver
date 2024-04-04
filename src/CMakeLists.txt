@@ -9,4 +9,5 @@ add_executable(hpcarver hpcarver.cpp)
 target_link_libraries(hpcarver
         ${ImageMagick_LIBRARIES}
         hpimage
-        serial)
+        serial
+        RAJA)
