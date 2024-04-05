@@ -11,6 +11,14 @@ Its purpose is not to be used as a production application, but rather, to test t
 3) The original seam carving implementation, by Advan and Shamir
    (https://dl.acm.org/doi/10.1145/1276377.1276390)
 
+## Installation
+Install RAJA, building it with support for all desired backends.
+Please refer to the install script for some relevant options (https://github.com/470-research-crew/install) and the RAJA user guide (https://raja.readthedocs.io/en/develop/sphinx/user_guide/index.html).
+
+The main insight is that RAJA must be built with support for all desired backends, such as OpenMP. At this stage, we've built it with support for OpenMP and CUDA. Since we're targeting lower-performance end user machines, not supporting MPI is not a problem.
+
+Once you've done that, specify your RAJA install directory in the makefile.
+
 ## Working Notes
 ### RAJA Setup
 Setting up RAJA has been a big ordeal!
