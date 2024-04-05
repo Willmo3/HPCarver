@@ -17,9 +17,9 @@ std::vector<uint32_t> *horiz_seam(Magick::Image &image) {
 }
 
 /**
- * Given an image, return the minimum energy horizontal seam
+ * Given an image, return the minimum energy vertical seam
  * @param image image to process
- * @return Minimum energy horizontal seam
+ * @return Minimum energy vertical seam
  */
 std::vector<uint32_t> *vertical_seam(Magick::Image &image) {
     return new std::vector<uint32_t>{};
@@ -45,12 +45,14 @@ void remove_horiz_seam(Magick::Image &image, std::vector<uint32_t> &seam) {
         Magick::PixelPacket *pixels = image.getPixels(index, col, 1, num_pixels);
 
         // Shift all columns below this up one.
-        for (auto i = index; i < num_pixels - 1; i++) {
-          pixels[i] = pixels[i + 1];
+        for (auto i = 0; i < num_pixels - 1; i++) {
+            pixels[i].red = pixels[i + 1].red;
+            pixels[i].blue = pixels[i + 1].blue;
+            pixels[i].green = pixels[i + 1].green;
+            pixels[i].opacity = pixels[i + 1].opacity;
         }
+        image.syncPixels();
     }
-
-    image.syncPixels();
     hpcarver::cut_height(&image);
 }
 
@@ -71,24 +73,20 @@ void remove_vert_seam(Magick::Image &image, std::vector<uint32_t> &seam) {
         auto index = seam[row];
         assert(index >= 0 && index < image.columns());
 
-        // TODO: validate size.
-        // Should get all columns left on this row.
         // To minimize the number of pizels gotten at each attempt, only get up to index.
         auto num_pixels = image.columns() - index;
-
-        // Getting only the buffer of pixels that fits.
         Magick::PixelPacket *pixels = image.getPixels(index, row, num_pixels, 1);
 
         // Now, shift all pixels in the buffer back one.
-        for (auto i = 0; i < num_pixels -1 ; i++) {
+        for (auto i = 0; i < num_pixels - 1 ; i++) {
+            // For now, only copying the fields we know are relevant
             pixels[i].red = pixels[i + 1].red;
             pixels[i].blue = pixels[i + 1].blue;
             pixels[i].green = pixels[i + 1].green;
+            pixels[i].opacity = pixels[i + 1].opacity;
         }
         image.syncPixels();
     }
-
-    // Finally, with all pixels shifted over, time to trim the image!
     hpcarver::cut_width(&image);
 }
 } // End serial namespace
