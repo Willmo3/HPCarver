@@ -17,7 +17,12 @@ Please refer to the install script for some relevant options (https://github.com
 
 The main insight is that RAJA must be built with support for all desired backends, such as OpenMP. At this stage, we've built it with support for OpenMP and CUDA. Since we're targeting lower-performance end user machines, not supporting MPI is not a problem.
 
-Once you've done that, specify your RAJA install directory in the makefile.
+Once you've done that, create a symlink to the installed RAJA directory in the hpcarver root. You can also move the RAJA install here, or provide an absolute path to your install in the makefile's DRAJADIR option.
+
+Assuming you've successfully built RAJA, make should now build the program and link all dependencies.
+
+## Testing
+Various testing executables are placed in the out directory. Make test to run them all!
 
 ## Working Notes
 ### RAJA Setup
