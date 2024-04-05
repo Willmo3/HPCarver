@@ -13,9 +13,19 @@
  add_executable(test_hpimage test_hpimage.cpp)
  target_link_libraries(test_hpimage GTest::gtest_main)
  include(GoogleTest)
- gtest_discover_tests(test_hpimage)
+
+ add_executable(test_serialcarve test_serialcarve.cpp)
+ target_link_libraries(test_serialcarve GTest::gtest_main)
+ include(GoogleTest)
+
+ gtest_discover_tests(test_hpimage test_serialcarve)
 
  # Link all to ImageMagick
  target_link_libraries(test_hpimage
  ${ImageMagick_LIBRARIES}
  hpimage)
+
+ target_link_libraries(test_serialcarve
+ ${ImageMagick_LIBRARIES}
+         hpimage
+         serial)
