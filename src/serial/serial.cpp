@@ -4,7 +4,6 @@
 
 #include <cassert>
 #include "serial.h"
-#include "../../HPImage/hpimage.h"
 
 namespace serial {
 /**
@@ -34,14 +33,14 @@ std::vector<uint32_t> *vertical_seam(hpimage::Hpimage &image) {
  */
 void remove_horiz_seam(hpimage::Hpimage &image, std::vector<uint32_t> &seam) {
     // Must be exactly one row to remove from each column.
-    assert(seam.size() == image.num_cols());
+    assert(seam.size() == image.cols());
 
-    for (auto col = 0; col < image.num_cols(); ++col) {
+    for (auto col = 0; col < image.cols(); ++col) {
         auto index = seam[col];
-        assert(index >= 0 && index < image.num_rows());
+        assert(index >= 0 && index < image.rows());
 
         // Shift all columns below this up one.
-        for (auto row = index; row < image.num_rows() - 1; ++row) {
+        for (auto row = index; row < image.rows() - 1; ++row) {
             image.set_pixel(col, row, image.get_pixel(col, row + 1));
         }
     }
@@ -58,16 +57,16 @@ void remove_horiz_seam(hpimage::Hpimage &image, std::vector<uint32_t> &seam) {
  */
 void remove_vert_seam(hpimage::Hpimage &image, std::vector<uint32_t> &seam) {
     // Must be exactly one column to remove from each row.
-    assert(seam.size() == image.num_rows());
+    assert(seam.size() == image.rows());
 
     // Shift every pixel after a given image over.
     // Then reduce image size by one.
-    for (auto row = 0; row < image.num_rows(); ++row) {
+    for (auto row = 0; row < image.rows(); ++row) {
         auto index = seam[row];
-        assert(index >= 0 && index < image.num_cols());
+        assert(index >= 0 && index < image.cols());
 
         // Now, shift all pixels in the buffer back one.
-        for (auto col = index; col < image.num_cols() - 1; ++col) {
+        for (auto col = index; col < image.cols() - 1; ++col) {
             image.set_pixel(col, row, image.get_pixel(col + 1, row));
         }
     }
