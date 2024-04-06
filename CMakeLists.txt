@@ -4,8 +4,7 @@ project(hpcarver)
 set(CMAKE_CXX_STANDARD 14)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-# BLT needed for RAJA
-find_package(RAJA)
+find_package(RAJA REQUIRED)
 
 # Done because of nested cmake structure
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ../../out)
