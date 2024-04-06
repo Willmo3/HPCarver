@@ -1,0 +1,4 @@
+#!/usr/bin/env bash
+
+mkdir -p build && cd build
+cmake -DRAJA_DIR=raja/lib/cmake/raja ..

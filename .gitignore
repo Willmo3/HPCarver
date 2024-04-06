@@ -2,6 +2,8 @@
 .vscode
 out/hpcarver
 out/tests/test_serialcarve
+
 cmake-build-debug
-test/junk
+build
+
 raja
