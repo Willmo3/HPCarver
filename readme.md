@@ -11,18 +11,31 @@ Its purpose is not to be used as a production application, but rather, to test t
 3) The original seam carving implementation, by Advan and Shamir
    (https://dl.acm.org/doi/10.1145/1276377.1276390)
 
+## Dependencies
+-- CMake
+-- RAJA
+-- HPImage
+
+Refer to the installation section for more details!
+
 ## Installation
+
+### HPImage
+This project requires the HPImage library for processing. Please do *git clone --recursive* to ensure that HPImage is cloned as well! If the version of HPImage provided is out of date, git submodule update should fix this.
+
+Additionally, you can move a separate version of HPImage into the root of the project. You should not need to build HPImage by itself -- the provided .h and .cpp file are aadequate when properly configured.
+
+### RAJA
 Install RAJA, building it with support for all desired backends.
 Please refer to the install script for some relevant options (https://github.com/470-research-crew/install) and the RAJA user guide (https://raja.readthedocs.io/en/develop/sphinx/user_guide/index.html).
 
-The main insight is that RAJA must be built with support for all desired backends, such as OpenMP. At this stage, we've built it with support for OpenMP and CUDA. Since we're targeting lower-performance end user machines, not supporting MPI is not a problem.
+Once you've done that, create a symlink to the top level of the installed RAJA directory in the hpcarver root. 
+You can also move the RAJA install here, or provide an absolute path to your install in the makefile's DRAJADIR option.
 
-Once you've done that, create a symlink to the installed RAJA directory in the hpcarver root. You can also move the RAJA install here, or provide an absolute path to your install in the makefile's DRAJADIR option.
+In the provided init script, our symlink to RAJA results in RAJA's include path being raja/lib/cmake/raja. We cannot guarantee that other configurations will work.
 
-Assuming you've successfully built RAJA, make should now build the program and link all dependencies.
-
-## Testing
-Various testing executables are placed in the out directory. Make test to run them all!
+### Init
+Running ./init will create a build directory and call cmake from within it. Assuming you've got the dependencies, a makefile should now be available!
 
 ## Working Notes
 ### RAJA Setup
