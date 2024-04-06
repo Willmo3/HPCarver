@@ -1,6 +1,7 @@
 .idea
 .vscode
-out
+out/hpcarver
+out/tests/test_serialcarve
 cmake-build-debug
 test/junk
 raja
