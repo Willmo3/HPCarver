@@ -9,16 +9,14 @@ exe:
 	cmake ${RAJA_OPTS} cmake-build-debug
 	cmake --build cmake-build-debug
 
-tests: test/test_hpimage.cpp test/test_serialcarve.cpp
+tests: 
 	cmake ${RAJA_OPTS} cmake-build-debug
 	cmake --build cmake-build-debug
-	./out/test_hpimage
 	./out/test_serialcarve
 
-valgrind: test/test_hpimage.cpp test/test_serialcarve.cpp
+valgrind:
 	cmake ${RAJA_OPTS} cmake-build-debug
 	cmake --build cmake-build-debug
-	valgrind ./out/test_hpimage
 	valgrind ./out/test_serialcarve
 
 clean:

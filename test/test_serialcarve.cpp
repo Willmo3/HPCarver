@@ -3,7 +3,7 @@
 //
 
 #include <gtest/gtest.h>
-#include "../../HPImage/hpimage.h"
+#include "../HPImage/hpimage.h"
 #include "../src/serial/serial.h"
 
 // Testing helper.

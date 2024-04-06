@@ -67,7 +67,7 @@ void remove_vert_seam(hpimage::Hpimage &image, std::vector<uint32_t> &seam) {
         assert(index >= 0 && index < image.num_cols());
 
         // Now, shift all pixels in the buffer back one.
-        for (auto col = 0; col < image.num_cols() - 1; ++col) {
+        for (auto col = index; col < image.num_cols() - 1; ++col) {
             image.set_pixel(col, row, image.get_pixel(col + 1, row));
         }
     }
