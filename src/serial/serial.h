@@ -17,9 +17,9 @@ namespace serial {
 std::vector<uint32_t> *horiz_seam(hpimage::Hpimage &image);
 
 /**
- * Given an image, return the minimum energy horizontal seam
+ * Given an image, return the minimum energy vertical seam
  * @param image image to process
- * @return Minimum energy horizontal seam
+ * @return Minimum energy vertical seam
  */
 std::vector<uint32_t> *vertical_seam(hpimage::Hpimage &image);
 
