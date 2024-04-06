@@ -9,6 +9,8 @@
  set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
  FetchContent_MakeAvailable(googletest)
 
+ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ../../out/tests)
+
  # Build tests
  add_executable(test_serialcarve test_serialcarve.cpp)
  target_link_libraries(test_serialcarve GTest::gtest_main)
