@@ -4,7 +4,7 @@
 
 #include <cassert>
 #include "serial.h"
-#include "../hpimage/hpimage.h"
+#include "../../HPImage/hpimage.h"
 
 namespace serial {
 /**
@@ -12,7 +12,7 @@ namespace serial {
  * @param image image to process
  * @return Minimum energy horizontal seam
  */
-std::vector<uint32_t> *horiz_seam(Magick::Image &image) {
+std::vector<uint32_t> *horiz_seam(hpimage::Hpimage &image) {
     return new std::vector<uint32_t>{};
 }
 
@@ -21,7 +21,7 @@ std::vector<uint32_t> *horiz_seam(Magick::Image &image) {
  * @param image image to process
  * @return Minimum energy horizontal seam
  */
-std::vector<uint32_t> *vertical_seam(Magick::Image &image) {
+std::vector<uint32_t> *vertical_seam(hpimage::Hpimage &image) {
     return new std::vector<uint32_t>{};
 }
 
@@ -32,26 +32,21 @@ std::vector<uint32_t> *vertical_seam(Magick::Image &image) {
  * @param image Image to remove seam from.
  * @param seam Seam to remove.
  */
-void remove_horiz_seam(Magick::Image &image, std::vector<uint32_t> &seam) {
-  // Must be exactly one row to remove from each column.
-  assert(seam.size() == image.columns());
+void remove_horiz_seam(hpimage::Hpimage &image, std::vector<uint32_t> &seam) {
+    // Must be exactly one row to remove from each column.
+    assert(seam.size() == image.num_cols());
 
-    for (auto col = 0; col < image.columns(); col++) {
+    for (auto col = 0; col < image.num_cols(); ++col) {
         auto index = seam[col];
-        assert(index >= 0 && index < image.rows());
-
-        // How many pixels are below our index?
-        auto num_pixels = image.rows() - index;
-        Magick::PixelPacket *pixels = image.getPixels(index, col, 1, num_pixels);
+        assert(index >= 0 && index < image.num_rows());
 
         // Shift all columns below this up one.
-        for (auto i = index; i < num_pixels - 1; i++) {
-          pixels[i] = pixels[i + 1];
+        for (auto row = index; row < image.num_rows() - 1; ++row) {
+            image.set_pixel(col, row, image.get_pixel(col, row + 1));
         }
     }
-
-    image.syncPixels();
-    hpcarver::cut_height(&image);
+    // Finally, cut the last row from the pixel.
+    image.cut_row();
 }
 
 /**
@@ -61,34 +56,23 @@ void remove_horiz_seam(Magick::Image &image, std::vector<uint32_t> &seam) {
  * @param image Image to remove seam from.
  * @param seam Seam to remove.
  */
-void remove_vert_seam(Magick::Image &image, std::vector<uint32_t> &seam) {
+void remove_vert_seam(hpimage::Hpimage &image, std::vector<uint32_t> &seam) {
     // Must be exactly one column to remove from each row.
-    assert(seam.size() == image.rows());
+    assert(seam.size() == image.num_rows());
 
     // Shift every pixel after a given image over.
     // Then reduce image size by one.
-    for (auto row = 0; row < image.rows(); row++) {
+    for (auto row = 0; row < image.num_rows(); ++row) {
         auto index = seam[row];
-        assert(index >= 0 && index < image.columns());
-
-        // TODO: validate size.
-        // Should get all columns left on this row.
-        // To minimize the number of pizels gotten at each attempt, only get up to index.
-        auto num_pixels = image.columns() - index;
-
-        // Getting only the buffer of pixels that fits.
-        Magick::PixelPacket *pixels = image.getPixels(index, row, num_pixels, 1);
+        assert(index >= 0 && index < image.num_cols());
 
         // Now, shift all pixels in the buffer back one.
-        for (auto i = 0; i < num_pixels -1 ; i++) {
-            pixels[i].red = pixels[i + 1].red;
-            pixels[i].blue = pixels[i + 1].blue;
-            pixels[i].green = pixels[i + 1].green;
+        for (auto col = 0; col < image.num_cols() - 1; ++col) {
+            image.set_pixel(col, row, image.get_pixel(col + 1, row));
         }
-        image.syncPixels();
     }
 
     // Finally, with all pixels shifted over, time to trim the image!
-    hpcarver::cut_width(&image);
+    image.cut_col();
 }
 } // End serial namespace
