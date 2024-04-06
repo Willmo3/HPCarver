@@ -12,8 +12,6 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ../../out)
 # Prepare HPImage
 add_library(hpimage HPImage/hpimage.cpp HPImage/hpimage.h)
 
-# enable_testing()
-
 # Deferring to cmake
 add_subdirectory(src)
 add_subdirectory(test)
