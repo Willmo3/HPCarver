@@ -1,0 +1,3 @@
+[submodule "HPImage"]
+	path = HPImage
+	url = https://github.com/470-research-crew/HPImage

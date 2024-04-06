@@ -10,22 +10,13 @@
  FetchContent_MakeAvailable(googletest)
 
  # Build tests
- add_executable(test_hpimage test_hpimage.cpp)
- target_link_libraries(test_hpimage GTest::gtest_main)
- include(GoogleTest)
-
  add_executable(test_serialcarve test_serialcarve.cpp)
  target_link_libraries(test_serialcarve GTest::gtest_main)
  include(GoogleTest)
 
- gtest_discover_tests(test_hpimage test_serialcarve)
+ gtest_discover_tests(test_serialcarve)
 
- # Link all to ImageMagick
- target_link_libraries(test_hpimage
- ${ImageMagick_LIBRARIES}
- hpimage)
-
+ # Link all to HPImage
  target_link_libraries(test_serialcarve
- ${ImageMagick_LIBRARIES}
          hpimage
          serial)

@@ -3,16 +3,12 @@
 //
 
 #include <gtest/gtest.h>
-#include "../src/hpimage/hpimage.h"
+#include "../../HPImage/hpimage.h"
 #include "../src/serial/serial.h"
 
-using namespace Magick;
-using namespace hpcarver;
-
 // Testing helper.
-Image *test() {
-    hpcarver::init();
-    return hpcarver::load_image("/nfs/home/morri2wj/research/hpcarver/img/3x4.png");
+hpimage::Hpimage test() {
+    return hpimage::Hpimage("3x4.ppm");
 }
 
 TEST(serialcarve, vertical_carve) {
@@ -23,10 +19,8 @@ TEST(serialcarve, vertical_carve) {
     seam.push_back(1);
     seam.push_back(2);
 
-    serial::remove_vert_seam(*image, seam);
+    serial::remove_vert_seam(image, seam);
 
-    auto test = std::string("test/junk/testseam.png");
-    hpcarver::write_image(image, test);
-    delete image;
+    image.write_image("testseam.png");
 }
 
