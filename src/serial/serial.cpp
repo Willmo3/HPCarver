@@ -39,9 +39,10 @@ void remove_horiz_seam(hpimage::Hpimage &image, std::vector<uint32_t> &seam) {
         auto index = seam[col];
         assert(index >= 0 && index < image.rows());
 
-        // Shift all columns below this up one.
+        // Shift all pixels below this up one.
         for (auto row = index; row < image.rows() - 1; ++row) {
-            image.set_pixel(col, row, image.get_pixel(col, row + 1));
+            hpimage::pixel below = image.get_pixel(col, row + 1);
+            image.set_pixel(col, row, below);
         }
     }
     // Finally, cut the last row from the pixel.
@@ -65,9 +66,10 @@ void remove_vert_seam(hpimage::Hpimage &image, std::vector<uint32_t> &seam) {
         auto index = seam[row];
         assert(index >= 0 && index < image.cols());
 
-        // Now, shift all pixels in the buffer back one.
+        // Shift all pixels after this one back
         for (auto col = index; col < image.cols() - 1; ++col) {
-            image.set_pixel(col, row, image.get_pixel(col + 1, row));
+            hpimage::pixel next = image.get_pixel(col + 1, row);
+            image.set_pixel(col, row, next);
         }
     }
     // Finally, with all pixels shifted over, time to trim the image!
