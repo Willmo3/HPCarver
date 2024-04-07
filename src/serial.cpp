@@ -79,7 +79,7 @@ std::vector<uint32_t> *horiz_seam(hpimage::Hpimage &image) {
     // Default: row 0 of the last column contains the minimum energy.
     // Invariant: there will be at least two rows to consider.
     uint32_t min_index = 0;
-    uint32_t min_energy = energy.get_energy(back_col, 1);
+    uint32_t min_energy = energy.get_energy(back_col, 0);
 
     for (auto row = 1; row < energy.rows(); ++row) {
         uint32_t current_energy = energy.get_energy(back_col, row);
@@ -137,8 +137,25 @@ std::vector<uint32_t> *vertical_seam(hpimage::Hpimage &image) {
         }
     }
 
-    // TODO: add backwards traversal
-    return new std::vector<uint32_t>{};
+    // Now, prime the reverse traversal with the minimum above energy.
+    uint32_t bottom_row = energy.rows() - 1;
+    auto *seam = new std::vector<uint32_t>{};
+
+    // Default: row 0 of the last column contains the minimum energy.
+    // Invariant: there will be at least two rows to consider.
+    uint32_t min_index = 0;
+    uint32_t min_energy = energy.get_energy(0, bottom_row);
+
+    for (auto col = 1; col < energy.cols(); ++col) {
+        uint32_t current_energy = energy.get_energy(col, bottom_row);
+        if (current_energy < min_energy) {
+            min_index = col;
+            min_energy = current_energy;
+        }
+    }
+
+    seam->push_back(min_index);
+    return seam;
 }
 
 /**

@@ -67,9 +67,17 @@ TEST(carver, energy) {
 
 TEST(carver, horiz_seam) {
     auto image = test();
-    // For now, let's just make sure this bad boy doesn't break!
     auto seam = carver::horiz_seam(image);
-    
-    ASSERT_EQ(2, seam->at(0));
+
+    // The lowest energy horizontal seam should finish at index 2
+    ASSERT_EQ(0, seam->at(0));
+}
+
+TEST(carver, vert_seam) {
+    auto image = test();
+    auto seam = carver::vertical_seam(image);
+
+    // The lowest energy vertical seam should finish at index 0.
+    ASSERT_EQ(0, seam->at(0));
 }
 
