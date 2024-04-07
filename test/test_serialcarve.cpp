@@ -54,3 +54,14 @@ TEST(serialcarve, horizontal_carve) {
     ASSERT_EQ(255, image.get_pixel(2, 2).green);
 }
 
+TEST(serialcarve, energy) {
+    auto image = test();
+
+    // Should wrap left, top around.
+    // Difference will be (255 - 153) ** 2 * 2
+    ASSERT_EQ(20808, serial::pixel_energy(image, 0, 0));
+
+    // Now, test a more standard, central energy w/ no wrapping.
+    ASSERT_EQ(52225, serial::pixel_energy(image, 1, 1));
+}
+
