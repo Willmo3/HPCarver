@@ -2,13 +2,13 @@
 // Created by morri2wj on 3/30/24.
 //
 
-#ifndef HPCARVER_SERIAL_H
-#define HPCARVER_SERIAL_H
+#ifndef HPCARVER_CARVER_H
+#define HPCARVER_CARVER_H
 
 #include "../HPImage/hpimage.h"
 #include <vector>
 
-namespace serial {
+namespace carver {
 /**
  * Given an image, return the minimum energy horizontal seam
  * @param image image to process
@@ -52,6 +52,6 @@ void remove_horiz_seam(hpimage::Hpimage &image, std::vector<uint32_t> &seam);
  * @param seam Seam to remove.
  */
 void remove_vert_seam(hpimage::Hpimage &image, std::vector<uint32_t> &seam);
-} // End serial namespace
+} // End carver namespace
 
-#endif //HPCARVER_SERIAL_H
+#endif //HPCARVER_CARVER_H

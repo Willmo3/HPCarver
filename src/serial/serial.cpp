@@ -3,9 +3,9 @@
 //
 
 #include <cassert>
-#include "../serial.h"
+#include "../carver.h"
 
-namespace serial {
+namespace carver {
 
 uint32_t wrap_index(int32_t index, uint32_t length);
 uint32_t gradient_energy(hpimage::pixel p1, hpimage::pixel p2);
@@ -143,4 +143,4 @@ void remove_vert_seam(hpimage::Hpimage &image, std::vector<uint32_t> &seam) {
     // Finally, with all pixels shifted over, time to trim the image!
     image.cut_col();
 }
-} // End serial namespace
+} // End carver namespace

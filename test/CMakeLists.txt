@@ -12,7 +12,7 @@
  set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ../../out/tests)
 
  # Build tests
- add_executable(test_serialcarve test_serialcarve.cpp)
+ add_executable(test_serialcarve test_carve.cpp)
  target_link_libraries(test_serialcarve GTest::gtest_main)
  include(GoogleTest)
 

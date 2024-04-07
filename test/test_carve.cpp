@@ -4,14 +4,14 @@
 
 #include <gtest/gtest.h>
 #include "../HPImage/hpimage.h"
-#include "../src/serial.h"
+#include "../src/carver.h"
 
 // Testing helper.
 hpimage::Hpimage test() {
     return hpimage::Hpimage{"3x4.ppm"};
 }
 
-TEST(serialcarve, vertical_carve) {
+TEST(carver, vertical_carve) {
     auto image = test();
     auto seam = std::vector<uint32_t>();
     seam.push_back(0);
@@ -19,7 +19,7 @@ TEST(serialcarve, vertical_carve) {
     seam.push_back(1);
     seam.push_back(2);
 
-    serial::remove_vert_seam(image, seam);
+    carver::remove_vert_seam(image, seam);
     // Dimensions should be modified.
     ASSERT_EQ(2, image.cols());
     ASSERT_EQ(4, image.rows());
@@ -33,14 +33,14 @@ TEST(serialcarve, vertical_carve) {
     ASSERT_EQ(153, image.get_pixel(1, 3).blue);
 }
 
-TEST(serialcarve, horizontal_carve) {
+TEST(carver, horizontal_carve) {
     auto image = test();
     auto seam = std::vector<uint32_t>();
     seam.push_back(0);
     seam.push_back(1);
     seam.push_back(2);
 
-    serial::remove_horiz_seam(image, seam);
+    carver::remove_horiz_seam(image, seam);
     ASSERT_EQ(3, image.cols());
     ASSERT_EQ(3, image.rows());
 
@@ -54,14 +54,14 @@ TEST(serialcarve, horizontal_carve) {
     ASSERT_EQ(255, image.get_pixel(2, 2).green);
 }
 
-TEST(serialcarve, energy) {
+TEST(carver, energy) {
     auto image = test();
 
     // Should wrap left, top around.
     // Difference will be (255 - 153) ** 2 * 2
-    ASSERT_EQ(20808, serial::pixel_energy(image, 0, 0));
+    ASSERT_EQ(20808, carver::pixel_energy(image, 0, 0));
 
     // Now, test a more standard, central energy w/ no wrapping.
-    ASSERT_EQ(52225, serial::pixel_energy(image, 1, 1));
+    ASSERT_EQ(52225, carver::pixel_energy(image, 1, 1));
 }
 
