@@ -21,7 +21,6 @@ uint32_t gradient_energy(hpimage::pixel p1, hpimage::pixel p2);
  * @return Minimum energy horizontal seam
  */
 std::vector<uint32_t> *horiz_seam(hpimage::Hpimage &image) {
-    // TODO: prevent wrapping!
     if (image.cols() < 3) {
         std::cerr <<
             "ERROR: HPCarver does not support horizontal carving on an image of less than width three"
@@ -101,7 +100,6 @@ std::vector<uint32_t> *horiz_seam(hpimage::Hpimage &image) {
  * @return Minimum energy vertical seam
  */
 std::vector<uint32_t> *vertical_seam(hpimage::Hpimage &image) {
-    // TODO: prevent wrapping!
     if (image.rows() < 3) {
         std::cerr <<
               "ERROR: HPCarver does not support vertical carving on an image of less than height three"
