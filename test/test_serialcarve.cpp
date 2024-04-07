@@ -4,7 +4,7 @@
 
 #include <gtest/gtest.h>
 #include "../HPImage/hpimage.h"
-#include "../src/serial/serial.h"
+#include "../src/serial.h"
 
 // Testing helper.
 hpimage::Hpimage test() {

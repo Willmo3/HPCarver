@@ -1,5 +1,5 @@
 # Serial execution library
-add_library(serial serial/serial.cpp serial/serial.h)
+add_library(serial serial/serial.cpp serial.h)
 target_link_libraries(serial hpimage)
 
 # Final entry point executable

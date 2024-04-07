@@ -5,7 +5,7 @@
 #ifndef HPCARVER_SERIAL_H
 #define HPCARVER_SERIAL_H
 
-#include "../../HPImage/hpimage.h"
+#include "../HPImage/hpimage.h"
 #include <vector>
 
 namespace serial {
