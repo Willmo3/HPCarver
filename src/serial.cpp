@@ -3,7 +3,7 @@
 //
 
 #include <cassert>
-#include "../carver.h"
+#include "carver.h"
 
 namespace carver {
 
