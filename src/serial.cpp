@@ -21,6 +21,7 @@ uint32_t gradient_energy(hpimage::pixel p1, hpimage::pixel p2);
  * @return Minimum energy horizontal seam
  */
 std::vector<uint32_t> *horiz_seam(hpimage::Hpimage &image) {
+    // TODO: prevent wrapping!
     if (image.cols() < 3) {
         std::cerr <<
             "ERROR: HPCarver does not support horizontal carving on an image of less than width three"
@@ -32,13 +33,6 @@ std::vector<uint32_t> *horiz_seam(hpimage::Hpimage &image) {
               << std::endl;
         exit(EXIT_FAILURE);
     }
-
-    // Build a memo structure over the entire image, left to right.
-
-    // Prime the memo structure with the base energies of the first column of pixels
-
-    // Traverse the rest of the data structure,
-    // calculating the base energy of each pixel plus the minimum energy of the three pixels behind it.
 
     // At the end, pick any of the pixels with minimal memoized energy. Then, find the lowest energy
     // Adjacent pixel in the next row. Repeat until the end, adding to the seam vector.
@@ -57,17 +51,25 @@ std::vector<uint32_t> *horiz_seam(hpimage::Hpimage &image) {
     for (auto col = 1; col < energy.cols(); ++col) {
         for (auto row = 0; row < energy.rows(); ++row) {
             uint32_t left_col = col - 1;
-            uint32_t upper_row = wrap_index(row - 1, energy.rows());
-            uint32_t middle_row = row;
-            uint32_t bottom_row = wrap_index(row + 1, energy.rows());
+            // While we allow wrapping for calculating basic energies, there is no wrapping in seams.
+            // Therefore, each pixel is allowed only to consider the neighbors they have.
+            auto neighbor_energies = std::vector<uint32_t>();
 
-            // Getting energy for three neighbors on left side.
-            uint32_t upper_energy = energy.get_energy(left_col, upper_row);
-            uint32_t middle_energy = energy.get_energy(left_col, middle_row);
-            uint32_t lower_energy = energy.get_energy(left_col, bottom_row);
+            if (row > 0) {
+                uint32_t top_energy = energy.get_energy(left_col, row - 1);
+                neighbor_energies.push_back(top_energy);
+            }
+
+            uint32_t middle_energy = energy.get_energy(left_col, row);
+            neighbor_energies.push_back(middle_energy);
+
+            if (row + 1 < energy.rows()) {
+                uint32_t bottom_energy = energy.get_energy(left_col, row + 1);
+                neighbor_energies.push_back(bottom_energy);
+            }
 
             uint32_t local_energy = pixel_energy(image, col, row);
-            local_energy += std::min({upper_energy, middle_energy, lower_energy});
+            local_energy += *std::min_element(neighbor_energies.begin(), neighbor_energies.end());
             energy.set_energy(col, row, local_energy);
         }
     }
@@ -99,6 +101,7 @@ std::vector<uint32_t> *horiz_seam(hpimage::Hpimage &image) {
  * @return Minimum energy vertical seam
  */
 std::vector<uint32_t> *vertical_seam(hpimage::Hpimage &image) {
+    // TODO: prevent wrapping!
     if (image.rows() < 3) {
         std::cerr <<
               "ERROR: HPCarver does not support vertical carving on an image of less than height three"
@@ -121,18 +124,25 @@ std::vector<uint32_t> *vertical_seam(hpimage::Hpimage &image) {
     for (auto row = 1; row < energy.rows(); ++row) {
         for (auto col = 0; col < energy.cols(); ++col) {
             uint32_t upper_row = row - 1;
+            // While we allow wrapping for calculating basic energies, there is no wrapping in seams.
+            // Therefore, each pixel is allowed only to consider the neighbors they have.
+            auto neighbor_energies = std::vector<uint32_t>();
 
-            uint32_t left_col = wrap_index(col - 1, energy.cols());
-            uint32_t middle_col = col;
-            uint32_t right_col = wrap_index(col + 1, energy.cols());
+            if (col > 0) {
+                uint32_t left_energy = energy.get_energy(col - 1, upper_row);
+                neighbor_energies.push_back(left_energy);
+            }
 
-            // Getting energy for three neighbors above -- since traversing top to bottom
-            uint32_t left_energy = energy.get_energy(left_col, upper_row);
-            uint32_t middle_energy = energy.get_energy(middle_col, upper_row);
-            uint32_t right_energy = energy.get_energy(right_col, upper_row);
+            uint32_t middle_energy = energy.get_energy(col, upper_row);
+            neighbor_energies.push_back(middle_energy);
+
+            if (col + 1 < energy.cols()) {
+                uint32_t right_energy = energy.get_energy(col + 1, upper_row);
+                neighbor_energies.push_back(right_energy);
+            }
 
             uint32_t local_energy = pixel_energy(image, col, row);
-            local_energy += std::min({left_energy, middle_energy, right_energy});
+            local_energy += *std::min_element(neighbor_energies.begin(), neighbor_energies.end());
             energy.set_energy(col, row, local_energy);
         }
     }
