@@ -49,24 +49,10 @@ std::vector<uint32_t> *horiz_seam(hpimage::Hpimage &image) {
     // Now set energy to minimum of three neighbors.
     for (auto col = 1; col < energy.cols(); ++col) {
         for (auto row = 0; row < energy.rows(); ++row) {
-            uint32_t left_col = col - 1;
-            // While we allow wrapping for calculating basic energies, there is no wrapping in seams.
-            // Therefore, each pixel is allowed only to consider the neighbors they have.
-            auto neighbor_energies = std::vector<uint32_t>();
+            // No wrapping
+            auto neighbor_energies = energy.get_left_predecessors(col, row);
 
-            if (row > 0) {
-                uint32_t top_energy = energy.get_energy(left_col, row - 1);
-                neighbor_energies.push_back(top_energy);
-            }
-
-            uint32_t middle_energy = energy.get_energy(left_col, row);
-            neighbor_energies.push_back(middle_energy);
-
-            if (row + 1 < energy.rows()) {
-                uint32_t bottom_energy = energy.get_energy(left_col, row + 1);
-                neighbor_energies.push_back(bottom_energy);
-            }
-
+            // Energy = local energy + min(neighbors)
             uint32_t local_energy = pixel_energy(image, col, row);
             local_energy += *std::min_element(neighbor_energies.begin(), neighbor_energies.end());
             energy.set_energy(col, row, local_energy);
@@ -121,24 +107,10 @@ std::vector<uint32_t> *vertical_seam(hpimage::Hpimage &image) {
 
     for (auto row = 1; row < energy.rows(); ++row) {
         for (auto col = 0; col < energy.cols(); ++col) {
-            uint32_t upper_row = row - 1;
-            // While we allow wrapping for calculating basic energies, there is no wrapping in seams.
-            // Therefore, each pixel is allowed only to consider the neighbors they have.
-            auto neighbor_energies = std::vector<uint32_t>();
+            // Note: no wrapping in seams!
+            auto neighbor_energies = energy.get_top_predecessors(col, row);
 
-            if (col > 0) {
-                uint32_t left_energy = energy.get_energy(col - 1, upper_row);
-                neighbor_energies.push_back(left_energy);
-            }
-
-            uint32_t middle_energy = energy.get_energy(col, upper_row);
-            neighbor_energies.push_back(middle_energy);
-
-            if (col + 1 < energy.cols()) {
-                uint32_t right_energy = energy.get_energy(col + 1, upper_row);
-                neighbor_energies.push_back(right_energy);
-            }
-
+            // energy = local energy + min(neighbors)
             uint32_t local_energy = pixel_energy(image, col, row);
             local_energy += *std::min_element(neighbor_energies.begin(), neighbor_energies.end());
             energy.set_energy(col, row, local_energy);

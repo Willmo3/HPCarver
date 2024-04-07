@@ -7,6 +7,7 @@
 
 #include <cstddef>
 #include <cstdint>
+#include <vector>
 
 namespace carver {
 
@@ -41,6 +42,29 @@ public:
     // ACCCESSORS
 
     uint32_t get_energy(uint32_t col, uint32_t row) const;
+
+    // PREDECESSOR ACCESSORS
+    // Useful for dynamic programming directional traversal.
+
+    /**
+     * Get the energies of the predecessors of a given pixel from above (i.e. its three top neighbors).
+     * Useful for vertical traversal of data.
+     *
+     * @param col Column of pixel to consider
+     * @param row Row of pixel to consider
+     * @return A predecessor vector of at most size 3.
+     */
+    std::vector<uint32_t> get_top_predecessors(uint32_t col, uint32_t row) const;
+
+    /**
+     * Get the energies of the predecessors of a given pixel from the left (i.e. its three left neighbors)
+     * Useful for horizontal traversal of data.
+     *
+     * @param col Column of pixel to consider
+     * @param row Row of pixel to consider
+     * @return A predecessor vector of at most size 3.
+     */
+    std::vector<uint32_t> get_left_predecessors(uint32_t col, uint32_t row) const;
 
     // Get number of rows and columns
     size_t cols() const;
