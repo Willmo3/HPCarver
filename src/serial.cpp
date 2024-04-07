@@ -3,7 +3,9 @@
 //
 
 #include <cassert>
+#include <cstdlib>
 #include "carver.h"
+#include "energy.h"
 
 namespace carver {
 
@@ -16,6 +18,20 @@ uint32_t gradient_energy(hpimage::pixel p1, hpimage::pixel p2);
  * @return Minimum energy horizontal seam
  */
 std::vector<uint32_t> *horiz_seam(hpimage::Hpimage &image) {
+    // Build a memo structure over the entire image, left to right.
+
+    // Prime the memo structure with the base energies of the first column of pixels
+
+    // Traverse the rest of the data structure,
+    // calculating the base energy of each pixel plus the minimum energy of the three pixels behind it.
+
+    // At the end, pick any of the pixels with minimal memoized energy. Then, find the lowest energy
+    // Adjacent pixel in the next row. Repeat until the end, adding to the seam vector.
+
+    // Return the reversed vector.
+
+    // Generate energy matrix
+    auto Energy = carver::Energy(image.cols(), image.rows());
     return new std::vector<uint32_t>{};
 }
 
@@ -25,6 +41,7 @@ std::vector<uint32_t> *horiz_seam(hpimage::Hpimage &image) {
  * @return Minimum energy vertical seam
  */
 std::vector<uint32_t> *vertical_seam(hpimage::Hpimage &image) {
+    auto Energy = carver::Energy(image.cols(), image.rows());
     return new std::vector<uint32_t>{};
 }
 
