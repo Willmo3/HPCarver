@@ -4,6 +4,7 @@
 
 #include <cassert>
 #include <cstdlib>
+#include <iostream>
 #include "carver.h"
 #include "energy.h"
 
@@ -18,6 +19,13 @@ uint32_t gradient_energy(hpimage::pixel p1, hpimage::pixel p2);
  * @return Minimum energy horizontal seam
  */
 std::vector<uint32_t> *horiz_seam(hpimage::Hpimage &image) {
+    if (image.cols() < 3) {
+        std::cerr <<
+            "ERROR: Currently, HPCarver does not support horizontal carving on an image of less than width three"
+            << std::endl;
+        exit(EXIT_FAILURE);
+    }
+
     // Build a memo structure over the entire image, left to right.
 
     // Prime the memo structure with the base energies of the first column of pixels
@@ -31,7 +39,12 @@ std::vector<uint32_t> *horiz_seam(hpimage::Hpimage &image) {
     // Return the reversed vector.
 
     // Generate energy matrix
-    auto Energy = carver::Energy(image.cols(), image.rows());
+    auto energy = carver::Energy(image.cols(), image.rows());
+    // Horizontal seam direction: left to right.
+    // Prime memo structure with base energies of first pixel column.
+    for (auto row = 0; row < energy.rows(); ++row) {
+        energy.set_energy(0, row, pixel_energy(image, 0, row));
+    }
     return new std::vector<uint32_t>{};
 }
 
@@ -41,7 +54,19 @@ std::vector<uint32_t> *horiz_seam(hpimage::Hpimage &image) {
  * @return Minimum energy vertical seam
  */
 std::vector<uint32_t> *vertical_seam(hpimage::Hpimage &image) {
-    auto Energy = carver::Energy(image.cols(), image.rows());
+    if (image.rows() < 3) {
+        std::cerr <<
+                  "ERROR: Currently, HPCarver does not support vertical carving on an image of less height three"
+                  << std::endl;
+        exit(EXIT_FAILURE);
+    }
+
+    auto energy = carver::Energy(image.cols(), image.rows());
+    // Vertical seam direction: top to bottom
+    // Prime memo structure with base energies of first pixel row.
+    for (auto col = 0; col < energy.cols(); ++col) {
+        energy.set_energy(col, 0, pixel_energy(image, col, 0));
+    }
     return new std::vector<uint32_t>{};
 }
 
