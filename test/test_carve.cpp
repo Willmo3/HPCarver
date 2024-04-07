@@ -65,3 +65,11 @@ TEST(carver, energy) {
     ASSERT_EQ(52225, carver::pixel_energy(image, 1, 1));
 }
 
+TEST(carver, horiz_seam) {
+    auto image = test();
+    // For now, let's just make sure this bad boy doesn't break!
+    auto seam = carver::horiz_seam(image);
+    
+    ASSERT_EQ(2, seam->at(0));
+}
+

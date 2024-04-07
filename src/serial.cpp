@@ -5,6 +5,8 @@
 #include <cassert>
 #include <cstdlib>
 #include <iostream>
+#include <algorithm>
+
 #include "carver.h"
 #include "energy.h"
 
@@ -21,8 +23,13 @@ uint32_t gradient_energy(hpimage::pixel p1, hpimage::pixel p2);
 std::vector<uint32_t> *horiz_seam(hpimage::Hpimage &image) {
     if (image.cols() < 3) {
         std::cerr <<
-            "ERROR: Currently, HPCarver does not support horizontal carving on an image of less than width three"
+            "ERROR: HPCarver does not support horizontal carving on an image of less than width three"
             << std::endl;
+        exit(EXIT_FAILURE);
+    } else if (image.rows() < 2) {
+        std::cerr <<
+              "ERROR: HPCarver does not support horizontal carving on an image of less than height two"
+              << std::endl;
         exit(EXIT_FAILURE);
     }
 
@@ -45,7 +52,45 @@ std::vector<uint32_t> *horiz_seam(hpimage::Hpimage &image) {
     for (auto row = 0; row < energy.rows(); ++row) {
         energy.set_energy(0, row, pixel_energy(image, 0, row));
     }
-    return new std::vector<uint32_t>{};
+
+    // Now set energy to minimum of three neighbors.
+    for (auto col = 1; col < energy.cols(); ++col) {
+        for (auto row = 0; row < energy.rows(); ++row) {
+            uint32_t left_col = col - 1;
+            uint32_t upper_row = wrap_index(row - 1, energy.rows());
+            uint32_t middle_row = row;
+            uint32_t bottom_row = wrap_index(row + 1, energy.rows());
+
+            // Getting energy for three neighbors on left side.
+            uint32_t upper_energy = energy.get_energy(left_col, upper_row);
+            uint32_t middle_energy = energy.get_energy(left_col, middle_row);
+            uint32_t lower_energy = energy.get_energy(left_col, bottom_row);
+
+            uint32_t local_energy = pixel_energy(image, col, row);
+            local_energy += std::min({upper_energy, middle_energy, lower_energy});
+            energy.set_energy(col, row, local_energy);
+        }
+    }
+
+    // Now, prime the reverse traversal with the minimum above energy.
+    uint32_t back_col = energy.cols() - 1;
+    auto *seam = new std::vector<uint32_t>{};
+
+    // Default: row 0 of the last column contains the minimum energy.
+    // Invariant: there will be at least two rows to consider.
+    uint32_t min_index = 0;
+    uint32_t min_energy = energy.get_energy(back_col, 1);
+
+    for (auto row = 1; row < energy.rows(); ++row) {
+        uint32_t current_energy = energy.get_energy(back_col, row);
+        if (current_energy < min_energy) {
+            min_index = row;
+            min_energy = current_energy;
+        }
+    }
+
+    seam->push_back(min_index);
+    return seam;
 }
 
 /**
@@ -56,8 +101,13 @@ std::vector<uint32_t> *horiz_seam(hpimage::Hpimage &image) {
 std::vector<uint32_t> *vertical_seam(hpimage::Hpimage &image) {
     if (image.rows() < 3) {
         std::cerr <<
-                  "ERROR: Currently, HPCarver does not support vertical carving on an image of less height three"
-                  << std::endl;
+              "ERROR: HPCarver does not support vertical carving on an image of less than height three"
+              << std::endl;
+        exit(EXIT_FAILURE);
+    } else if (image.cols() < 2) {
+        std::cerr <<
+              "ERROR: HPCarver does not support vertical carving on an image of less than width two"
+              << std::endl;
         exit(EXIT_FAILURE);
     }
 
@@ -67,6 +117,27 @@ std::vector<uint32_t> *vertical_seam(hpimage::Hpimage &image) {
     for (auto col = 0; col < energy.cols(); ++col) {
         energy.set_energy(col, 0, pixel_energy(image, col, 0));
     }
+
+    for (auto row = 1; row < energy.rows(); ++row) {
+        for (auto col = 0; col < energy.cols(); ++col) {
+            uint32_t upper_row = row - 1;
+
+            uint32_t left_col = wrap_index(col - 1, energy.cols());
+            uint32_t middle_col = col;
+            uint32_t right_col = wrap_index(col + 1, energy.cols());
+
+            // Getting energy for three neighbors above -- since traversing top to bottom
+            uint32_t left_energy = energy.get_energy(left_col, upper_row);
+            uint32_t middle_energy = energy.get_energy(middle_col, upper_row);
+            uint32_t right_energy = energy.get_energy(right_col, upper_row);
+
+            uint32_t local_energy = pixel_energy(image, col, row);
+            local_energy += std::min({left_energy, middle_energy, right_energy});
+            energy.set_energy(col, row, local_energy);
+        }
+    }
+
+    // TODO: add backwards traversal
     return new std::vector<uint32_t>{};
 }
 
