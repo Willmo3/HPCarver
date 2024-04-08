@@ -74,19 +74,38 @@ std::vector<uint32_t> *horiz_seam(hpimage::Hpimage &image) {
 
     // Default: row 0 of the last column contains the minimum energy.
     // Invariant: there will be at least two rows to consider.
-    uint32_t min_index = 0;
+    uint32_t min_row = 0;
     uint32_t min_energy = energy.get_energy(back_col, 0);
 
     for (auto row = 1; row < energy.rows(); ++row) {
         uint32_t current_energy = energy.get_energy(back_col, row);
         if (current_energy < min_energy) {
-            min_index = row;
+            min_row = row;
             min_energy = current_energy;
         }
     }
+    seam->push_back(min_row);
 
-    // Now, start finding the neighbors in the right direction.
-    seam->push_back(min_index);
+    // Find the rest of the seam, using only the three predecessors of each node.
+    // Using wider signed form to prevent underflow
+    for (int64_t col = back_col - 1; col >= 0; --col) {
+        // Find the lowest energy item in this seam.
+        auto row = seam->back();
+        min_row = row;
+        min_energy = energy.get_energy(col, min_row);
+        // Check if the upper or lower neighbors are actually better choices.
+        if (row > 0 && min_energy > energy.get_energy(col, row - 1)) {
+            min_row = row - 1;
+            min_energy = energy.get_energy(col, row - 1);
+        }
+        if (row + 1 < energy.rows() && min_energy > energy.get_energy(col, row + 1)) {
+            min_row = row + 1;
+        }
+        seam->push_back(min_row);
+    }
+
+    // Finally, reverse seam so that it goes in the natural rear-forward order.
+    std::reverse(seam->begin(), seam->end());
     return seam;
 }
 

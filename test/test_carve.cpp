@@ -71,6 +71,8 @@ TEST(carver, horiz_seam) {
 
     // The lowest energy horizontal seam should finish at index 2
     ASSERT_EQ(0, seam->at(0));
+    ASSERT_EQ(0, seam->at(1));
+    ASSERT_EQ(0, seam->at(2));
 }
 
 TEST(carver, vert_seam) {
