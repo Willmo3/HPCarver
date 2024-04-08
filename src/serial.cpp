@@ -89,7 +89,7 @@ std::vector<uint32_t> *horiz_seam(hpimage::Hpimage &image) {
     // Find the rest of the seam, using only the three predecessors of each node.
     // Using wider signed form to prevent underflow
     for (int64_t col = back_col - 1; col >= 0; --col) {
-        // Find the lowest energy item in this seam.
+        // Get the previous index from which to grab neighbors.
         auto row = seam->back();
         min_row = row;
         min_energy = energy.get_energy(col, min_row);
@@ -143,14 +143,14 @@ std::vector<uint32_t> *vertical_seam(hpimage::Hpimage &image) {
 
     // Default: row 0 of the last column contains the minimum energy.
     // Invariant: there will be at least two rows to consider.
-    uint32_t min_index = 0;
+    uint32_t min_col = 0;
     uint32_t min_energy = energy.get_energy(0, bottom_row);
 
     // Se
     for (auto col = 1; col < energy.cols(); ++col) {
         uint32_t current_energy = energy.get_energy(col, bottom_row);
         if (current_energy < min_energy) {
-            min_index = col;
+            min_col = col;
             min_energy = current_energy;
         }
     }
@@ -158,7 +158,28 @@ std::vector<uint32_t> *vertical_seam(hpimage::Hpimage &image) {
     // Problem: tight coupling.
     // This should be generic enough to work for any amount
 
-    seam->push_back(min_index);
+    seam->push_back(min_col);
+
+    // Find the rest of the seam, using only the three predecessors of each node.
+    // Using wider signed form to prevent underflow
+    for (int64_t row = bottom_row - 1; row >= 0; --row) {
+        // Get the previous index from which to grab neighbors
+        auto col = seam->back();
+        min_col = col;
+        min_energy = energy.get_energy(min_col, row);
+        // Check if the upper or lower neighbors are actually better choices.
+        if (col > 0 && min_energy > energy.get_energy(col - 1, row)) {
+            min_col = col - 1;
+            min_energy = energy.get_energy(col - 1, row);
+        }
+        if (col + 1 < energy.cols() && min_energy > energy.get_energy(col + 1, row)) {
+            min_col = col + 1;
+        }
+        seam->push_back(min_col);
+    }
+
+    // Reverse the seam so traversal happens in expected direction.
+    std::reverse(seam->begin(), seam->end());
     return seam;
 }
 

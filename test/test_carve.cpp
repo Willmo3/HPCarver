@@ -81,5 +81,8 @@ TEST(carver, vert_seam) {
 
     // The lowest energy vertical seam should finish at index 0.
     ASSERT_EQ(0, seam->at(0));
+    ASSERT_EQ(0, seam->at(1));
+    ASSERT_EQ(0, seam->at(2));
+    ASSERT_EQ(0, seam->at(3));
 }
 
