@@ -82,6 +82,6 @@ public:
     void cut_col();
 };
 
-} // carver
+} // namespace carver
 
 #endif //HPCARVER_ENERGY_H

@@ -52,6 +52,6 @@ void remove_horiz_seam(hpimage::Hpimage &image, std::vector<uint32_t> &seam);
  * @param seam Seam to remove.
  */
 void remove_vert_seam(hpimage::Hpimage &image, std::vector<uint32_t> &seam);
-} // End carver namespace
+} // namespace carver
 
 #endif //HPCARVER_CARVER_H

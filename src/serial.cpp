@@ -253,4 +253,4 @@ void remove_vert_seam(hpimage::Hpimage &image, std::vector<uint32_t> &seam) {
     // Finally, with all pixels shifted over, time to trim the image!
     image.cut_col();
 }
-} // End carver namespace
+} // namespace carver

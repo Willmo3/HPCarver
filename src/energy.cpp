@@ -112,4 +112,4 @@ namespace carver {
         assert(current_rows > 1);
         current_rows -= 1;
     }
-} // carver
+} // namespace carver
