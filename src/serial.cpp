@@ -12,8 +12,27 @@
 
 namespace carver {
 
+void assert_valid_dims(hpimage::Hpimage &image);
 uint32_t wrap_index(int32_t index, uint32_t length);
 uint32_t gradient_energy(hpimage::pixel p1, hpimage::pixel p2);
+
+/**
+ * An image must be at least 3x3. If not, complain.
+ * @param hpimage image to perform assertions on
+ */
+void assert_valid_dims(hpimage::Hpimage &image) {
+    if (image.cols() < 3) {
+        std::cerr <<
+                  "ERROR: Carving: minimum image width three"
+                  << std::endl;
+        exit(EXIT_FAILURE);
+    } else if (image.rows() < 2) {
+        std::cerr <<
+                  "ERROR: Carving: minimum image height three"
+                  << std::endl;
+        exit(EXIT_FAILURE);
+    }
+}
 
 /**
  * Given an image, return the minimum energy horizontal seam
@@ -21,17 +40,7 @@ uint32_t gradient_energy(hpimage::pixel p1, hpimage::pixel p2);
  * @return Minimum energy horizontal seam
  */
 std::vector<uint32_t> *horiz_seam(hpimage::Hpimage &image) {
-    if (image.cols() < 3) {
-        std::cerr <<
-            "ERROR: HPCarver does not support horizontal carving on an image of less than width three"
-            << std::endl;
-        exit(EXIT_FAILURE);
-    } else if (image.rows() < 2) {
-        std::cerr <<
-              "ERROR: HPCarver does not support horizontal carving on an image of less than height two"
-              << std::endl;
-        exit(EXIT_FAILURE);
-    }
+    assert_valid_dims(image);
 
     // At the end, pick any of the pixels with minimal memoized energy. Then, find the lowest energy
     // Adjacent pixel in the next row. Repeat until the end, adding to the seam vector.
@@ -76,6 +85,7 @@ std::vector<uint32_t> *horiz_seam(hpimage::Hpimage &image) {
         }
     }
 
+    // Now, start finding the neighbors in the right direction.
     seam->push_back(min_index);
     return seam;
 }
@@ -86,17 +96,7 @@ std::vector<uint32_t> *horiz_seam(hpimage::Hpimage &image) {
  * @return Minimum energy vertical seam
  */
 std::vector<uint32_t> *vertical_seam(hpimage::Hpimage &image) {
-    if (image.rows() < 3) {
-        std::cerr <<
-              "ERROR: HPCarver does not support vertical carving on an image of less than height three"
-              << std::endl;
-        exit(EXIT_FAILURE);
-    } else if (image.cols() < 2) {
-        std::cerr <<
-              "ERROR: HPCarver does not support vertical carving on an image of less than width two"
-              << std::endl;
-        exit(EXIT_FAILURE);
-    }
+    assert_valid_dims(image);
 
     auto energy = carver::Energy(image.cols(), image.rows());
     // Vertical seam direction: top to bottom
@@ -105,6 +105,7 @@ std::vector<uint32_t> *vertical_seam(hpimage::Hpimage &image) {
         energy.set_energy(col, 0, pixel_energy(image, col, 0));
     }
 
+    // Set energy to minimum of three above neighbors.
     for (auto row = 1; row < energy.rows(); ++row) {
         for (auto col = 0; col < energy.cols(); ++col) {
             // Note: no wrapping in seams!
@@ -126,6 +127,7 @@ std::vector<uint32_t> *vertical_seam(hpimage::Hpimage &image) {
     uint32_t min_index = 0;
     uint32_t min_energy = energy.get_energy(0, bottom_row);
 
+    // Se
     for (auto col = 1; col < energy.cols(); ++col) {
         uint32_t current_energy = energy.get_energy(col, bottom_row);
         if (current_energy < min_energy) {
@@ -133,6 +135,9 @@ std::vector<uint32_t> *vertical_seam(hpimage::Hpimage &image) {
             min_energy = current_energy;
         }
     }
+
+    // Problem: tight coupling.
+    // This should be generic enough to work for any amount
 
     seam->push_back(min_index);
     return seam;
