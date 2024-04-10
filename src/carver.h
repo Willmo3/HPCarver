@@ -6,52 +6,117 @@
 #define HPCARVER_CARVER_H
 
 #include "../HPImage/hpimage.h"
+#include "energy.h"
 #include <vector>
+#include <iostream>
 
 namespace carver {
-/**
- * Given an image, return the minimum energy horizontal seam
- * @param image image to process
- * @return Minimum energy horizontal seam
- */
-std::vector<uint32_t> *horiz_seam(hpimage::Hpimage &image);
 
 /**
- * Given an image, return the minimum energy vertical seam
- * @param image image to process
- * @return Minimum energy vertical seam
- */
-std::vector<uint32_t> *vertical_seam(hpimage::Hpimage &image);
-
-/**
- * Get the base energy of a single pixel.
- * This is calculated using an energy gradient approach
- * considering the differences of adjacent colors
+ * Represents the API for a single carver class.
+ * Why am I using a class?
+ * All of these operations require two fields: an image and an energy matrix.
+ * Additionally, many of the preparatory operations of these fields are inherently serial.
  *
- * @param image Image to calculate energy
- * @param row Row of pixel whose energy we're calculating
- * @param col Column of pixel whose energy we're calculating
- * @return the energy
- */
-uint32_t pixel_energy(hpimage::Hpimage &image, int32_t col, int32_t row);
-
-/**
- * Remove a horizontal seam from the image.
- * Updates the given image object.
+ * Therefore, I am wrapping parts of the class with a standard serial behavior
+ * And allowing the various implementations to define behaviors that may be parallelized
  *
- * @param image Image to remove seam from.
- * @param seam Seam to remove.
+ * Author: Will Morris
  */
-void remove_horiz_seam(hpimage::Hpimage &image, std::vector<uint32_t> &seam);
+class Carver {
 
-/**
- * Remove a vertical seam from the image.
- * Updates the given image object.
- *
- * @param image Image to remove seam from.
- * @param seam Seam to remove.
- */
-void remove_vert_seam(hpimage::Hpimage &image, std::vector<uint32_t> &seam);
+// To prevent repeated reallocation, keeping image, energy fields.
+private:
+    hpimage::Hpimage &image;
+    carver::Energy *energy;
+
+    /**
+     * An image must be at least 3x3. If not, complain.
+     * @param hpimage image to perform assertions on
+     */
+    void assert_valid_dims();
+
+    /**
+     * Calculate a wrapped index over a dimension.
+     * The formula is (index + length) % length
+     * So that indexes of length will wrap to 0
+     * And indexes of -1 will wrap to length -1.
+     *
+     * @param index Base index to wrap.
+     * @param length Length of dimension
+     * @return The wrapped index
+     */
+    static uint32_t wrap_index(int32_t index, uint32_t length);
+
+    /**
+     * Calculate the gradient energy of two pixels.
+     * This is simply the energy difference of their corresponding RGB color fields
+     * Squared to ensure positivity and penalize small differences.
+     *
+     * @param p1 First pixel to consider.
+     * @param p2 Second pixel to consider.
+     * @return The gradient energy.
+     */
+    static uint32_t gradient_energy(hpimage::pixel p1, hpimage::pixel p2);
+
+    // NOTE: ALL PUBLIC METHODS MUST BE IMPLEMENTED BY VARIOUS LIBRARY IMPLEMENTATIONS!
+    public:
+
+    /**
+     * HPCarver constructor.
+     * NOTE: while the API is external, its internal policies are implementation specific.
+     * I.E. the pthreads version may need to initialize a thread pool.
+     *
+     * @param image Image to operate on.
+     */
+    explicit Carver(hpimage::Hpimage &image);
+
+    /**
+     * HPCarver destructor.
+     * Since HPImage generates its own energy matrix, this should destroy that.
+     * Additionally, perform any implementation-specific removals (i.e. destroy thread pools).
+     */
+    ~Carver();
+
+    /**
+     * Return the minimum energy horizontal seam for this image
+     * @return Minimum energy horizontal seam
+     */
+    std::vector<uint32_t> *horiz_seam();
+
+    /**
+     * Given an image, return the minimum energy vertical seam
+     * @return Minimum energy vertical seam
+     */
+    std::vector<uint32_t> *vertical_seam();
+
+    /**
+     * Get the base energy of a single pixel.
+     * This is calculated using an energy gradient approach
+     * considering the differences of adjacent colors
+     *
+     * @param row Row of pixel whose energy we're calculating
+     * @param col Column of pixel whose energy we're calculating
+     * @return the energy
+     */
+    uint32_t pixel_energy(int32_t col, int32_t row);
+
+    /**
+     * Remove a horizontal seam from the image.
+     * Updates the given image object.
+     *
+     * @param seam Seam to remove.
+     */
+    void remove_horiz_seam(std::vector<uint32_t> &seam);
+
+    /**
+     * Remove a vertical seam from the image.
+     * Updates the given image object.
+     *
+     * @param seam Seam to remove.
+     */
+    void remove_vert_seam(std::vector<uint32_t> &seam);
+};
 } // namespace carver
 
 #endif //HPCARVER_CARVER_H

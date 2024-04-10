@@ -13,13 +13,15 @@ hpimage::Hpimage test() {
 
 TEST(carver, vertical_carve) {
     auto image = test();
+    auto carver = carver::Carver(image);
+
     auto seam = std::vector<uint32_t>();
     seam.push_back(0);
     seam.push_back(1);
     seam.push_back(1);
     seam.push_back(2);
 
-    carver::remove_vert_seam(image, seam);
+    carver.remove_vert_seam(seam);
     // Dimensions should be modified.
     ASSERT_EQ(2, image.cols());
     ASSERT_EQ(4, image.rows());
@@ -35,12 +37,14 @@ TEST(carver, vertical_carve) {
 
 TEST(carver, horizontal_carve) {
     auto image = test();
+    auto carver = carver::Carver(image);
+
     auto seam = std::vector<uint32_t>();
     seam.push_back(0);
     seam.push_back(1);
     seam.push_back(2);
 
-    carver::remove_horiz_seam(image, seam);
+    carver.remove_horiz_seam(seam);
     ASSERT_EQ(3, image.cols());
     ASSERT_EQ(3, image.rows());
 
@@ -56,18 +60,21 @@ TEST(carver, horizontal_carve) {
 
 TEST(carver, energy) {
     auto image = test();
+    auto carver = carver::Carver(image);
 
     // Should wrap left, top around.
     // Difference will be (255 - 153) ** 2 * 2
-    ASSERT_EQ(20808, carver::pixel_energy(image, 0, 0));
+    ASSERT_EQ(20808, carver.pixel_energy(0, 0));
 
     // Now, test a more standard, central energy w/ no wrapping.
-    ASSERT_EQ(52225, carver::pixel_energy(image, 1, 1));
+    ASSERT_EQ(52225, carver.pixel_energy(1, 1));
 }
 
 TEST(carver, horiz_seam) {
     auto image = test();
-    auto seam = carver::horiz_seam(image);
+    auto carver = carver::Carver(image);
+
+    auto seam = carver.horiz_seam();
 
     // The lowest energy horizontal seam should finish at index 2
     ASSERT_EQ(0, seam->at(0));
@@ -77,7 +84,9 @@ TEST(carver, horiz_seam) {
 
 TEST(carver, vert_seam) {
     auto image = test();
-    auto seam = carver::vertical_seam(image);
+    auto carver = carver::Carver(image);
+
+    auto seam = carver.vertical_seam();
 
     // The lowest energy vertical seam should finish at index 0.
     ASSERT_EQ(0, seam->at(0));
@@ -88,7 +97,9 @@ TEST(carver, vert_seam) {
 
 TEST(carver, hard_vert_seam) {
     auto image = hpimage::Hpimage("6x5.ppm");
-    auto seam = carver::vertical_seam(image);
+    auto carver = carver::Carver(image);
+
+    auto seam = carver.vertical_seam();
 
     ASSERT_EQ(3, seam->at(0));
     ASSERT_EQ(4, seam->at(1));
@@ -99,7 +110,9 @@ TEST(carver, hard_vert_seam) {
 
 TEST(carver, hard_horiz_seam) {
     auto image = hpimage::Hpimage("6x5.ppm");
-    auto seam = carver::horiz_seam(image);
+    auto carver = carver::Carver(image);
+
+    auto seam = carver.horiz_seam();
 
     ASSERT_EQ(2, seam->at(0));
     ASSERT_EQ(2, seam->at(1));

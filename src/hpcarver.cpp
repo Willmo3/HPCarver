@@ -49,16 +49,19 @@ int main(int argc, char *argv[]) {
         std::cerr << "ERROR: HPCarver supports shrinking. New image dimensions must be smaller!" << std::endl;
     }
 
+    // Create carver object to store fields that need to be memoized (i.e. energy)
+    auto carver = carver::Carver(image);
+
     // Repeatedly vertically shrink it until it fits target width.
     while (image.cols() != new_width) {
-        auto seam = carver::vertical_seam(image);
-        carver::remove_vert_seam(image, *seam);
+        auto seam = carver.vertical_seam();
+        carver.remove_vert_seam(*seam);
     }
 
     // Now, repeatedly horizontally shrink until it fits target height.
     while (image.rows() != new_height) {
-        auto seam = carver::horiz_seam(image);
-        carver::remove_horiz_seam(image, *seam);
+        auto seam = carver.horiz_seam();
+        carver.remove_horiz_seam(*seam);
     }
 
     // With image dimensions sufficiently changed, write out the target image.
