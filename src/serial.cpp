@@ -29,7 +29,7 @@ Carver::~Carver() {
  * @param image image to process
  * @return Minimum energy horizontal seam
  */
-std::vector<uint32_t> *Carver::horiz_seam() {
+    std::vector<uint32_t> Carver::horiz_seam() {
     assert_valid_dims();
 
     // At the end, pick any of the pixels with minimal memoized energy. Then, find the lowest energy
@@ -95,7 +95,7 @@ std::vector<uint32_t> *Carver::horiz_seam() {
 
     // Finally, reverse seam so that it goes in the natural rear-forward order.
     std::reverse(seam->begin(), seam->end());
-    return seam;
+    return *seam;
 }
 
 /**
@@ -103,7 +103,7 @@ std::vector<uint32_t> *Carver::horiz_seam() {
  * @param image image to process
  * @return Minimum energy vertical seam
  */
-std::vector<uint32_t> *Carver::vertical_seam() {
+    std::vector<uint32_t> Carver::vertical_seam() {
     assert_valid_dims();
 
     // Vertical seam direction: top to bottom
@@ -168,7 +168,7 @@ std::vector<uint32_t> *Carver::vertical_seam() {
 
     // Reverse the seam so traversal happens in expected direction.
     std::reverse(seam->begin(), seam->end());
-    return seam;
+    return *seam;
 }
 
 /**

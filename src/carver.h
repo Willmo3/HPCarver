@@ -82,13 +82,13 @@ private:
      * Return the minimum energy horizontal seam for this image
      * @return Minimum energy horizontal seam
      */
-    std::vector<uint32_t> *horiz_seam();
+    std::vector<uint32_t> horiz_seam();
 
     /**
      * Given an image, return the minimum energy vertical seam
      * @return Minimum energy vertical seam
      */
-    std::vector<uint32_t> *vertical_seam();
+    std::vector<uint32_t> vertical_seam();
 
     /**
      * Get the base energy of a single pixel.

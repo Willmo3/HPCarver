@@ -77,9 +77,9 @@ TEST(carver, horiz_seam) {
     auto seam = carver.horiz_seam();
 
     // The lowest energy horizontal seam should finish at index 2
-    ASSERT_EQ(0, seam->at(0));
-    ASSERT_EQ(0, seam->at(1));
-    ASSERT_EQ(0, seam->at(2));
+    ASSERT_EQ(0, seam.at(0));
+    ASSERT_EQ(0, seam.at(1));
+    ASSERT_EQ(0, seam.at(2));
 }
 
 TEST(carver, vert_seam) {
@@ -89,10 +89,10 @@ TEST(carver, vert_seam) {
     auto seam = carver.vertical_seam();
 
     // The lowest energy vertical seam should finish at index 0.
-    ASSERT_EQ(0, seam->at(0));
-    ASSERT_EQ(0, seam->at(1));
-    ASSERT_EQ(0, seam->at(2));
-    ASSERT_EQ(0, seam->at(3));
+    ASSERT_EQ(0, seam.at(0));
+    ASSERT_EQ(0, seam.at(1));
+    ASSERT_EQ(0, seam.at(2));
+    ASSERT_EQ(0, seam.at(3));
 }
 
 TEST(carver, hard_vert_seam) {
@@ -101,11 +101,11 @@ TEST(carver, hard_vert_seam) {
 
     auto seam = carver.vertical_seam();
 
-    ASSERT_EQ(3, seam->at(0));
-    ASSERT_EQ(4, seam->at(1));
-    ASSERT_EQ(3, seam->at(2));
-    ASSERT_EQ(2, seam->at(3));
-    ASSERT_EQ(2, seam->at(4));
+    ASSERT_EQ(3, seam.at(0));
+    ASSERT_EQ(4, seam.at(1));
+    ASSERT_EQ(3, seam.at(2));
+    ASSERT_EQ(2, seam.at(3));
+    ASSERT_EQ(2, seam.at(4));
 }
 
 TEST(carver, hard_horiz_seam) {
@@ -114,11 +114,11 @@ TEST(carver, hard_horiz_seam) {
 
     auto seam = carver.horiz_seam();
 
-    ASSERT_EQ(2, seam->at(0));
-    ASSERT_EQ(2, seam->at(1));
-    ASSERT_EQ(1, seam->at(2));
-    ASSERT_EQ(2, seam->at(3));
-    ASSERT_EQ(1, seam->at(4));
-    ASSERT_EQ(2, seam->at(5));
+    ASSERT_EQ(2, seam.at(0));
+    ASSERT_EQ(2, seam.at(1));
+    ASSERT_EQ(1, seam.at(2));
+    ASSERT_EQ(2, seam.at(3));
+    ASSERT_EQ(1, seam.at(4));
+    ASSERT_EQ(2, seam.at(5));
 }
 
