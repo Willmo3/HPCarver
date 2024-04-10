@@ -29,10 +29,11 @@ int main(int argc, char *argv[]) {
     // For now, default to sequential execution
     using policy = RAJA::seq_exec;
 
-    char *source_path;
-    char *target_path;
-    uint32_t new_width;
-    uint32_t new_height;
+    char *source_path = nullptr;
+    char *target_path = nullptr;
+    // Initialized to negative number as param validation.
+    uint32_t new_width = 0;
+    uint32_t new_height = 0;
 
     parse_args(argc, argv, source_path, target_path, new_width, new_height);
 }
@@ -42,15 +43,15 @@ int main(int argc, char *argv[]) {
 
 void parse_args(int argc, char *argv[],
         char *&source_path, char *&out_path, uint32_t &new_width, uint32_t &new_height) {
-    // No optional arguments
+    // There should be "9" options.
     if (argc != ARG_COUNT) {
         usage();
         exit(EXIT_FAILURE);
     }
 
-    int c;
-
+    // Parse all arguments
     // Getopt parsing derived from https://www.gnu.org/software/libc/manual/html_node/Example-of-Getopt.html
+    int c;
     while ((c = getopt(argc, argv, "i:o:w:h:")) != -1) {
         switch(c) {
             case 'i':
@@ -70,6 +71,29 @@ void parse_args(int argc, char *argv[],
                 usage();
                 exit(EXIT_FAILURE);
         }
+    }
+
+    // No arguments are optional -- error if anything missing!
+    if (!source_path) {
+        std::cout << "ERROR: Must specify image source path!" << std::endl;
+        usage();
+        exit(EXIT_FAILURE);
+    }
+    if (!out_path) {
+        std::cout << "ERROR: Must specify image output path!" << std::endl;
+        usage();
+        exit(EXIT_FAILURE);
+    }
+    // HPCarver only supports width < three.
+    if (new_width < 3) {
+        std::cout << "ERROR: Must specify new image width greater than three!" << std::endl;
+        usage();
+        exit(EXIT_FAILURE);
+    }
+    if (new_height < 3) {
+        std::cout << "ERROR: Must specify new image height greater than three!" << std::endl;
+        usage();
+        exit(EXIT_FAILURE);
     }
 }
 
