@@ -220,6 +220,7 @@ void Carver::remove_horiz_seam(std::vector<uint32_t> &seam) {
         }
     }
     // Finally, cut the last row from the pixel.
+    energy->cut_row();
     image.cut_row();
 }
 
@@ -247,6 +248,7 @@ void Carver::remove_vert_seam(std::vector<uint32_t> &seam) {
         }
     }
     // Finally, with all pixels shifted over, time to trim the image!
+    energy->cut_col();
     image.cut_col();
 }
 } // namespace carver
