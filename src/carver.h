@@ -28,7 +28,7 @@ class Carver {
 // To prevent repeated reallocation, keeping image, energy fields.
 private:
     hpimage::Hpimage &image;
-    carver::Energy *energy;
+    carver::Energy energy;
 
     /**
      * An image must be at least 3x3. If not, complain.
@@ -70,13 +70,6 @@ private:
      * @param image Image to operate on.
      */
     explicit Carver(hpimage::Hpimage &image);
-
-    /**
-     * HPCarver destructor.
-     * Since HPImage generates its own energy matrix, this should destroy that.
-     * Additionally, perform any implementation-specific removals (i.e. destroy thread pools).
-     */
-    ~Carver();
 
     /**
      * Return the minimum energy horizontal seam for this image
