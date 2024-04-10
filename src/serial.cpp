@@ -188,8 +188,6 @@ uint32_t Carver::pixel_energy(int32_t col, int32_t row) {
     return gradient_energy(left, right) + gradient_energy(top, bottom);
 }
 
-
-
 /**
  * Remove a horizontal seam from the image.
  * Updates the given image object.
