@@ -15,13 +15,8 @@ namespace carver {
 Carver::Carver(hpimage::Hpimage &image):
     image(image), energy(Energy(image.cols(), image.rows()))
     { assert_valid_dims(); }
-
-/**
- * Given an image, return the minimum energy horizontal seam
- * @param image image to process
- * @return Minimum energy horizontal seam
- */
-    std::vector<uint32_t> Carver::horiz_seam() {
+    
+std::vector<uint32_t> Carver::horiz_seam() {
     assert_valid_dims();
 
     // At the end, pick any of the pixels with minimal memoized energy. Then, find the lowest energy
@@ -51,7 +46,7 @@ Carver::Carver(hpimage::Hpimage &image):
 
     // Now, prime the reverse traversal with the minimum above energy.
     uint32_t back_col = energy.cols() - 1;
-    auto *seam = new std::vector<uint32_t>{};
+    auto seam = std::vector<uint32_t>{};
 
     // Default: row 0 of the last column contains the minimum energy.
     // Invariant: there will be at least two rows to consider.
@@ -65,13 +60,13 @@ Carver::Carver(hpimage::Hpimage &image):
             min_energy = current_energy;
         }
     }
-    seam->push_back(min_row);
+    seam.push_back(min_row);
 
     // Find the rest of the seam, using only the three predecessors of each node.
     // Using wider signed form to prevent underflow
     for (int64_t col = back_col - 1; col >= 0; --col) {
         // Get the previous index from which to grab neighbors.
-        auto row = seam->back();
+        auto row = seam.back();
         min_row = row;
         min_energy = energy.get_energy(col, min_row);
         // Check if the upper or lower neighbors are actually better choices.
@@ -82,20 +77,15 @@ Carver::Carver(hpimage::Hpimage &image):
         if (row + 1 < energy.rows() && min_energy > energy.get_energy(col, row + 1)) {
             min_row = row + 1;
         }
-        seam->push_back(min_row);
+        seam.push_back(min_row);
     }
 
     // Finally, reverse seam so that it goes in the natural rear-forward order.
-    std::reverse(seam->begin(), seam->end());
-    return *seam;
+    std::reverse(seam.begin(), seam.end());
+    return seam;
 }
 
-/**
- * Given an image, return the minimum energy vertical seam
- * @param image image to process
- * @return Minimum energy vertical seam
- */
-    std::vector<uint32_t> Carver::vertical_seam() {
+std::vector<uint32_t> Carver::vertical_seam() {
     assert_valid_dims();
 
     // Vertical seam direction: top to bottom
@@ -120,7 +110,7 @@ Carver::Carver(hpimage::Hpimage &image):
 
     // Now, prime the reverse traversal with the minimum above energy.
     uint32_t bottom_row = energy.rows() - 1;
-    auto *seam = new std::vector<uint32_t>{};
+    auto seam = std::vector<uint32_t>{};
 
     // Default: row 0 of the last column contains the minimum energy.
     // Invariant: there will be at least two rows to consider.
@@ -138,13 +128,13 @@ Carver::Carver(hpimage::Hpimage &image):
     // Problem: tight coupling.
     // This should be generic enough to work for any amount
 
-    seam->push_back(min_col);
+    seam.push_back(min_col);
 
     // Find the rest of the seam, using only the three predecessors of each node.
     // Using wider signed form to prevent underflow
     for (int64_t row = bottom_row - 1; row >= 0; --row) {
         // Get the previous index from which to grab neighbors
-        auto col = seam->back();
+        auto col = seam.back();
         min_col = col;
         min_energy = energy.get_energy(min_col, row);
         // Check if the upper or lower neighbors are actually better choices.
@@ -155,22 +145,14 @@ Carver::Carver(hpimage::Hpimage &image):
         if (col + 1 < energy.cols() && min_energy > energy.get_energy(col + 1, row)) {
             min_col = col + 1;
         }
-        seam->push_back(min_col);
+        seam.push_back(min_col);
     }
 
     // Reverse the seam so traversal happens in expected direction.
-    std::reverse(seam->begin(), seam->end());
-    return *seam;
+    std::reverse(seam.begin(), seam.end());
+    return seam;
 }
 
-/**
- * Get the base energy of a single pixel.
- * This is calculated using an energy gradient approach
- * considering the differences of adjacent colors
- *
- * @param image Image to calculate energy
- * @return the energy
- */
 uint32_t Carver::pixel_energy(int32_t col, int32_t row) {
     assert(col >= 0 && col < image.cols());
     assert(row >= 0 && row < image.rows());
@@ -188,13 +170,6 @@ uint32_t Carver::pixel_energy(int32_t col, int32_t row) {
     return gradient_energy(left, right) + gradient_energy(top, bottom);
 }
 
-/**
- * Remove a horizontal seam from the image.
- * Updates the given image object.
- *
- * @param image Image to remove seam from.
- * @param seam Seam to remove.
- */
 void Carver::remove_horiz_seam(std::vector<uint32_t> &seam) {
     // Must be exactly one row to remove from each column.
     assert(seam.size() == image.cols());
@@ -214,13 +189,6 @@ void Carver::remove_horiz_seam(std::vector<uint32_t> &seam) {
     image.cut_row();
 }
 
-/**
- * Remove a vertical seam from the image.
- * Updates the given image object.
- *
- * @param image Image to remove seam from.
- * @param seam Seam to remove.
- */
 void Carver::remove_vert_seam(std::vector<uint32_t> &seam) {
     // Must be exactly one column to remove from each row.
     assert(seam.size() == image.rows());
