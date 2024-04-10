@@ -3,6 +3,7 @@
 
 #include "RAJA/RAJA.hpp"
 #include "../HPImage/hpimage.h"
+#include "carver.h"
 
 // Print usage data
 void usage();
@@ -58,12 +59,21 @@ int main(int argc, char *argv[]) {
     if (new_width > image.cols() || new_height > image.rows()) {
         std::cerr << "ERROR: HPCarver supports shrinking. New image dimensions must be smaller!" << std::endl;
     }
-    // Repeatedly horizontally shrink it until it fits target width.
 
-    // Repeatedly vertically shrink it until it fits target height.
+    // Repeatedly vertically shrink it until it fits target width.
+    while (image.cols() != new_width) {
+        auto seam = carver::vertical_seam(image);
+        carver::remove_vert_seam(image, *seam);
+    }
 
-    // Write out new image.
+    // Now, repeatedly horizontally shrink until it fits target height.
+    while (image.rows() != new_height) {
+        auto seam = carver::horiz_seam(image);
+        carver::remove_horiz_seam(image, *seam);
+    }
 
+    // With image dimensions sufficiently changed, write out the target image.
+    image.write_image(target_path);
 }
 
 
