@@ -1,14 +1,17 @@
 // Entry file for HPcarver
 // Author: Will Morris
 
-#include <getopt.h>
 #include "RAJA/RAJA.hpp"
 #include "../HPImage/hpimage.h"
 
 // Print usage data
 void usage();
 
-#define ARG_COUNT 9
+#define ARG_COUNT 5
+#define SOURCE_INDEX 1
+#define TARGET_INDEX 2
+#define WIDTH_INDEX 3
+#define HEIGHT_INDEX 4
 
 /**
  * Parse arguments for necessary fields. Note that all of these are required!
@@ -38,6 +41,16 @@ int main(int argc, char *argv[]) {
 
     parse_args(argc, argv, source_path, target_path, new_width, new_height);
 
+    // HPCarver only supports width < three.
+    if (new_width < 3) {
+        std::cerr << "ERROR: Must specify new image width greater than three!" << std::endl;
+        exit(EXIT_FAILURE);
+    }
+    if (new_height < 3) {
+        std::cerr << "ERROR: Must specify new image height greater than three!" << std::endl;
+        exit(EXIT_FAILURE);
+    }
+
     // Load image
     auto image = hpimage::Hpimage(source_path);
 
@@ -64,53 +77,13 @@ void parse_args(int argc, char *argv[],
         exit(EXIT_FAILURE);
     }
 
-    // Parse all arguments
-    // Getopt parsing derived from https://www.gnu.org/software/libc/manual/html_node/Example-of-Getopt.html
-    int c;
-    while ((c = getopt(argc, argv, "i:o:w:h:")) != -1) {
-        switch(c) {
-            case 'i':
-                source_path = optarg;
-                break;
-            case 'o':
-                out_path = optarg;
-                break;
-            case 'w':
-                new_width = std::stoi(optarg);
-                break;
-            case 'h':
-                new_height = std::stoi(optarg);
-                break;
-            default:
-                std::cout << "Unrecognized option: " << (char) c << std::endl;
-                usage();
-                exit(EXIT_FAILURE);
-        }
-    }
-
-    // No arguments are optional -- error if anything missing!
-    if (!source_path) {
-        std::cerr << "ERROR: Must specify image source path!" << std::endl;
-        usage();
-        exit(EXIT_FAILURE);
-    }
-    if (!out_path) {
-        std::cerr << "ERROR: Must specify image output path!" << std::endl;
-        usage();
-        exit(EXIT_FAILURE);
-    }
-    // HPCarver only supports width < three.
-    if (new_width < 3) {
-        std::cerr << "ERROR: Must specify new image width greater than three!" << std::endl;
-        exit(EXIT_FAILURE);
-    }
-    if (new_height < 3) {
-        std::cerr << "ERROR: Must specify new image height greater than three!" << std::endl;
-        exit(EXIT_FAILURE);
-    }
+    source_path = argv[SOURCE_INDEX];
+    out_path = argv[TARGET_INDEX];
+    new_width = std::stoi(argv[WIDTH_INDEX]);
+    new_height = std::stoi(argv[HEIGHT_INDEX]);
 }
 
 void usage() {
     std::cout << "HPCarver Usage:" << std::endl;
-    std::cout << "hpcarver -i [source_image.ppm] -o [out_image.ppm] -w [new width] -h [new height]" << std::endl;
+    std::cout << "hpcarver [source_image.ppm] [out_image.ppm] [new width] [new height]" << std::endl;
 }
