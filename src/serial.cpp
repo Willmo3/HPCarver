@@ -124,6 +124,7 @@ std::vector<uint32_t> *vertical_seam(hpimage::Hpimage &image) {
         energy.set_energy(col, 0, pixel_energy(image, col, 0));
     }
 
+    // This is one of the larger opportunities for parallelism.
     // Set energy to minimum of three above neighbors.
     for (auto row = 1; row < energy.rows(); ++row) {
         for (auto col = 0; col < energy.cols(); ++col) {
