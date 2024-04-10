@@ -40,6 +40,11 @@ int main(int argc, char *argv[]) {
 
     // Load image
     auto image = hpimage::Hpimage(source_path);
+
+    // Ensure that image is being shrunk -- for now, this is all that's supported!
+    if (new_width > image.cols() || new_height > image.rows()) {
+        std::cerr << "ERROR: HPCarver supports shrinking. New image dimensions must be smaller!" << std::endl;
+    }
     // Repeatedly horizontally shrink it until it fits target width.
 
     // Repeatedly vertically shrink it until it fits target height.
