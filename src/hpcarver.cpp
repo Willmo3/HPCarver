@@ -3,6 +3,7 @@
 
 #include <getopt.h>
 #include "RAJA/RAJA.hpp"
+#include "../HPImage/hpimage.h"
 
 // Print usage data
 void usage();
@@ -36,6 +37,15 @@ int main(int argc, char *argv[]) {
     uint32_t new_height = 0;
 
     parse_args(argc, argv, source_path, target_path, new_width, new_height);
+
+    // Load image
+    auto image = hpimage::Hpimage(source_path);
+    // Repeatedly horizontally shrink it until it fits target width.
+
+    // Repeatedly vertically shrink it until it fits target height.
+
+    // Write out new image.
+
 }
 
 
