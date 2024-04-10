@@ -90,24 +90,22 @@ void parse_args(int argc, char *argv[],
 
     // No arguments are optional -- error if anything missing!
     if (!source_path) {
-        std::cout << "ERROR: Must specify image source path!" << std::endl;
+        std::cerr << "ERROR: Must specify image source path!" << std::endl;
         usage();
         exit(EXIT_FAILURE);
     }
     if (!out_path) {
-        std::cout << "ERROR: Must specify image output path!" << std::endl;
+        std::cerr << "ERROR: Must specify image output path!" << std::endl;
         usage();
         exit(EXIT_FAILURE);
     }
     // HPCarver only supports width < three.
     if (new_width < 3) {
-        std::cout << "ERROR: Must specify new image width greater than three!" << std::endl;
-        usage();
+        std::cerr << "ERROR: Must specify new image width greater than three!" << std::endl;
         exit(EXIT_FAILURE);
     }
     if (new_height < 3) {
-        std::cout << "ERROR: Must specify new image height greater than three!" << std::endl;
-        usage();
+        std::cerr << "ERROR: Must specify new image height greater than three!" << std::endl;
         exit(EXIT_FAILURE);
     }
 }
