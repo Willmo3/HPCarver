@@ -146,7 +146,6 @@ std::vector<uint32_t> *vertical_seam(hpimage::Hpimage &image) {
     uint32_t min_col = 0;
     uint32_t min_energy = energy.get_energy(0, bottom_row);
 
-    // Se
     for (auto col = 1; col < energy.cols(); ++col) {
         uint32_t current_energy = energy.get_energy(col, bottom_row);
         if (current_energy < min_energy) {

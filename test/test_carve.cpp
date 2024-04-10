@@ -86,3 +86,14 @@ TEST(carver, vert_seam) {
     ASSERT_EQ(0, seam->at(3));
 }
 
+TEST(carver, hard_vert_seam) {
+    auto image = hpimage::Hpimage("6x5.ppm");
+    auto seam = carver::vertical_seam(image);
+
+    ASSERT_EQ(3, seam->at(0));
+    ASSERT_EQ(4, seam->at(1));
+    ASSERT_EQ(3, seam->at(2));
+    ASSERT_EQ(2, seam->at(3));
+    ASSERT_EQ(2, seam->at(4));
+}
+
