@@ -197,8 +197,9 @@ void Carver::remove_horiz_seam(std::vector<uint32_t> &seam) {
     // Must be exactly one row to remove from each column.
     assert(seam.size() == image.cols());
 
-    // TODO: LOOK INTO PARALLELIZING HERE
-
+    // OMP: each thread only accesses a single column of the image
+    // And only reads from seam
+#   pragma omp parallel for default(none) shared(image, seam)
     for (auto col = 0; col < image.cols(); ++col) {
         auto index = seam[col];
         assert(index >= 0 && index < image.rows());
@@ -218,8 +219,9 @@ void Carver::remove_vert_seam(std::vector<uint32_t> &seam) {
     // Must be exactly one column to remove from each row.
     assert(seam.size() == image.rows());
 
-    // Shift every pixel after a given image over.
-    // Then reduce image size by one.
+    // OMP each thread only accesses a single row of the image
+    // And only reads from seam
+#   pragma omp parallel for default(none) shared(image, seam)
     for (auto row = 0; row < image.rows(); ++row) {
         auto index = seam[row];
         assert(index >= 0 && index < image.cols());
