@@ -1,7 +1,9 @@
 .idea
 .vscode
 out/hpcarver
-out/tests/test_serialcarve
+out/tests/test_*
+
+out.ppm
 
 cmake-build-debug
 build
