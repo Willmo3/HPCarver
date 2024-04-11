@@ -1,6 +1,6 @@
 .idea
 .vscode
-out/hpcarver
+out/hpc_*
 out/tests/test_*
 
 out.ppm
