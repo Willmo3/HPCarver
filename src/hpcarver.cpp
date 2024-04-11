@@ -47,6 +47,7 @@ int main(int argc, char *argv[]) {
     // Ensure that image is being shrunk -- for now, this is all that's supported!
     if (new_width > image.cols() || new_height > image.rows()) {
         std::cerr << "ERROR: HPCarver supports shrinking. New image dimensions must be smaller!" << std::endl;
+        exit(EXIT_FAILURE);
     }
 
     // Create carver object to store fields that need to be memoized (i.e. energy)
