@@ -1,8 +1,5 @@
-//
-// Created by will on 4/10/24.
-//
 /**
- * Serial implementation of HPCarver. This implements API-defined functions in a serial manner.
+ * OpenMP implementation of HPCarver. This implements API-defined functions using OpenMP manner.
  *
  * Author: Will Morris
  */
