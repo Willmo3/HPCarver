@@ -43,4 +43,16 @@ uint32_t Carver::gradient_energy(hpimage::pixel p1, hpimage::pixel p2) {
     return energy;
 }
 
+// NOTE: the largest fields of energy are heap-allocated.
+// So passing around stack objects isn't a huge deal.
+Energy Carver::get_energy() {
+    return energy;
+}
+
+hpimage::Hpimage &Carver::get_image() {
+    return image;
+}
+
+
+
 
