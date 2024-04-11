@@ -7,6 +7,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 # For now, all of these dependencies are required.
 find_package(RAJA REQUIRED)
 find_package(OpenMP REQUIRED)
+find_package(Threads REQUIRED)
 
 # Done because of nested cmake structure
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ../../out)

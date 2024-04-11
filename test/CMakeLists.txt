@@ -19,6 +19,9 @@
  add_executable(test_ompcarve test_carve.cpp)
  target_link_libraries(test_ompcarve GTest::gtest_main)
 
+ add_executable(test_pthreadcarve test_carve.cpp)
+ target_link_libraries(test_pthreadcarve GTest::gtest_main)
+
  gtest_discover_tests(test_serialcarve test_ompcarve)
 
  # Link all to HPImage
@@ -29,3 +32,8 @@
  target_link_libraries(test_ompcarve
          hpimage
          omp)
+
+ target_link_libraries(test_pthreadcarve
+         hpimage
+         pthread)
+
