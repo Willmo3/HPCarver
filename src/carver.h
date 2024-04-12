@@ -12,8 +12,6 @@
 
 namespace carver {
 
-
-
 /**
  * Represents the API for a single carver class.
  * Why am I using a class?
@@ -111,24 +109,7 @@ private:
      * @param seam Seam to remove.
      */
     void remove_vert_seam(std::vector<uint32_t> &seam);
-
-    /**
-     * ACCESSORS
-     */
-     hpimage::Hpimage &get_image();
-     carver::Energy get_energy();
-
 };
-
-/**
- * NOTE: each implementation defines its own carver constructor, following a set API.
- * This way, implementations may actually return a carver subclass.
- *
- * @param image Image to build carver of.
- * @return Constructed carver object.
- */
-carver::Carver prepare_carver(hpimage::Hpimage &image);
-
 } // namespace carver
 
 #endif //HPCARVER_CARVER_H

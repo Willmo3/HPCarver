@@ -11,11 +11,6 @@
 
 namespace carver {
 
-Carver prepare_carver(hpimage::Hpimage &image) {
-    // In our case, it's enough to just return a standard carver.
-    return Carver(image);
-}
-
 // Carver constructor
 Carver::Carver(hpimage::Hpimage &image):
     image(image), energy(Energy(image.cols(), image.rows()))
