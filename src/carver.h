@@ -119,16 +119,6 @@ private:
      carver::Energy get_energy();
 
 };
-
-/**
- * NOTE: each implementation defines its own carver constructor, following a set API.
- * This way, implementations may actually return a carver subclass.
- *
- * @param image Image to build carver of.
- * @return Constructed carver object.
- */
-carver::Carver prepare_carver(hpimage::Hpimage &image);
-
 } // namespace carver
 
 #endif //HPCARVER_CARVER_H

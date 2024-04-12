@@ -12,12 +12,6 @@
 
 namespace carver {
 
-// TODO: make this return more than just a regular carver object.
-Carver prepare_carver(hpimage::Hpimage &image) {
-    // In our case, it's enough to just return a standard carver.
-    return Carver(image);
-}
-//
 ///**
 // * PThreadCarver. Like a regular carver, except... except what, exactly?
 // *
@@ -181,14 +175,14 @@ std::vector<uint32_t> Carver::horiz_seam() {
     for (uint32_t col = 1; col < energy.cols(); ++col) {
         // SPAWN THREADS TO FIND HORIZ SEAMS
         for (uint32_t start_row = 0; start_row < energy.rows(); start_row += stride) {
-//            struct thread_data data = {
-//                    .carver = this,
-//                    .start_col = col,
-//                    .end_col = col,
-//                    .start_row = start_row,
-//                    .end_row = start_row + stride,
-//            };
-//            pthread_create(&thread_pool[start_row / stride], )
+            struct thread_data data = {
+                    .carver = this,
+                    .start_row = start_row,
+                    .end_row = start_row + stride,
+                    .start_col = col,
+                    .end_col = col,
+            };
+            // pthread_create(&thread_pool[start_row / stride], )
         }
 
 
