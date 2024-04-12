@@ -51,7 +51,9 @@ int main(int argc, char *argv[]) {
     }
 
     // Create carver object to store fields that need to be memoized (i.e. energy)
-    auto carver = carver::Carver(image);
+    // NOTE: the exact type of carver used is implementation specific, and may be a subclass.
+    // Therefore, use the prepare_carver fn.
+    auto carver = carver::prepare_carver(image);
 
     // Repeatedly vertically shrink it until it fits target width.
     while (image.cols() != new_width) {
