@@ -115,8 +115,8 @@ private:
     /**
      * ACCESSORS
      */
-     hpimage::Hpimage &get_image();
-     carver::Energy get_energy();
+     hpimage::Hpimage *get_image();
+     carver::Energy *get_energy();
 
 };
 } // namespace carver
