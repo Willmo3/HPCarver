@@ -104,7 +104,6 @@ void *update_horiz_energy(void *data1) {
         auto neighbor_energies = energy->get_left_predecessors(col, row);
 
         // Energy = local energy + min(neighbors)
-        // TODO: look into narrowing conversion
         uint32_t local_energy = carver->pixel_energy(col, row);
         local_energy += *std::min_element(neighbor_energies.begin(), neighbor_energies.end());
         energy->set_energy(col, row, local_energy);
@@ -118,6 +117,7 @@ void *update_horiz_energy(void *data1) {
 void *update_vert_seam(void *data1) {
     auto *data = (thread_data*) data1;
     auto carver = data->carver;
+    auto energy = carver->get_energy();
 
     // Get fixed row for this data -- should be a single col.
     assert(data->start_row == data->end_row);
@@ -134,13 +134,13 @@ void *update_vert_seam(void *data1) {
     // Now, perform the update over a single row.
     for (auto col = start_col; col < end_col; ++col) {
         // No wrapping
-        auto neighbor_energies = carver->get_energy()->get_top_predecessors(col, row);
+        auto neighbor_energies = energy->get_top_predecessors(col, row);
 
         // Energy = local energy + min(neighbors)
         // TODO: look into narrowing conversion
         uint32_t local_energy = carver->pixel_energy(col, row);
         local_energy += *std::min_element(neighbor_energies.begin(), neighbor_energies.end());
-        carver->get_energy()->set_energy(col, row, local_energy);
+        energy->set_energy(col, row, local_energy);
     }
 
     pthread_exit(nullptr);
