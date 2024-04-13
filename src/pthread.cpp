@@ -49,6 +49,7 @@ static int num_threads = 4;
  * In single column computations (i.e. traversing a row), should equal start_col
  */
 struct thread_data {
+    // NOTE: use pointers -- otherwise, major risk of
     Carver *carver;
     uint32_t start_row;
     uint32_t end_row;
@@ -78,33 +79,39 @@ void *thread_vert_seam(void *data);
 
 void *update_horiz_energy(void *data1) {
     auto *data = (thread_data*) data1;
+
+    // Note: these should all be pointers, not references.
+    // C++ does weird automatic deallocation stuff when you use references.
     auto carver = data->carver;
+    auto energy = carver->get_energy();
 
     // Get fixed column for this data -- should be a single col.
     assert(data->start_col == data->end_col);
-    assert(data->start_col >= 0 && data->start_col < carver->get_energy().cols());
+    assert(data->start_col >= 0 && data->start_col < energy->cols());
     auto col = data->start_col;
 
     // Get start, end rows for this data.
     // NOTE: currently, asserting start, end aren't equal.
     assert(data->start_row >= 0 && data->start_row < data->end_row);
-    assert(data->end_row < carver->get_energy().rows());
+    // NOTE: since end_row is an exclusive boundary, it's OK for it to equal energy->rows()
+    assert(data->end_row <= energy->rows());
     auto start_row = data->start_row;
     auto end_row = data->end_row;
 
     // Now, perform the update over a single column.
     for (auto row = start_row; row < end_row; ++row) {
         // No wrapping
-        auto neighbor_energies = carver->get_energy().get_left_predecessors(col, row);
+        auto neighbor_energies = energy->get_left_predecessors(col, row);
 
         // Energy = local energy + min(neighbors)
         // TODO: look into narrowing conversion
         uint32_t local_energy = carver->pixel_energy(col, row);
         local_energy += *std::min_element(neighbor_energies.begin(), neighbor_energies.end());
-        carver->get_energy().set_energy(col, row, local_energy);
+        energy->set_energy(col, row, local_energy);
     }
 
-    // With all energies updated, we're clear to exit.
+    free(data);
+    data = nullptr;
     pthread_exit(nullptr);
 }
 
@@ -114,29 +121,28 @@ void *update_vert_seam(void *data1) {
 
     // Get fixed row for this data -- should be a single col.
     assert(data->start_row == data->end_row);
-    assert(data->start_row >= 0 && data->start_row < carver->get_energy().rows());
-    auto row = data->start_col;
+    assert(data->start_row >= 0 && data->start_row < carver->get_energy()->rows());
+    auto row = data->start_row;
 
     // Get start, end rows for this data.
     // NOTE: currently, asserting start, end aren't equal.
     assert(data->start_col >= 0 && data->start_col < data->end_col);
-    assert(data->end_col < carver->get_energy().cols());
+    assert(data->end_col < carver->get_energy()->cols());
     auto start_col = data->start_row;
     auto end_col = data->end_row;
 
     // Now, perform the update over a single row.
     for (auto col = start_col; col < end_col; ++col) {
         // No wrapping
-        auto neighbor_energies = carver->get_energy().get_top_predecessors(col, row);
+        auto neighbor_energies = carver->get_energy()->get_top_predecessors(col, row);
 
         // Energy = local energy + min(neighbors)
         // TODO: look into narrowing conversion
         uint32_t local_energy = carver->pixel_energy(col, row);
         local_energy += *std::min_element(neighbor_energies.begin(), neighbor_energies.end());
-        carver->get_energy().set_energy(col, row, local_energy);
+        carver->get_energy()->set_energy(col, row, local_energy);
     }
 
-    // With all energies updated, we're clear to exit.
     pthread_exit(nullptr);
 }
 
@@ -166,34 +172,40 @@ std::vector<uint32_t> Carver::horiz_seam() {
         energy.set_energy(0, row, pixel_energy(0, row));
     }
 
-    // NOTE: since number of rows will not decrease during a horizontal seam removal
+    // NOTE: since number of rows will not decrease during a horizontal seam update
     // Can determine stride here.
     uint32_t stride = energy.rows() / num_threads;
     pthread_t thread_pool[num_threads];
 
     // Now set energy to minimum of three neighbors.
     for (uint32_t col = 1; col < energy.cols(); ++col) {
-        // SPAWN THREADS TO FIND HORIZ SEAMS
-        for (uint32_t start_row = 0; start_row < energy.rows(); start_row += stride) {
-            struct thread_data data = {
-                    .carver = this,
-                    .start_row = start_row,
-                    .end_row = start_row + stride,
-                    .start_col = col,
-                    .end_col = col,
-            };
-            // pthread_create(&thread_pool[start_row / stride], )
+
+        // Split work as evenly as possible between all the threads we have
+        for (uint32_t thread_num = 0; thread_num < num_threads; ++thread_num) {
+            uint32_t start_row = thread_num * stride;
+            auto end_row = thread_num + stride;
+
+            // Edge case: on an odd number of allocations, there may be an extra thread left over.
+            if (end_row == energy.rows() - 1) {
+                end_row += 1;
+            }
+
+            // NOTE: DO NOT PASS REFERENCE TO STACK ALLOCATED DATA
+            // THREADS HAVE THEIR OWN STACKS -- IT GETS WEIRD!
+            auto *data = static_cast<thread_data *>(calloc(1, sizeof(thread_data)));
+            data->carver = this;
+            data->start_row = start_row;
+            data->end_row = end_row;
+            data->start_col = col;
+            data->end_col = col;
+            pthread_create(&thread_pool[thread_num], nullptr,
+                           update_horiz_energy, (void *) data);
+            // Data will be freed by thread when it's done.
         }
 
-
-        for (auto row = 0; row < energy.rows(); ++row) {
-            // No wrapping
-            auto neighbor_energies = energy.get_left_predecessors(col, row);
-
-            // Energy = local energy + min(neighbors)
-            uint32_t local_energy = pixel_energy(col, row);
-            local_energy += *std::min_element(neighbor_energies.begin(), neighbor_energies.end());
-            energy.set_energy(col, row, local_energy);
+        // For now, not using a job queue -- spawning, reaping threads on each iteration.
+        for (auto thread : thread_pool) {
+            pthread_join(thread, nullptr);
         }
     }
 
