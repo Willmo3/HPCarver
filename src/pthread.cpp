@@ -12,23 +12,14 @@
 
 namespace carver {
 
-///**
-// * PThreadCarver. Like a regular carver, except... except what, exactly?
-// *
-// * We're in an interesting situation. Each implementation needs to be able to define their own carver.
-// * If we manually initialize the carver constructor, then we could have trouble.
-// */
-//class PthreadCarver: Carver {
-//    Pthread
-//}
+
+// ***** THREADING IMPLS ***** //
 
 /**
  * This may be updated by an env var.
  * If not, by default use four threads.
  */
 static int num_threads = 4;
-
-// ***** THREADING IMPLS ***** //
 
 /**
  * Data structure passed to a thread during pthread_create.
@@ -145,7 +136,6 @@ void *update_vert_seam(void *data1) {
 
     pthread_exit(nullptr);
 }
-
 
 
 // ***** STANDARD CARVER IMPLS ***** //
