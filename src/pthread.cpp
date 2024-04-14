@@ -123,14 +123,6 @@ void *update_vert_energy(void *data);
 void vert_energy(Carver *carver);
 
 /**
- * Find the end of the minimum vertical seam by traversing the bottom row of the energy matrix.
- * Then, we will be able to find the optimal seam by traversing in reverse order.
- * @param carver Carver to consider.
- * @return Column of minimum energy pixel in bottom row.
- */
-uint32_t min_vert_seam_end(Carver *carver);
-
-/**
  * Given an end index and a carver, traverse the carver's energy matrix
  * Finding the minimum connected index at each point.
  *
@@ -233,26 +225,6 @@ void *update_horiz_energy(void *data1) {
     free(data);
     data = nullptr;
     pthread_exit(nullptr);
-}
-
-uint32_t min_horiz_seam_end(Carver *carver) {
-    auto energy = carver->get_energy();
-    uint32_t back_col = energy->cols() - 1;
-
-    // Default: row 0 of the last column contains the minimum energy.
-    // Invariant: there will be at least two rows to consider.
-    uint32_t min_row = 0;
-    uint32_t min_energy = energy->get_energy(back_col, 0);
-
-    for (auto row = 1; row < energy->rows(); ++row) {
-        uint32_t current_energy = energy->get_energy(back_col, row);
-        if (current_energy < min_energy) {
-            min_row = row;
-            min_energy = current_energy;
-        }
-    }
-
-    return min_row;
 }
 
 std::vector<uint32_t> min_horiz_seam(Carver *carver) {
