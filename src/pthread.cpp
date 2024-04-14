@@ -428,17 +428,18 @@ void Carver::remove_horiz_seam(std::vector<uint32_t> &seam) {
     pthread_t thread_pool[num_threads];
     uint32_t stride = image.cols() / num_threads;
 
-    // Edge case: too little work for all the threads we want!
-    if (stride == 0) {
-        stride = 1;
+    // If number doesn't fit perfectly, assign slightly more work.
+    // The last thread will just do less.
+    if (image.cols() % num_threads) {
+        stride += 1;
     }
 
     uint32_t thread_num = 0;
     uint32_t start_col = 0;
     uint32_t end_col = start_col + stride;
 
-    while (thread_num < num_threads && end_col <= image.cols()) {
-        if (thread_num == num_threads - 1 && end_col != image.cols()) {
+    while (thread_num < num_threads && start_col < image.cols()) {
+        if (end_col > image.cols()) {
             end_col = image.cols();
         }
 
@@ -468,16 +469,16 @@ void Carver::remove_vert_seam(std::vector<uint32_t> &seam) {
     uint32_t stride = image.rows() / num_threads;
 
     // Edge case: too little work for all the threads we want!
-    if (stride == 0) {
-        stride = 1;
+    if (image.rows() % num_threads) {
+        stride += 1;
     }
 
     uint32_t thread_num = 0;
     uint32_t start_row = 0;
     uint32_t end_row = start_row + stride;
 
-    while (thread_num < num_threads && end_row <= image.rows()) {
-        if (thread_num == num_threads - 1 && end_row != image.rows()) {
+    while (thread_num < num_threads && start_row < image.rows()) {
+        if (end_row > image.rows()) {
             end_row = image.rows();
         }
 
