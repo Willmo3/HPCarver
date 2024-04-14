@@ -167,6 +167,68 @@ void *update_vert_energy(void *data1) {
     pthread_exit(nullptr);
 }
 
+/**
+ * Given a seam and a set of columns representing portion of seam to operate on.
+ * shift all rows after the seam up by one.
+ *
+ * @param data1 Data structure containing seam and columns to shift up.
+ */
+void *shift_horiz(void *data1) {
+    auto data = (thread_data *) data1;
+
+    auto image = data->carver->get_image();
+    // Horizontal seam removal's rows are defined by the seam.
+    // So rows in this data structure ought to be 0.
+    assert(data->start_row == 0 && data->end_row == 0);
+    assert(data->start_col >= 0 && data->end_col <= image->cols());
+
+    for (auto col = data->start_col; col < data->end_col; ++col) {
+        auto index = data->seam->at(col);
+        assert(index >= 0 && index < image->rows());
+
+        // Shift all pixels below this up one.
+        for (auto row = index; row < image->rows() -1; ++row) {
+            hpimage::pixel below = image->get_pixel(col, row + 1);
+            image->set_pixel(col, row, below);
+        }
+    }
+
+    free(data);
+    data = nullptr;
+    pthread_exit(nullptr);
+}
+
+/**
+ * Given a seam and a set of rows representing portion of seam to operate on.
+ * shift all columns after the seam up by one.
+ *
+ * @param data1 Data structure containing seam and columns to shift up.
+ */
+void *shift_vert(void *data1) {
+    auto data = (thread_data *) data1;
+
+    auto image = data->carver->get_image();
+    // Horizontal seam removal's rows are defined by the seam.
+    // So rows in this data structure ought to be 0.
+    assert(data->start_col == 0 && data->end_col == 0);
+    assert(data->start_row >= 0 && data->end_col <= image->rows());
+
+    for (auto row = data->start_row; row < data->end_row; ++row) {
+        auto index = data->seam->at(row);
+        assert(index >= 0 && index < image->rows());
+
+        // Shift all pixels to the right of this one left.
+        for (auto col = index; col < image->cols() -1; ++col) {
+            hpimage::pixel right = image->get_pixel(col + 1, row);
+            image->set_pixel(col, row, right);
+        }
+    }
+
+    free(data);
+    data = nullptr;
+    pthread_exit(nullptr);
+}
+
 
 // ***** HORIZONTAL SEAM CALCULATORS ***** //
 
@@ -347,76 +409,7 @@ std::vector<uint32_t> Carver::min_vert_seam() {
 }
 
 
-// ***** STANDARD CARVER IMPLS ***** //
-
-// Carver constructor
-Carver::Carver(hpimage::Hpimage &image):
-    image(image), energy(Energy(image.cols(), image.rows())) {
-    assert_valid_dims();
-    // TODO: look into getenv to update num_threads
-}
-
-/**
- * Given a seam and a set of columns representing portion of seam to operate on.
- * shift all rows after the seam up by one.
- *
- * @param data1 Data structure containing seam and columns to shift up.
- */
-void *shift_horiz(void *data1) {
-    auto data = (thread_data *) data1;
-
-    auto image = data->carver->get_image();
-    // Horizontal seam removal's rows are defined by the seam.
-    // So rows in this data structure ought to be 0.
-    assert(data->start_row == 0 && data->end_row == 0);
-    assert(data->start_col >= 0 && data->end_col <= image->cols());
-
-    for (auto col = data->start_col; col < data->end_col; ++col) {
-        auto index = data->seam->at(col);
-        assert(index >= 0 && index < image->rows());
-
-        // Shift all pixels below this up one.
-        for (auto row = index; row < image->rows() -1; ++row) {
-            hpimage::pixel below = image->get_pixel(col, row + 1);
-            image->set_pixel(col, row, below);
-        }
-    }
-
-    free(data);
-    data = nullptr;
-    pthread_exit(nullptr);
-}
-
-/**
- * Given a seam and a set of rows representing portion of seam to operate on.
- * shift all columns after the seam up by one.
- *
- * @param data1 Data structure containing seam and columns to shift up.
- */
-void *shift_vert(void *data1) {
-    auto data = (thread_data *) data1;
-
-    auto image = data->carver->get_image();
-    // Horizontal seam removal's rows are defined by the seam.
-    // So rows in this data structure ought to be 0.
-    assert(data->start_col == 0 && data->end_col == 0);
-    assert(data->start_row >= 0 && data->end_col <= image->rows());
-
-    for (auto row = data->start_row; row < data->end_row; ++row) {
-        auto index = data->seam->at(row);
-        assert(index >= 0 && index < image->rows());
-
-        // Shift all pixels to the right of this one left.
-        for (auto col = index; col < image->cols() -1; ++col) {
-            hpimage::pixel right = image->get_pixel(col + 1, row);
-            image->set_pixel(col, row, right);
-        }
-    }
-
-    free(data);
-    data = nullptr;
-    pthread_exit(nullptr);
-}
+// ***** SEAM REMOVERS ***** //
 
 void Carver::remove_horiz_seam(std::vector<uint32_t> &seam) {
     // Must be exactly one row to remove from each column.
@@ -495,4 +488,12 @@ void Carver::remove_vert_seam(std::vector<uint32_t> &seam) {
     energy.cut_col();
     image.cut_col();
 }
+
+// Carver constructor
+Carver::Carver(hpimage::Hpimage &image):
+    image(image), energy(Energy(image.cols(), image.rows())) {
+    assert_valid_dims();
+    // TODO: look into getenv to update num_threads
+}
+
 } // namespace carver
