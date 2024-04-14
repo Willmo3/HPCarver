@@ -164,6 +164,8 @@ void *update_vert_energy(void *data1) {
         energy->set_energy(col, row, local_energy);
     }
 
+    free(data);
+    data = nullptr;
     pthread_exit(nullptr);
 }
 
