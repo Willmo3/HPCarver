@@ -42,6 +42,8 @@ static int num_threads = 4;
 struct thread_data {
     // NOTE: use pointers -- otherwise, major risk of
     Carver *carver;
+    // In case we need to pass seams around
+    std::vector<uint32_t> *seam;
     uint32_t start_row;
     uint32_t end_row;
     uint32_t start_col;
@@ -55,19 +57,21 @@ struct thread_data {
  * If an operation traverses multiple rows and columns, will be data access issues.
  *
  * @param carver Carver object. Will be used to read energy vector.
+ * @param seam (Optional) Pointer to seam to remove.
  * @param start_row Row computation should start on.
  * @param end_row Row computation should end on.
  * @param start_col Column computation should start on.
  * @param end_col Column computation should end on.
  * @return Heap-allocated thread data structure with these params.
  */
-thread_data *new_thread_data(Carver *carver,
+thread_data *new_thread_data(Carver *carver, std::vector<uint32_t> *seam,
                              uint32_t start_row, uint32_t end_row, uint32_t start_col, uint32_t end_col) {
 
     assert(start_row == end_row || start_col == end_col);
     auto *data = static_cast<thread_data *>(calloc(1, sizeof(thread_data)));
 
     data->carver = carver;
+    data->seam = seam;
     data->start_row = start_row;
     data->end_row = end_row;
     data->start_col = start_col;
@@ -190,7 +194,7 @@ void Carver::horiz_energy() {
                 end_row = energy.rows();
             }
 
-            auto *data = new_thread_data(this, start_row, end_row, col, col);
+            auto *data = new_thread_data(this, nullptr, start_row, end_row, col, col);
             pthread_create(&thread_pool[thread_num], nullptr,
                            update_horiz_energy, (void *) data);
 
@@ -281,7 +285,7 @@ void Carver::vert_energy() {
                 end_col = energy.cols();
             }
 
-            auto *data = new_thread_data(this, row, row, start_col, end_col);
+            auto *data = new_thread_data(this, nullptr, row, row, start_col, end_col);
             pthread_create(&thread_pool[thread_num], nullptr,
                            update_vert_energy, (void *) data);
 
@@ -352,20 +356,71 @@ Carver::Carver(hpimage::Hpimage &image):
     // TODO: look into getenv to update num_threads
 }
 
+/**
+ * Given a seam and a set of columns representing portion of seam to operate on.
+ * shift all rows after the seam up by one.
+ *
+ * @param data1 Data structure containing seam and columns to shift up.
+ */
+void *shift_horiz(void *data1) {
+    auto data = (thread_data *) data1;
+
+    auto image = data->carver->get_image();
+    // Horizontal seam removal's rows are defined by the seam.
+    // So rows in this data structure ought to be 0.
+    assert(data->end_row == 0 && data->end_row == 0);
+    assert(data->start_col >= 0 && data->end_col <= image->cols());
+
+    for (auto col = data->start_col; col < data->end_col; ++col) {
+        auto index = data->seam->at(col);
+        assert(index >= 0 && index < image->rows());
+
+        // Shift all pixels below this up one.
+        for (auto row = index; row < image->rows() -1; ++row) {
+            hpimage::pixel below = image->get_pixel(col, row + 1);
+            image->set_pixel(col, row, below);
+        }
+    }
+
+    free(data);
+    data = nullptr;
+    pthread_exit(nullptr);
+}
+
 void Carver::remove_horiz_seam(std::vector<uint32_t> &seam) {
     // Must be exactly one row to remove from each column.
     assert(seam.size() == image.cols());
 
-    for (auto col = 0; col < image.cols(); ++col) {
-        auto index = seam[col];
-        assert(index >= 0 && index < image.rows());
+    // Must compute stride size.
+    pthread_t thread_pool[num_threads];
+    uint32_t stride = image.cols() / num_threads;
 
-        // Shift all pixels below this up one.
-        for (auto row = index; row < image.rows() - 1; ++row) {
-            hpimage::pixel below = image.get_pixel(col, row + 1);
-            image.set_pixel(col, row, below);
-        }
+    // Edge case: too little work for all the threads we want!
+    if (stride == 0) {
+        stride = 1;
     }
+
+    uint32_t thread_num = 0;
+    uint32_t start_col = 0;
+    uint32_t end_col = start_col + stride;
+
+    while (thread_num < num_threads && end_col <= image.cols()) {
+        if (thread_num == num_threads - 1 && end_col != image.cols()) {
+            end_col = image.cols();
+        }
+
+        auto *data = new_thread_data(this, &seam, 0, 0, start_col, end_col);
+        pthread_create(&thread_pool[thread_num], nullptr, shift_horiz, data);
+
+        ++thread_num;
+        start_col += stride;
+        end_col += stride;
+    }
+
+    for (auto thread = 0; thread < thread_num; ++thread) {
+        pthread_join(thread_pool[thread], nullptr);
+    }
+
     // Finally, cut the last row from the pixel.
     energy.cut_row();
     image.cut_row();
