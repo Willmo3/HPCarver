@@ -164,17 +164,7 @@ void *update_vert_energy(void *data1) {
 }
 
 
-// ***** IMPLEMENTATIONS ***** //
-
-
-// ***** HORIZONTAL HELPERS ***** //
-std::vector<uint32_t> Carver::horiz_seam() {
-    assert_valid_dims();
-    // Compute horizontal energies.
-    horiz_energy();
-    return min_horiz_seam();
-}
-
+// ***** HORIZONTAL SEAM CALCULATORS ***** //
 
 void Carver::horiz_energy() {
     // Generate energy matrix
@@ -261,14 +251,8 @@ std::vector<uint32_t> Carver::min_horiz_seam() {
 }
 
 
-// ***** VERTICAL HELPERS ***** //
+// ***** VERTICAL SEAM CALCULATORS ***** //
 
-
-std::vector<uint32_t> Carver::vertical_seam() {
-    assert_valid_dims();
-    vert_energy();
-    return min_vert_seam();
-}
 
 void Carver::vert_energy() {
     // Vertical seam direction: top to bottom

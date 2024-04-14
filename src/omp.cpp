@@ -19,12 +19,6 @@ Carver::Carver(hpimage::Hpimage &image):
 
 // ***** HORIZONTAL SEAM CALCULATORS ***** //
 
-std::vector<uint32_t> Carver::horiz_seam() {
-    assert_valid_dims();
-    horiz_energy();
-    return Carver::min_horiz_seam();
-}
-
 void Carver::horiz_energy() {
     // OPENMP: on large images, should see benefit even in first row.
 #   pragma omp parallel for default(none) shared(energy)
@@ -95,12 +89,6 @@ std::vector<uint32_t> Carver::min_horiz_seam() {
 
 
 // ***** VERTICAL SEAM CALCULATORS ***** //
-
-std::vector<uint32_t> Carver::vertical_seam() {
-    assert_valid_dims();
-    vert_energy();
-    return min_vert_seam();
-}
 
 void Carver::vert_energy() {
     // Vertical seam direction: top to bottom

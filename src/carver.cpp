@@ -10,6 +10,21 @@
 
 using namespace carver;
 
+// Basic decomposition of seam removal algorithms identical regardless of threading impl.
+std::vector<uint32_t> Carver::horiz_seam() {
+    assert_valid_dims();
+    horiz_energy();
+    return Carver::min_horiz_seam();
+}
+
+std::vector<uint32_t> Carver::vertical_seam() {
+    assert_valid_dims();
+    vert_energy();
+    return min_vert_seam();
+}
+
+// Assorted helpers
+
 void Carver::assert_valid_dims() {
     if (image.cols() < 3) {
         std::cerr <<
