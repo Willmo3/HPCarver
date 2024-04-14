@@ -495,7 +495,9 @@ void Carver::remove_vert_seam(std::vector<uint32_t> &seam) {
 Carver::Carver(hpimage::Hpimage &image):
     image(image), energy(Energy(image.cols(), image.rows())) {
     assert_valid_dims();
-    // TODO: look into getenv to update num_threads
+    if (const char *thread_env = getenv("HPC_THREADS")) {
+        num_threads = std::stoi(thread_env);
+    }
 }
 
 } // namespace carver
