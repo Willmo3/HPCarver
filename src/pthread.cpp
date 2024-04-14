@@ -374,9 +374,9 @@ void vert_energy(Carver *carver) {
         uint32_t end_col = start_col + stride;
 
         while (thread_num < num_threads && start_col + stride <= energy->cols()) {
-            // Edge case: odd number of work, give the last task to the final thread.
-            if (end_col == energy->cols() + 1) {
-                end_col += 1;
+            // Edge case: odd amount of work, give the last tasks to the final thread.
+            if (thread_num == num_threads - 1 && end_col < energy->cols()) {
+                end_col = energy->cols();
             }
 
             auto *data = new_thread_data(carver, row, row, start_col, end_col);
