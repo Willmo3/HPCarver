@@ -87,11 +87,15 @@ std::vector<uint32_t> Carver::min_horiz_seam() {
 }
 
 
-// ***** VERTICAL SEAM OPERATORS ***** // 
+// ***** VERTICAL SEAM OPERATORS ***** //
 
 std::vector<uint32_t> Carver::vertical_seam() {
     assert_valid_dims();
+    vert_energy();
+    return min_vert_seam();
+}
 
+void Carver::vert_energy() {
     // Vertical seam direction: top to bottom
     // Prime memo structure with base energies of first pixel row.
     for (auto col = 0; col < energy.cols(); ++col) {
@@ -111,8 +115,9 @@ std::vector<uint32_t> Carver::vertical_seam() {
             energy.set_energy(col, row, local_energy);
         }
     }
+}
 
-    // Now, prime the reverse traversal with the minimum above energy.
+std::vector<uint32_t> Carver::min_vert_seam() {
     uint32_t bottom_row = energy.rows() - 1;
     auto seam = std::vector<uint32_t>{};
 
@@ -156,6 +161,9 @@ std::vector<uint32_t> Carver::vertical_seam() {
     std::reverse(seam.begin(), seam.end());
     return seam;
 }
+
+
+// ***** SEAM REMOVERS ***** //
 
 void Carver::remove_horiz_seam(std::vector<uint32_t> &seam) {
     // Must be exactly one row to remove from each column.
