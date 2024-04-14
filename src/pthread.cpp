@@ -179,8 +179,6 @@ void horiz_energy(Carver *carver) {
         energy->set_energy(0, row, carver->pixel_energy(0, row));
     }
 
-    // NOTE: since number of rows will not decrease during a horizontal seam update
-    // Can determine stride here.
     uint32_t stride = energy->rows() / num_threads;
     pthread_t thread_pool[num_threads];
 
@@ -190,7 +188,7 @@ void horiz_energy(Carver *carver) {
         // Split work as evenly as possible between all the threads we have
         for (uint32_t thread_num = 0; thread_num < num_threads; ++thread_num) {
             uint32_t start_row = thread_num * stride;
-            auto end_row = thread_num + stride;
+            auto end_row = start_row + stride;
 
             // Edge case: on an odd number of allocations, there may be an extra datum left over.
             // Just give it to the last thread.
@@ -238,7 +236,6 @@ void *update_horiz_energy(void *data1) {
         auto neighbor_energies = energy->get_left_predecessors(col, row);
 
         // Energy = local energy + min(neighbors)
-        // TODO: look into narrowing conversion
         uint32_t local_energy = carver->pixel_energy(col, row);
         local_energy += *std::min_element(neighbor_energies.begin(), neighbor_energies.end());
         energy->set_energy(col, row, local_energy);
@@ -306,71 +303,10 @@ std::vector<uint32_t> min_horiz_seam(Carver *carver, uint32_t end_index) {
 
 // ***** VERTICAL SEAM IMPLEMENTATIONS ***** //
 
-void *update_vert_seam(void *data1) {
-    auto *data = (thread_data*) data1;
-    auto carver = data->carver;
-    auto energy = carver->get_energy();
-
-    // Get fixed row for this data -- should be a single col.
-    assert(data->start_row == data->end_row);
-    assert(data->start_row >= 0 && data->start_row < carver->get_energy()->rows());
-    auto row = data->start_row;
-
-    // Get start, end rows for this data.
-    // NOTE: currently, asserting start, end aren't equal.
-    assert(data->start_col >= 0 && data->start_col < data->end_col);
-    assert(data->end_col < carver->get_energy()->cols());
-    auto start_col = data->start_row;
-    auto end_col = data->end_row;
-
-    // Now, perform the update over a single row.
-    for (auto col = start_col; col < end_col; ++col) {
-        // No wrapping
-        auto neighbor_energies = energy->get_top_predecessors(col, row);
-
-        // Energy = local energy + min(neighbors)
-        // TODO: look into narrowing conversion
-        uint32_t local_energy = carver->pixel_energy(col, row);
-        local_energy += *std::min_element(neighbor_energies.begin(), neighbor_energies.end());
-        energy->set_energy(col, row, local_energy);
-    }
-
-    pthread_exit(nullptr);
-}
-
-
-// ***** STANDARD CARVER IMPLS ***** //
-
-// Carver constructor
-Carver::Carver(hpimage::Hpimage &image):
-    image(image), energy(Energy(image.cols(), image.rows())) {
-    assert_valid_dims();
-    // TODO: look into getenv to update num_threads
-}
-
 
 std::vector<uint32_t> Carver::vertical_seam() {
     assert_valid_dims();
-
-    // Vertical seam direction: top to bottom
-    // Prime memo structure with base energies of first pixel row.
-    for (auto col = 0; col < energy.cols(); ++col) {
-        energy.set_energy(col, 0, pixel_energy(col, 0));
-    }
-
-    // This is one of the larger opportunities for parallelism.
-    // Set energy to minimum of three above neighbors.
-    for (auto row = 1; row < energy.rows(); ++row) {
-        for (auto col = 0; col < energy.cols(); ++col) {
-            // Note: no wrapping in seams!
-            auto neighbor_energies = energy.get_top_predecessors(col, row);
-
-            // energy = local energy + min(neighbors)
-            uint32_t local_energy = pixel_energy(col, row);
-            local_energy += *std::min_element(neighbor_energies.begin(), neighbor_energies.end());
-            energy.set_energy(col, row, local_energy);
-        }
-    }
+    vert_energy(this);
 
     // Now, prime the reverse traversal with the minimum above energy.
     uint32_t bottom_row = energy.rows() - 1;
@@ -412,6 +348,95 @@ std::vector<uint32_t> Carver::vertical_seam() {
     // Reverse the seam so traversal happens in expected direction.
     std::reverse(seam.begin(), seam.end());
     return seam;
+}
+
+void vert_energy(Carver *carver) {
+    auto energy = carver->get_energy();
+
+    // Vertical seam direction: top to bottom
+    // Prime memo structure with base energies of first pixel row.
+    for (auto col = 0; col < energy->cols(); ++col) {
+        energy->set_energy(col, 0, carver->pixel_energy(col, 0));
+    }
+
+    uint32_t stride = energy->cols() / num_threads;
+    // Edge case: too little work to go around.
+    if (stride == 0) {
+        stride = 1;
+    }
+    pthread_t thread_pool[num_threads];
+
+
+    // Set energy to minimum of three above neighbors.
+    for (auto row = 1; row < energy->rows(); ++row) {
+        uint32_t thread_num = 0;
+        uint32_t start_col = 0;
+        uint32_t end_col = start_col + stride;
+
+        while (thread_num < num_threads && start_col + stride <= energy->cols()) {
+            // Edge case: odd number of work, give the last task to the final thread.
+            if (end_col == energy->cols() + 1) {
+                end_col += 1;
+            }
+
+            auto *data = new_thread_data(carver, row, row, start_col, end_col);
+            pthread_create(&thread_pool[thread_num], nullptr,
+                           update_vert_energy, (void *) data);
+
+            // Update for next iteration
+            ++thread_num;
+            start_col = thread_num * stride;
+            end_col = start_col + stride;
+        }
+
+        // For now, not using a job queue -- spawning, reaping threads on each iteration.
+        // Only traverse through the thread numbers that we spawned
+        for (uint32_t thread = 0; thread < thread_num; ++thread) {
+            pthread_join(thread_pool[thread], nullptr);
+        }
+    }
+}
+
+void *update_vert_energy(void *data1) {
+    auto *data = (thread_data*) data1;
+
+    auto carver = data->carver;
+    auto energy = carver->get_energy();
+
+    // Get fixed row for this data -- should be a single col.
+    assert(data->start_row == data->end_row);
+    assert(data->start_row >= 0 && data->start_row < carver->get_energy()->rows());
+    auto row = data->start_row;
+
+    // Get start, end rows for this data.
+    // NOTE: currently, asserting start, end aren't equal.
+    assert(data->start_col >= 0 && data->start_col < data->end_col);
+    assert(data->end_col <= energy->cols());
+    auto start_col = data->start_col;
+    auto end_col = data->end_col;
+
+    // Now, perform the update over a single row.
+    for (auto col = start_col; col < end_col; ++col) {
+        // No wrapping
+        auto neighbor_energies = energy->get_top_predecessors(col, row);
+
+        // Energy = local energy + min(neighbors)
+        uint32_t local_energy = carver->pixel_energy(col, row);
+        local_energy += *std::min_element(neighbor_energies.begin(), neighbor_energies.end());
+        energy->set_energy(col, row, local_energy);
+    }
+
+    pthread_exit(nullptr);
+}
+
+
+// ***** STANDARD CARVER IMPLS ***** //
+
+// Carver constructor
+Carver::Carver(hpimage::Hpimage &image):
+    image(image), energy(Energy(image.cols(), image.rows())) {
+    assert_valid_dims();
+    // TODO: look into getenv to update num_threads
 }
 
 void Carver::remove_horiz_seam(std::vector<uint32_t> &seam) {
