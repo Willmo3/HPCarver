@@ -182,29 +182,32 @@ void horiz_energy(Carver *carver) {
     uint32_t stride = energy->rows() / num_threads;
     pthread_t thread_pool[num_threads];
 
+
     // Now set energy to minimum of three neighbors.
     for (uint32_t col = 1; col < energy->cols(); ++col) {
+        uint32_t thread_num = 0;
+        uint32_t start_row = 0;
+        uint32_t end_row = start_row + stride;
 
-        // Split work as evenly as possible between all the threads we have
-        for (uint32_t thread_num = 0; thread_num < num_threads; ++thread_num) {
-            uint32_t start_row = thread_num * stride;
-            auto end_row = start_row + stride;
-
-            // Edge case: on an odd number of allocations, there may be an extra datum left over.
-            // Just give it to the last thread.
-            if (end_row == energy->rows() - 1) {
-                end_row += 1;
+        while (thread_num < num_threads && end_row <= energy->rows()) {
+            if (thread_num == num_threads - 1 && end_row < energy->rows()) {
+                // Edge case: end row
+                end_row = energy->rows();
             }
 
             auto *data = new_thread_data(carver, start_row, end_row, col, col);
             pthread_create(&thread_pool[thread_num], nullptr,
                            update_horiz_energy, (void *) data);
-            // Data will be freed by thread when it's done.
+
+            ++thread_num;
+            start_row += stride;
+            end_row += stride;
         }
 
-        // For now, not using a job queue -- spawning, reaping threads on each iteration.
-        for (auto thread : thread_pool) {
-            pthread_join(thread, nullptr);
+        // Join all the threads that we spawned.
+        // For now, not using job queue.
+        for (auto thread = 0; thread < thread_num; ++thread) {
+            pthread_join(thread_pool[thread], nullptr);
         }
     }
 }
@@ -385,8 +388,8 @@ void vert_energy(Carver *carver) {
 
             // Update for next iteration
             ++thread_num;
-            start_col = thread_num * stride;
-            end_col = start_col + stride;
+            start_col += stride;
+            end_col += stride;
         }
 
         // For now, not using a job queue -- spawning, reaping threads on each iteration.
