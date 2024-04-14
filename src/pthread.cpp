@@ -368,7 +368,7 @@ void *shift_horiz(void *data1) {
     auto image = data->carver->get_image();
     // Horizontal seam removal's rows are defined by the seam.
     // So rows in this data structure ought to be 0.
-    assert(data->end_row == 0 && data->end_row == 0);
+    assert(data->start_row == 0 && data->end_row == 0);
     assert(data->start_col >= 0 && data->end_col <= image->cols());
 
     for (auto col = data->start_col; col < data->end_col; ++col) {
@@ -379,6 +379,37 @@ void *shift_horiz(void *data1) {
         for (auto row = index; row < image->rows() -1; ++row) {
             hpimage::pixel below = image->get_pixel(col, row + 1);
             image->set_pixel(col, row, below);
+        }
+    }
+
+    free(data);
+    data = nullptr;
+    pthread_exit(nullptr);
+}
+
+/**
+ * Given a seam and a set of rows representing portion of seam to operate on.
+ * shift all columns after the seam up by one.
+ *
+ * @param data1 Data structure containing seam and columns to shift up.
+ */
+void *shift_vert(void *data1) {
+    auto data = (thread_data *) data1;
+
+    auto image = data->carver->get_image();
+    // Horizontal seam removal's rows are defined by the seam.
+    // So rows in this data structure ought to be 0.
+    assert(data->start_col == 0 && data->end_col == 0);
+    assert(data->start_row >= 0 && data->end_col <= image->rows());
+
+    for (auto row = data->start_row; row < data->end_row; ++row) {
+        auto index = data->seam->at(row);
+        assert(index >= 0 && index < image->rows());
+
+        // Shift all pixels to the right of this one left.
+        for (auto col = index; col < image->cols() -1; ++col) {
+            hpimage::pixel right = image->get_pixel(col + 1, row);
+            image->set_pixel(col, row, right);
         }
     }
 
@@ -430,18 +461,36 @@ void Carver::remove_vert_seam(std::vector<uint32_t> &seam) {
     // Must be exactly one column to remove from each row.
     assert(seam.size() == image.rows());
 
-    // Shift every pixel after a given image over.
-    // Then reduce image size by one.
-    for (auto row = 0; row < image.rows(); ++row) {
-        auto index = seam[row];
-        assert(index >= 0 && index < image.cols());
+    // Must compute stride size.
+    pthread_t thread_pool[num_threads];
+    uint32_t stride = image.rows() / num_threads;
 
-        // Shift all pixels after this one back
-        for (auto col = index; col < image.cols() - 1; ++col) {
-            hpimage::pixel next = image.get_pixel(col + 1, row);
-            image.set_pixel(col, row, next);
-        }
+    // Edge case: too little work for all the threads we want!
+    if (stride == 0) {
+        stride = 1;
     }
+
+    uint32_t thread_num = 0;
+    uint32_t start_row = 0;
+    uint32_t end_row = start_row + stride;
+
+    while (thread_num < num_threads && end_row <= image.rows()) {
+        if (thread_num == num_threads - 1 && end_row != image.rows()) {
+            end_row = image.rows();
+        }
+
+        auto *data = new_thread_data(this, &seam, start_row, end_row, 0, 0);
+        pthread_create(&thread_pool[thread_num], nullptr, shift_vert, data);
+
+        ++thread_num;
+        start_row += stride;
+        end_row += stride;
+    }
+
+    for (auto thread = 0; thread < thread_num; ++thread) {
+        pthread_join(thread_pool[thread], nullptr);
+    }
+
     // Finally, with all pixels shifted over, time to trim the image!
     energy.cut_col();
     image.cut_col();
