@@ -243,6 +243,10 @@ void Carver::horiz_energy() {
     }
 
     uint32_t stride = energy.rows() / num_threads;
+    // Edge case: too few threads for workload.
+    if (stride == 0) {
+        stride = 1;
+    }
     pthread_t thread_pool[num_threads];
 
 
