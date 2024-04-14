@@ -141,39 +141,38 @@ std::vector<uint32_t> min_vert_seam(Carver *carver, uint32_t end_index);
 std::vector<uint32_t> Carver::horiz_seam() {
     assert_valid_dims();
     // Compute horizontal energies.
-    horiz_energy(this);
-    return min_horiz_seam(this);
+    horiz_energy();
+    return min_horiz_seam();
 }
 
 // ***** HORIZONTAL HELPERS ***** ///
 
-void horiz_energy(Carver *carver) {
-    auto energy = carver->get_energy();
+void Carver::horiz_energy() {
 
     // Generate energy matrix
     // Horizontal seam direction: left to right.
     // Prime memo structure with base energies of first pixel column.
-    for (auto row = 0; row < energy->rows(); ++row) {
-        energy->set_energy(0, row, carver->pixel_energy(0, row));
+    for (auto row = 0; row < energy.rows(); ++row) {
+        energy.set_energy(0, row, pixel_energy(0, row));
     }
 
-    uint32_t stride = energy->rows() / num_threads;
+    uint32_t stride = energy.rows() / num_threads;
     pthread_t thread_pool[num_threads];
 
 
     // Now set energy to minimum of three neighbors.
-    for (uint32_t col = 1; col < energy->cols(); ++col) {
+    for (uint32_t col = 1; col < energy.cols(); ++col) {
         uint32_t thread_num = 0;
         uint32_t start_row = 0;
         uint32_t end_row = start_row + stride;
 
-        while (thread_num < num_threads && end_row <= energy->rows()) {
-            if (thread_num == num_threads - 1 && end_row < energy->rows()) {
+        while (thread_num < num_threads && end_row <= energy.rows()) {
+            if (thread_num == num_threads - 1 && end_row < energy.rows()) {
                 // Edge case: end row
-                end_row = energy->rows();
+                end_row = energy.rows();
             }
 
-            auto *data = new_thread_data(carver, start_row, end_row, col, col);
+            auto *data = new_thread_data(this, start_row, end_row, col, col);
             pthread_create(&thread_pool[thread_num], nullptr,
                            update_horiz_energy, (void *) data);
 
@@ -227,17 +226,16 @@ void *update_horiz_energy(void *data1) {
     pthread_exit(nullptr);
 }
 
-std::vector<uint32_t> min_horiz_seam(Carver *carver) {
-    auto energy = carver->get_energy();
-    uint32_t back_col = energy->cols() - 1;
+std::vector<uint32_t> Carver::min_horiz_seam() {
+    uint32_t back_col = energy.cols() - 1;
 
     // Default: row 0 of the last column contains the minimum energy.
     // Invariant: there will be at least two rows to consider.
     uint32_t min_row = 0;
-    uint32_t min_energy = energy->get_energy(back_col, 0);
+    uint32_t min_energy = energy.get_energy(back_col, 0);
 
-    for (auto row = 1; row < energy->rows(); ++row) {
-        uint32_t current_energy = energy->get_energy(back_col, row);
+    for (auto row = 1; row < energy.rows(); ++row) {
+        uint32_t current_energy = energy.get_energy(back_col, row);
         if (current_energy < min_energy) {
             min_row = row;
             min_energy = current_energy;
@@ -254,13 +252,13 @@ std::vector<uint32_t> min_horiz_seam(Carver *carver) {
         // Get the previous index from which to grab neighbors.
         auto row = seam.back();
         min_row = row;
-        min_energy = energy->get_energy(col, min_row);
+        min_energy = energy.get_energy(col, min_row);
         // Check if the upper or lower neighbors are actually better choices.
-        if (row > 0 && min_energy > energy->get_energy(col, row - 1)) {
+        if (row > 0 && min_energy > energy.get_energy(col, row - 1)) {
             min_row = row - 1;
-            min_energy = energy->get_energy(col, row - 1);
+            min_energy = energy.get_energy(col, row - 1);
         }
-        if (row + 1 < energy->rows() && min_energy > energy->get_energy(col, row + 1)) {
+        if (row + 1 < energy.rows() && min_energy > energy.get_energy(col, row + 1)) {
             min_row = row + 1;
         }
         seam.push_back(min_row);
@@ -277,7 +275,7 @@ std::vector<uint32_t> min_horiz_seam(Carver *carver) {
 
 std::vector<uint32_t> Carver::vertical_seam() {
     assert_valid_dims();
-    vert_energy(this);
+    vert_energy();
 
     // Now, prime the reverse traversal with the minimum above energy.
     uint32_t bottom_row = energy.rows() - 1;
@@ -321,16 +319,14 @@ std::vector<uint32_t> Carver::vertical_seam() {
     return seam;
 }
 
-void vert_energy(Carver *carver) {
-    auto energy = carver->get_energy();
-
+void Carver::vert_energy() {
     // Vertical seam direction: top to bottom
     // Prime memo structure with base energies of first pixel row.
-    for (auto col = 0; col < energy->cols(); ++col) {
-        energy->set_energy(col, 0, carver->pixel_energy(col, 0));
+    for (auto col = 0; col < energy.cols(); ++col) {
+        energy.set_energy(col, 0, pixel_energy(col, 0));
     }
 
-    uint32_t stride = energy->cols() / num_threads;
+    uint32_t stride = energy.cols() / num_threads;
     // Edge case: too little work to go around.
     if (stride == 0) {
         stride = 1;
@@ -339,18 +335,18 @@ void vert_energy(Carver *carver) {
 
 
     // Set energy to minimum of three above neighbors.
-    for (auto row = 1; row < energy->rows(); ++row) {
+    for (auto row = 1; row < energy.rows(); ++row) {
         uint32_t thread_num = 0;
         uint32_t start_col = 0;
         uint32_t end_col = start_col + stride;
 
-        while (thread_num < num_threads && start_col + stride <= energy->cols()) {
+        while (thread_num < num_threads && start_col + stride <= energy.cols()) {
             // Edge case: odd amount of work, give the last tasks to the final thread.
-            if (thread_num == num_threads - 1 && end_col < energy->cols()) {
-                end_col = energy->cols();
+            if (thread_num == num_threads - 1 && end_col < energy.cols()) {
+                end_col = energy.cols();
             }
 
-            auto *data = new_thread_data(carver, row, row, start_col, end_col);
+            auto *data = new_thread_data(this, row, row, start_col, end_col);
             pthread_create(&thread_pool[thread_num], nullptr,
                            update_vert_energy, (void *) data);
 

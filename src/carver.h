@@ -61,8 +61,38 @@ private:
      */
     static uint32_t gradient_energy(hpimage::pixel p1, hpimage::pixel p2);
 
-    // NOTE: ALL PUBLIC METHODS MUST BE IMPLEMENTED BY VARIOUS LIBRARY IMPLEMENTATIONS!
-    public:
+    /**
+     * Traverses the carver's energy matrix from left to right, updating energy based on base_energy + predecessors.
+     * <b>Implemented by libraries!</b>
+     */
+    void horiz_energy();
+
+    /**
+     * Given an end index and a carver, traverse the carver's energy matrix
+     * Finding the minimum connected index at each point.
+     * <b>Implemented by libraries!</b>
+     *
+     * @param carver carver to use.
+     * @return The minimum seam, in the correct direction.
+     */
+    std::vector<uint32_t> min_horiz_seam();
+
+    /**
+     * Compute the minimum energy of each pixel in the vertical direction, storing in carver's energy memo structure.
+     */
+    void vert_energy();
+
+    /**
+     * Given an end index and a carver, traverse the carver's energy matrix
+     * Finding the minimum connected index at each point.
+     * <b>Implemented by libraries!</b>
+     *
+     * @return The minimum seam, in the correct direction.
+     */
+    std::vector<uint32_t> min_vert_seam();
+
+// NOTE: ALL PUBLIC METHODS MUST BE IMPLEMENTED BY VARIOUS LIBRARY IMPLEMENTATIONS!
+public:
 
     /**
      * HPCarver constructor.
