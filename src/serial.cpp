@@ -15,18 +15,17 @@ namespace carver {
 Carver::Carver(hpimage::Hpimage &image):
     image(image), energy(Energy(image.cols(), image.rows()))
     { assert_valid_dims(); }
+
+
+// ***** HORIZONTAL SEAM OPERATORS ***** //
     
 std::vector<uint32_t> Carver::horiz_seam() {
     assert_valid_dims();
+    horiz_energy();
+    return min_horiz_seam();
+}
 
-    // At the end, pick any of the pixels with minimal memoized energy. Then, find the lowest energy
-    // Adjacent pixel in the next row. Repeat until the end, adding to the seam vector.
-
-    // Return the reversed vector.
-
-    // Generate energy matrix
-    // Horizontal seam direction: left to right.
-    // Prime memo structure with base energies of first pixel column.
+void Carver::horiz_energy() {
     for (auto row = 0; row < energy.rows(); ++row) {
         energy.set_energy(0, row, pixel_energy(0, row));
     }
@@ -43,7 +42,9 @@ std::vector<uint32_t> Carver::horiz_seam() {
             energy.set_energy(col, row, local_energy);
         }
     }
+}
 
+std::vector<uint32_t> Carver::min_horiz_seam() {
     // Now, prime the reverse traversal with the minimum above energy.
     uint32_t back_col = energy.cols() - 1;
     auto seam = std::vector<uint32_t>{};
@@ -84,6 +85,9 @@ std::vector<uint32_t> Carver::horiz_seam() {
     std::reverse(seam.begin(), seam.end());
     return seam;
 }
+
+
+// ***** VERTICAL SEAM OPERATORS ***** // 
 
 std::vector<uint32_t> Carver::vertical_seam() {
     assert_valid_dims();
