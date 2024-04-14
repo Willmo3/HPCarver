@@ -45,12 +45,7 @@ public:
 
     // PREDECESSOR ACCESSORS
     // Useful for dynamic programming directional traversal.
-
-    // TODO: common issue: get the "predecessors" of a pixel in a given direction.
-    // API questions:
-    // -- just energy -- or indexes?
-    // -- specify a direction?
-    // --
+    
     /**
      * Get the energies of the predecessors of a given pixel from above (i.e. its three top neighbors).
      * Useful for vertical traversal of data.
