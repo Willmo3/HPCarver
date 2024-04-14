@@ -95,6 +95,14 @@ void *update_horiz_energy(void *data);
  */
 void horiz_energy(Carver *carver);
 
+/**
+ * Find the end of the minimum horizontal seam by traversing the back column of the energy matrix.
+ * Then, we will be able to find the optimal seam by traversing in reverse order.
+ * @param carver Carver to consider.
+ * @return Row of minimum energy pixel in last column.
+ */
+uint32_t min_horiz_seam_end(Carver *carver);
+
 
 
 // ***** VERTICAL ENERGY ***** //
@@ -110,33 +118,26 @@ void horiz_energy(Carver *carver);
 void *thread_vert_seam(void *data);
 
 
+// ***** IMPLEMENTATIONS ***** //
+
+
 // ***** HORIZONTAL ENERGY UPDATERS ***** //
 
 
 std::vector<uint32_t> Carver::horiz_seam() {
     assert_valid_dims();
-    
+
     // Compute horizontal energies.
     horiz_energy(this);
-
+    uint32_t back_col = energy.cols() - 1;
 
     // Now, prime the reverse traversal with the minimum above energy.
-    uint32_t back_col = energy.cols() - 1;
     auto seam = std::vector<uint32_t>{};
+    auto seam_end = min_horiz_seam_end(this);
+    seam.push_back(seam_end);
 
-    // Default: row 0 of the last column contains the minimum energy.
-    // Invariant: there will be at least two rows to consider.
     uint32_t min_row = 0;
-    uint32_t min_energy = energy.get_energy(back_col, 0);
-
-    for (auto row = 1; row < energy.rows(); ++row) {
-        uint32_t current_energy = energy.get_energy(back_col, row);
-        if (current_energy < min_energy) {
-            min_row = row;
-            min_energy = current_energy;
-        }
-    }
-    seam.push_back(min_row);
+    uint32_t min_energy = energy.get_energy(back_col - 1, min_row);
 
     // Find the rest of the seam, using only the three predecessors of each node.
     // Using wider signed form to prevent underflow
@@ -160,6 +161,8 @@ std::vector<uint32_t> Carver::horiz_seam() {
     std::reverse(seam.begin(), seam.end());
     return seam;
 }
+
+// ***** HORIZONTAL HELPERS ***** ///
 
 void horiz_energy(Carver *carver) {
     auto energy = carver->get_energy();
@@ -203,7 +206,6 @@ void horiz_energy(Carver *carver) {
     }
 }
 
-// Threaded horizontal energy updater.
 void *update_horiz_energy(void *data1) {
     auto *data = (thread_data*) data1;
 
@@ -241,6 +243,29 @@ void *update_horiz_energy(void *data1) {
     data = nullptr;
     pthread_exit(nullptr);
 }
+
+uint32_t min_horiz_seam_end(Carver *carver) {
+    auto energy = carver->get_energy();
+    uint32_t back_col = energy->cols() - 1;
+
+    // Default: row 0 of the last column contains the minimum energy.
+    // Invariant: there will be at least two rows to consider.
+    uint32_t min_row = 0;
+    uint32_t min_energy = energy->get_energy(back_col, 0);
+
+    for (auto row = 1; row < energy->rows(); ++row) {
+        uint32_t current_energy = energy->get_energy(back_col, row);
+        if (current_energy < min_energy) {
+            min_row = row;
+            min_energy = current_energy;
+        }
+    }
+
+    return min_row;
+}
+
+
+// ***** VERTICAL SEAM IMPLEMENTATIONS ***** //
 
 void *update_vert_seam(void *data1) {
     auto *data = (thread_data*) data1;
