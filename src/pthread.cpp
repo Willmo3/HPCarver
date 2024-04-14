@@ -49,6 +49,34 @@ struct thread_data {
 };
 
 /**
+ * Thread data constructor.
+ * Note: either the start and end row should be the same,
+ * or the start and end column should be the same.
+ * If an operation traverses multiple rows and columns, will be data access issues.
+ *
+ * @param carver Carver object. Will be used to read energy vector.
+ * @param start_row Row computation should start on.
+ * @param end_row Row computation should end on.
+ * @param start_col Column computation should start on.
+ * @param end_col Column computation should end on.
+ * @return Heap-allocated thread data structure with these params.
+ */
+thread_data *new_thread_data(Carver *carver,
+                             uint32_t start_row, uint32_t end_row, uint32_t start_col, uint32_t end_col) {
+
+    assert(start_row == end_row || start_col == end_col);
+    auto *data = static_cast<thread_data *>(calloc(1, sizeof(thread_data)));
+
+    data->carver = carver;
+    data->start_row = start_row;
+    data->end_row = end_row;
+    data->start_col = start_col;
+    data->end_col = end_col;
+
+    return data;
+}
+
+/**
  * Threaded horizontal image energy updater.
  * Given a thread_data struct, traverse the specified column, updating each pixel's energies
  * Based on the minimum of their left neighbors.
@@ -95,6 +123,7 @@ void *update_horiz_energy(void *data1) {
         auto neighbor_energies = energy->get_left_predecessors(col, row);
 
         // Energy = local energy + min(neighbors)
+        // TODO: look into narrowing conversion
         uint32_t local_energy = carver->pixel_energy(col, row);
         local_energy += *std::min_element(neighbor_energies.begin(), neighbor_energies.end());
         energy->set_energy(col, row, local_energy);
@@ -175,19 +204,13 @@ std::vector<uint32_t> Carver::horiz_seam() {
             uint32_t start_row = thread_num * stride;
             auto end_row = thread_num + stride;
 
-            // Edge case: on an odd number of allocations, there may be an extra thread left over.
+            // Edge case: on an odd number of allocations, there may be an extra datum left over.
+            // Just give it to the last thread.
             if (end_row == energy.rows() - 1) {
                 end_row += 1;
             }
 
-            // NOTE: DO NOT PASS REFERENCE TO STACK ALLOCATED DATA
-            // THREADS HAVE THEIR OWN STACKS -- IT GETS WEIRD!
-            auto *data = static_cast<thread_data *>(calloc(1, sizeof(thread_data)));
-            data->carver = this;
-            data->start_row = start_row;
-            data->end_row = end_row;
-            data->start_col = col;
-            data->end_col = col;
+            auto *data = new_thread_data(this, start_row, end_row, col, col);
             pthread_create(&thread_pool[thread_num], nullptr,
                            update_horiz_energy, (void *) data);
             // Data will be freed by thread when it's done.
@@ -279,9 +302,6 @@ std::vector<uint32_t> Carver::vertical_seam() {
             min_energy = current_energy;
         }
     }
-
-    // Problem: tight coupling.
-    // This should be generic enough to work for any amount
 
     seam.push_back(min_col);
 
