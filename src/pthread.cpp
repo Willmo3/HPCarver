@@ -103,7 +103,14 @@ void horiz_energy(Carver *carver);
  */
 uint32_t min_horiz_seam_end(Carver *carver);
 
-
+/**
+ * Given an end index and a carver, traverse the carver's energy matrix
+ * Finding the minimum connected index at each point.
+ *
+ * @param end_index Index at the end of the seam; this will prime the computation.
+ * @return The minimum seam, in the correct direction.
+ */
+std::vector<uint32_t> minimum_seam(Carver *carver, uint32_t end_index);
 
 // ***** VERTICAL ENERGY ***** //
 
@@ -132,34 +139,9 @@ std::vector<uint32_t> Carver::horiz_seam() {
     uint32_t back_col = energy.cols() - 1;
 
     // Now, prime the reverse traversal with the minimum above energy.
-    auto seam = std::vector<uint32_t>{};
     auto seam_end = min_horiz_seam_end(this);
-    seam.push_back(seam_end);
-
-    uint32_t min_row = 0;
-    uint32_t min_energy = energy.get_energy(back_col - 1, min_row);
-
-    // Find the rest of the seam, using only the three predecessors of each node.
-    // Using wider signed form to prevent underflow
-    for (int64_t col = back_col - 1; col >= 0; --col) {
-        // Get the previous index from which to grab neighbors.
-        auto row = seam.back();
-        min_row = row;
-        min_energy = energy.get_energy(col, min_row);
-        // Check if the upper or lower neighbors are actually better choices.
-        if (row > 0 && min_energy > energy.get_energy(col, row - 1)) {
-            min_row = row - 1;
-            min_energy = energy.get_energy(col, row - 1);
-        }
-        if (row + 1 < energy.rows() && min_energy > energy.get_energy(col, row + 1)) {
-            min_row = row + 1;
-        }
-        seam.push_back(min_row);
-    }
-
-    // Finally, reverse seam so that it goes in the natural rear-forward order.
-    std::reverse(seam.begin(), seam.end());
-    return seam;
+    // And return the minimum seam with this primed data.
+    return minimum_seam(this, seam_end);
 }
 
 // ***** HORIZONTAL HELPERS ***** ///
@@ -262,6 +244,40 @@ uint32_t min_horiz_seam_end(Carver *carver) {
     }
 
     return min_row;
+}
+
+std::vector<uint32_t> minimum_seam(Carver *carver, uint32_t end_index) {
+    auto energy = carver->get_energy();
+    uint32_t back_col = energy->cols() - 1;
+
+    // Now, prime the reverse traversal with the minimum above energy.
+    auto seam = std::vector<uint32_t>{};
+    seam.push_back(end_index);
+
+    uint32_t min_row;
+    uint32_t min_energy;
+
+    // Find the rest of the seam, using only the three predecessors of each node.
+    // Using wider signed form to prevent underflow
+    for (int64_t col = back_col - 1; col >= 0; --col) {
+        // Get the previous index from which to grab neighbors.
+        auto row = seam.back();
+        min_row = row;
+        min_energy = energy->get_energy(col, min_row);
+        // Check if the upper or lower neighbors are actually better choices.
+        if (row > 0 && min_energy > energy->get_energy(col, row - 1)) {
+            min_row = row - 1;
+            min_energy = energy->get_energy(col, row - 1);
+        }
+        if (row + 1 < energy->rows() && min_energy > energy->get_energy(col, row + 1)) {
+            min_row = row + 1;
+        }
+        seam.push_back(min_row);
+    }
+
+    // Finally, reverse seam so that it goes in the natural rear-forward order.
+    std::reverse(seam.begin(), seam.end());
+    return seam;
 }
 
 
