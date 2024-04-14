@@ -243,9 +243,10 @@ void Carver::horiz_energy() {
     }
 
     uint32_t stride = energy.rows() / num_threads;
-    // Edge case: too few threads for workload.
-    if (stride == 0) {
-        stride = 1;
+    // Round up work.
+    // Then, the last thread will do less work.
+    if (energy.rows() % num_threads) {
+        stride += 1;
     }
     pthread_t thread_pool[num_threads];
 
@@ -256,9 +257,9 @@ void Carver::horiz_energy() {
         uint32_t start_row = 0;
         uint32_t end_row = start_row + stride;
 
-        while (thread_num < num_threads && end_row <= energy.rows()) {
-            if (thread_num == num_threads - 1 && end_row < energy.rows()) {
-                // Edge case: end row
+        while (thread_num < num_threads && start_row < energy.rows()) {
+            if (end_row > energy.rows()) {
+                // Edge case: we've run out of work for the threads!
                 end_row = energy.rows();
             }
 
@@ -334,9 +335,11 @@ void Carver::vert_energy() {
     }
 
     uint32_t stride = energy.cols() / num_threads;
-    // Edge case: too little work to go around.
-    if (stride == 0) {
-        stride = 1;
+
+    // If work allocation doesn't fit perfectly, assign slightly more work to each thread.
+    // Then, they can each do a little extra.
+    if (energy.cols() % num_threads) {
+        stride += 1;
     }
     pthread_t thread_pool[num_threads];
 
@@ -347,9 +350,9 @@ void Carver::vert_energy() {
         uint32_t start_col = 0;
         uint32_t end_col = start_col + stride;
 
-        while (thread_num < num_threads && start_col + stride <= energy.cols()) {
+        while (thread_num < num_threads && start_col < energy.cols()) {
             // Edge case: odd amount of work, give the last tasks to the final thread.
-            if (thread_num == num_threads - 1 && end_col < energy.cols()) {
+            if (end_col > energy.cols()) {
                 end_col = energy.cols();
             }
 
