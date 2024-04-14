@@ -86,9 +86,42 @@ thread_data *new_thread_data(Carver *carver,
  * @param data: data structure for horizontal seam removal, contains carver object
  * @return Nothing; the changes will be made to data->carver
  */
-void *update_horiz_energy(void *data);
+void *update_horiz_energy(void *data1) {
+    auto *data = (thread_data*) data1;
 
-// ***** VERTICAL ENERGY ***** //
+    // Note: these should all be pointers, not references.
+    // C++ does weird automatic deallocation stuff when you use references.
+    auto carver = data->carver;
+    auto energy = carver->get_energy();
+
+    // Get fixed column for this data -- should be a single col.
+    assert(data->start_col == data->end_col);
+    assert(data->start_col >= 0 && data->start_col < energy->cols());
+    auto col = data->start_col;
+
+    // Get start, end rows for this data.
+    // NOTE: currently, asserting start, end aren't equal.
+    assert(data->start_row >= 0 && data->start_row < data->end_row);
+    // NOTE: since end_row is an exclusive boundary, it's OK for it to equal energy->rows()
+    assert(data->end_row <= energy->rows());
+    auto start_row = data->start_row;
+    auto end_row = data->end_row;
+
+    // Now, perform the update over a single column.
+    for (auto row = start_row; row < end_row; ++row) {
+        // No wrapping
+        auto neighbor_energies = energy->get_left_predecessors(col, row);
+
+        // Energy = local energy + min(neighbors)
+        uint32_t local_energy = carver->pixel_energy(col, row);
+        local_energy += *std::min_element(neighbor_energies.begin(), neighbor_energies.end());
+        energy->set_energy(col, row, local_energy);
+    }
+
+    free(data);
+    data = nullptr;
+    pthread_exit(nullptr);
+}
 
 /**
  * Threaded vertical image energy updater.
@@ -98,15 +131,43 @@ void *update_horiz_energy(void *data);
  * @param data: data structure for vertical seam removal, contains carver object
  * @return Nothing, changes will be made to data->carver
  */
-void *update_vert_energy(void *data);
+void *update_vert_energy(void *data1) {
+    auto *data = (thread_data*) data1;
+
+    auto carver = data->carver;
+    auto energy = carver->get_energy();
+
+    // Get fixed row for this data -- should be a single col.
+    assert(data->start_row == data->end_row);
+    assert(data->start_row >= 0 && data->start_row < carver->get_energy()->rows());
+    auto row = data->start_row;
+
+    // Get start, end rows for this data.
+    // NOTE: currently, asserting start, end aren't equal.
+    assert(data->start_col >= 0 && data->start_col < data->end_col);
+    assert(data->end_col <= energy->cols());
+    auto start_col = data->start_col;
+    auto end_col = data->end_col;
+
+    // Now, perform the update over a single row.
+    for (auto col = start_col; col < end_col; ++col) {
+        // No wrapping
+        auto neighbor_energies = energy->get_top_predecessors(col, row);
+
+        // Energy = local energy + min(neighbors)
+        uint32_t local_energy = carver->pixel_energy(col, row);
+        local_energy += *std::min_element(neighbor_energies.begin(), neighbor_energies.end());
+        energy->set_energy(col, row, local_energy);
+    }
+
+    pthread_exit(nullptr);
+}
 
 
 // ***** IMPLEMENTATIONS ***** //
 
 
-// ***** HORIZONTAL ENERGY UPDATERS ***** //
-
-
+// ***** HORIZONTAL HELPERS ***** //
 std::vector<uint32_t> Carver::horiz_seam() {
     assert_valid_dims();
     // Compute horizontal energies.
@@ -114,10 +175,8 @@ std::vector<uint32_t> Carver::horiz_seam() {
     return min_horiz_seam();
 }
 
-// ***** HORIZONTAL HELPERS ***** ///
 
 void Carver::horiz_energy() {
-
     // Generate energy matrix
     // Horizontal seam direction: left to right.
     // Prime memo structure with base energies of first pixel column.
@@ -156,43 +215,6 @@ void Carver::horiz_energy() {
             pthread_join(thread_pool[thread], nullptr);
         }
     }
-}
-
-void *update_horiz_energy(void *data1) {
-    auto *data = (thread_data*) data1;
-
-    // Note: these should all be pointers, not references.
-    // C++ does weird automatic deallocation stuff when you use references.
-    auto carver = data->carver;
-    auto energy = carver->get_energy();
-
-    // Get fixed column for this data -- should be a single col.
-    assert(data->start_col == data->end_col);
-    assert(data->start_col >= 0 && data->start_col < energy->cols());
-    auto col = data->start_col;
-
-    // Get start, end rows for this data.
-    // NOTE: currently, asserting start, end aren't equal.
-    assert(data->start_row >= 0 && data->start_row < data->end_row);
-    // NOTE: since end_row is an exclusive boundary, it's OK for it to equal energy->rows()
-    assert(data->end_row <= energy->rows());
-    auto start_row = data->start_row;
-    auto end_row = data->end_row;
-
-    // Now, perform the update over a single column.
-    for (auto row = start_row; row < end_row; ++row) {
-        // No wrapping
-        auto neighbor_energies = energy->get_left_predecessors(col, row);
-
-        // Energy = local energy + min(neighbors)
-        uint32_t local_energy = carver->pixel_energy(col, row);
-        local_energy += *std::min_element(neighbor_energies.begin(), neighbor_energies.end());
-        energy->set_energy(col, row, local_energy);
-    }
-
-    free(data);
-    data = nullptr;
-    pthread_exit(nullptr);
 }
 
 std::vector<uint32_t> Carver::min_horiz_seam() {
@@ -239,7 +261,7 @@ std::vector<uint32_t> Carver::min_horiz_seam() {
 }
 
 
-// ***** VERTICAL SEAM IMPLEMENTATIONS ***** //
+// ***** VERTICAL HELPERS ***** //
 
 
 std::vector<uint32_t> Carver::vertical_seam() {
@@ -334,38 +356,6 @@ std::vector<uint32_t> Carver::min_vert_seam() {
     // Reverse the seam so traversal happens in expected direction.
     std::reverse(seam.begin(), seam.end());
     return seam;
-}
-
-void *update_vert_energy(void *data1) {
-    auto *data = (thread_data*) data1;
-
-    auto carver = data->carver;
-    auto energy = carver->get_energy();
-
-    // Get fixed row for this data -- should be a single col.
-    assert(data->start_row == data->end_row);
-    assert(data->start_row >= 0 && data->start_row < carver->get_energy()->rows());
-    auto row = data->start_row;
-
-    // Get start, end rows for this data.
-    // NOTE: currently, asserting start, end aren't equal.
-    assert(data->start_col >= 0 && data->start_col < data->end_col);
-    assert(data->end_col <= energy->cols());
-    auto start_col = data->start_col;
-    auto end_col = data->end_col;
-
-    // Now, perform the update over a single row.
-    for (auto col = start_col; col < end_col; ++col) {
-        // No wrapping
-        auto neighbor_energies = energy->get_top_predecessors(col, row);
-
-        // Energy = local energy + min(neighbors)
-        uint32_t local_energy = carver->pixel_energy(col, row);
-        local_energy += *std::min_element(neighbor_energies.begin(), neighbor_energies.end());
-        energy->set_energy(col, row, local_energy);
-    }
-
-    pthread_exit(nullptr);
 }
 
 
