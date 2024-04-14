@@ -13,7 +13,7 @@
 namespace carver {
 
 
-// ***** THREADING IMPLS ***** //
+// ***** THREADING METADATA ***** //
 
 /**
  * This may be updated by an env var.
@@ -76,6 +76,8 @@ thread_data *new_thread_data(Carver *carver,
     return data;
 }
 
+// ***** HORIZONTAL ENERGY ***** //
+
 /**
  * Threaded horizontal image energy updater.
  * Given a thread_data struct, traverse the specified column, updating each pixel's energies
@@ -87,6 +89,17 @@ thread_data *new_thread_data(Carver *carver,
 void *update_horiz_energy(void *data);
 
 /**
+ * Horizontal energy updating entry point.
+ * Traverses the carver's energy matrix from left to right, updating energy based on base_energy + predecessors.
+ * @param carver Carver to perform operations on.
+ */
+void horiz_energy(Carver *carver);
+
+
+
+// ***** VERTICAL ENERGY ***** //
+
+/**
  * Threaded vertical image energy updater.
  * Given a thread_data struct, traverse the specified row, updating each pixel's energies
  * Based on the minimum of their upper neighbors.
@@ -96,6 +109,101 @@ void *update_horiz_energy(void *data);
  */
 void *thread_vert_seam(void *data);
 
+
+// ***** HORIZONTAL ENERGY UPDATERS ***** //
+
+
+std::vector<uint32_t> Carver::horiz_seam() {
+    assert_valid_dims();
+    
+    // Compute horizontal energies.
+    horiz_energy(this);
+
+
+    // Now, prime the reverse traversal with the minimum above energy.
+    uint32_t back_col = energy.cols() - 1;
+    auto seam = std::vector<uint32_t>{};
+
+    // Default: row 0 of the last column contains the minimum energy.
+    // Invariant: there will be at least two rows to consider.
+    uint32_t min_row = 0;
+    uint32_t min_energy = energy.get_energy(back_col, 0);
+
+    for (auto row = 1; row < energy.rows(); ++row) {
+        uint32_t current_energy = energy.get_energy(back_col, row);
+        if (current_energy < min_energy) {
+            min_row = row;
+            min_energy = current_energy;
+        }
+    }
+    seam.push_back(min_row);
+
+    // Find the rest of the seam, using only the three predecessors of each node.
+    // Using wider signed form to prevent underflow
+    for (int64_t col = back_col - 1; col >= 0; --col) {
+        // Get the previous index from which to grab neighbors.
+        auto row = seam.back();
+        min_row = row;
+        min_energy = energy.get_energy(col, min_row);
+        // Check if the upper or lower neighbors are actually better choices.
+        if (row > 0 && min_energy > energy.get_energy(col, row - 1)) {
+            min_row = row - 1;
+            min_energy = energy.get_energy(col, row - 1);
+        }
+        if (row + 1 < energy.rows() && min_energy > energy.get_energy(col, row + 1)) {
+            min_row = row + 1;
+        }
+        seam.push_back(min_row);
+    }
+
+    // Finally, reverse seam so that it goes in the natural rear-forward order.
+    std::reverse(seam.begin(), seam.end());
+    return seam;
+}
+
+void horiz_energy(Carver *carver) {
+    auto energy = carver->get_energy();
+
+    // Generate energy matrix
+    // Horizontal seam direction: left to right.
+    // Prime memo structure with base energies of first pixel column.
+    for (auto row = 0; row < energy->rows(); ++row) {
+        energy->set_energy(0, row, carver->pixel_energy(0, row));
+    }
+
+    // NOTE: since number of rows will not decrease during a horizontal seam update
+    // Can determine stride here.
+    uint32_t stride = energy->rows() / num_threads;
+    pthread_t thread_pool[num_threads];
+
+    // Now set energy to minimum of three neighbors.
+    for (uint32_t col = 1; col < energy->cols(); ++col) {
+
+        // Split work as evenly as possible between all the threads we have
+        for (uint32_t thread_num = 0; thread_num < num_threads; ++thread_num) {
+            uint32_t start_row = thread_num * stride;
+            auto end_row = thread_num + stride;
+
+            // Edge case: on an odd number of allocations, there may be an extra datum left over.
+            // Just give it to the last thread.
+            if (end_row == energy->rows() - 1) {
+                end_row += 1;
+            }
+
+            auto *data = new_thread_data(carver, start_row, end_row, col, col);
+            pthread_create(&thread_pool[thread_num], nullptr,
+                           update_horiz_energy, (void *) data);
+            // Data will be freed by thread when it's done.
+        }
+
+        // For now, not using a job queue -- spawning, reaping threads on each iteration.
+        for (auto thread : thread_pool) {
+            pthread_join(thread, nullptr);
+        }
+    }
+}
+
+// Threaded horizontal energy updater.
 void *update_horiz_energy(void *data1) {
     auto *data = (thread_data*) data1;
 
@@ -175,93 +283,7 @@ Carver::Carver(hpimage::Hpimage &image):
     assert_valid_dims();
     // TODO: look into getenv to update num_threads
 }
-    
-std::vector<uint32_t> Carver::horiz_seam() {
-    assert_valid_dims();
 
-    // At the end, pick any of the pixels with minimal memoized energy. Then, find the lowest energy
-    // Adjacent pixel in the next row. Repeat until the end, adding to the seam vector.
-
-    // Return the reversed vector.
-
-    // Generate energy matrix
-    // Horizontal seam direction: left to right.
-    // Prime memo structure with base energies of first pixel column.
-    for (auto row = 0; row < energy.rows(); ++row) {
-        energy.set_energy(0, row, pixel_energy(0, row));
-    }
-
-    // NOTE: since number of rows will not decrease during a horizontal seam update
-    // Can determine stride here.
-    uint32_t stride = energy.rows() / num_threads;
-    pthread_t thread_pool[num_threads];
-
-    // Now set energy to minimum of three neighbors.
-    for (uint32_t col = 1; col < energy.cols(); ++col) {
-
-        // Split work as evenly as possible between all the threads we have
-        for (uint32_t thread_num = 0; thread_num < num_threads; ++thread_num) {
-            uint32_t start_row = thread_num * stride;
-            auto end_row = thread_num + stride;
-
-            // Edge case: on an odd number of allocations, there may be an extra datum left over.
-            // Just give it to the last thread.
-            if (end_row == energy.rows() - 1) {
-                end_row += 1;
-            }
-
-            auto *data = new_thread_data(this, start_row, end_row, col, col);
-            pthread_create(&thread_pool[thread_num], nullptr,
-                           update_horiz_energy, (void *) data);
-            // Data will be freed by thread when it's done.
-        }
-
-        // For now, not using a job queue -- spawning, reaping threads on each iteration.
-        for (auto thread : thread_pool) {
-            pthread_join(thread, nullptr);
-        }
-    }
-
-    // Now, prime the reverse traversal with the minimum above energy.
-    uint32_t back_col = energy.cols() - 1;
-    auto seam = std::vector<uint32_t>{};
-
-    // Default: row 0 of the last column contains the minimum energy.
-    // Invariant: there will be at least two rows to consider.
-    uint32_t min_row = 0;
-    uint32_t min_energy = energy.get_energy(back_col, 0);
-
-    for (auto row = 1; row < energy.rows(); ++row) {
-        uint32_t current_energy = energy.get_energy(back_col, row);
-        if (current_energy < min_energy) {
-            min_row = row;
-            min_energy = current_energy;
-        }
-    }
-    seam.push_back(min_row);
-
-    // Find the rest of the seam, using only the three predecessors of each node.
-    // Using wider signed form to prevent underflow
-    for (int64_t col = back_col - 1; col >= 0; --col) {
-        // Get the previous index from which to grab neighbors.
-        auto row = seam.back();
-        min_row = row;
-        min_energy = energy.get_energy(col, min_row);
-        // Check if the upper or lower neighbors are actually better choices.
-        if (row > 0 && min_energy > energy.get_energy(col, row - 1)) {
-            min_row = row - 1;
-            min_energy = energy.get_energy(col, row - 1);
-        }
-        if (row + 1 < energy.rows() && min_energy > energy.get_energy(col, row + 1)) {
-            min_row = row + 1;
-        }
-        seam.push_back(min_row);
-    }
-
-    // Finally, reverse seam so that it goes in the natural rear-forward order.
-    std::reverse(seam.begin(), seam.end());
-    return seam;
-}
 
 std::vector<uint32_t> Carver::vertical_seam() {
     assert_valid_dims();
