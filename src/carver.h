@@ -44,11 +44,11 @@ private:
      * So that indexes of length will wrap to 0
      * And indexes of -1 will wrap to length -1.
      *
-     * @param index Base index to wrap.
+     * @param index Base index to wrap. Int64_t sizing prevents underflow.
      * @param length Length of dimension
      * @return The wrapped index
      */
-    static uint32_t wrap_index(int32_t index, uint32_t length);
+    static uint32_t wrap_index(int64_t index, uint32_t length);
 
     /**
      * Calculate the gradient energy of two pixels.
@@ -94,7 +94,7 @@ private:
      * @param col Column of pixel whose energy we're calculating
      * @return the energy
      */
-    uint32_t pixel_energy(int32_t col, int32_t row);
+    uint32_t pixel_energy(uint32_t col, uint32_t row);
 
     /**
      * Remove a horizontal seam from the image.

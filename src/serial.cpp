@@ -153,23 +153,6 @@ std::vector<uint32_t> Carver::vertical_seam() {
     return seam;
 }
 
-uint32_t Carver::pixel_energy(int32_t col, int32_t row) {
-    assert(col >= 0 && col < image.cols());
-    assert(row >= 0 && row < image.rows());
-
-    uint32_t left_col = wrap_index(col - 1, image.cols());
-    uint32_t right_col = wrap_index(col + 1, image.cols());
-    uint32_t top_row = wrap_index(row + 1, image.rows());
-    uint32_t bottom_row = wrap_index(row - 1, image.rows());
-
-    hpimage::pixel left = image.get_pixel(left_col, row);
-    hpimage::pixel right = image.get_pixel(right_col, row);
-    hpimage::pixel top = image.get_pixel(col, top_row);
-    hpimage::pixel bottom = image.get_pixel(col, bottom_row);
-
-    return gradient_energy(left, right) + gradient_energy(top, bottom);
-}
-
 void Carver::remove_horiz_seam(std::vector<uint32_t> &seam) {
     // Must be exactly one row to remove from each column.
     assert(seam.size() == image.cols());
