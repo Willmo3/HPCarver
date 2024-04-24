@@ -102,7 +102,7 @@ void Carver::vert_energy() {
     // This is one of the larger opportunities for parallelism.
     // Set energy to minimum of three above neighbors.
     for (auto row = 1; row < energy.rows(); ++row) {
-        for (auto col = 0; col < energy.cols(); ++col) {
+        RAJA::forall<policy>(range, [=] (int col) {
             // Note: no wrapping in seams!
             auto neighbor_energies = energy.get_top_predecessors(col, row);
 
@@ -110,7 +110,7 @@ void Carver::vert_energy() {
             uint32_t local_energy = pixel_energy(col, row);
             local_energy += *std::min_element(neighbor_energies.begin(), neighbor_energies.end());
             energy.set_energy(col, row, local_energy);
-        }
+        });
     }
 }
 
