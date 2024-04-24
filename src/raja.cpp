@@ -11,13 +11,14 @@
 #include "RAJA/RAJA.hpp"
 
 namespace carver {
+// Starting out with just sequential execution
+using policy = RAJA::seq_exec;
 
 // Carver constructor
 Carver::Carver(hpimage::Hpimage &image):
     image(image), energy(Energy(image.cols(), image.rows()))
     {
         assert_valid_dims();
-        using policy = RAJA::seq_exec;
     }
 
 
@@ -30,7 +31,8 @@ void Carver::horiz_energy() {
 
     // Now set energy to minimum of three neighbors.
     for (auto col = 1; col < energy.cols(); ++col) {
-        for (auto row = 0; row < energy.rows(); ++row) {
+        RAJA::RangeSegment range(0, energy.rows());
+        RAJA::forall<policy>(range, [=] (int row) {
             // No wrapping
             auto neighbor_energies = energy.get_left_predecessors(col, row);
 
@@ -38,7 +40,7 @@ void Carver::horiz_energy() {
             uint32_t local_energy = pixel_energy(col, row);
             local_energy += *std::min_element(neighbor_energies.begin(), neighbor_energies.end());
             energy.set_energy(col, row, local_energy);
-        }
+        });
     }
 }
 
