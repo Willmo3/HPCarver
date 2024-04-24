@@ -1,7 +1,6 @@
 // Entry file for HPcarver
 // Author: Will Morris
 
-#include "RAJA/RAJA.hpp"
 #include "../HPImage/hpimage.h"
 #include "carver.h"
 
@@ -19,7 +18,6 @@ void usage();
 
 int main(int argc, char *argv[]) {
     // For now, default to sequential execution
-    using policy = RAJA::seq_exec;
 
     // There should be 5 options, including executable name
     if (argc != ARG_COUNT) {

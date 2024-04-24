@@ -8,21 +8,26 @@ target_link_libraries(omp carver OpenMP::OpenMP_CXX)
 add_library(pthread pthread.cpp)
 target_link_libraries(pthread carver Threads::Threads)
 
+add_library(raja raja.cpp)
+target_link_libraries(raja carver RAJA)
+
 # Final entry point executable
 add_executable(hpc_serial hpcarver.cpp)
 target_link_libraries(hpc_serial
         serial
-        hpimage
-        RAJA)
+        hpimage)
 
 add_executable(hpc_omp hpcarver.cpp)
 target_link_libraries(hpc_omp
         omp
-        hpimage
-        RAJA)
+        hpimage)
 
 add_executable(hpc_pthread hpcarver.cpp)
 target_link_libraries(hpc_pthread
         pthread
-        hpimage
-        RAJA)
+        hpimage)
+
+add_executable(hpc_raja hpcarver.cpp)
+target_link_libraries(hpc_raja
+        raja
+        hpimage)
