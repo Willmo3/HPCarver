@@ -93,10 +93,11 @@ std::vector<uint32_t> Carver::min_horiz_seam() {
 
 void Carver::vert_energy() {
     // Vertical seam direction: top to bottom
-    // Prime memo structure with base energies of first pixel row.
-    for (auto col = 0; col < energy.cols(); ++col) {
+    RAJA::RangeSegment range(0, energy.cols());
+    // Prime first row with base energies
+    RAJA::forall<policy>(range, [=] (int col) {
         energy.set_energy(col, 0, pixel_energy(col, 0));
-    }
+    });
 
     // This is one of the larger opportunities for parallelism.
     // Set energy to minimum of three above neighbors.
