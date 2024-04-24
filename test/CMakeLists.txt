@@ -22,7 +22,10 @@
  add_executable(test_pthreadcarve test_carve.cpp)
  target_link_libraries(test_pthreadcarve GTest::gtest_main)
 
- gtest_discover_tests(test_serialcarve test_ompcarve)
+ add_executable(test_rajacarve test_carve.cpp)
+ target_link_libraries(test_rajacarve GTest::gtest_main)
+
+ gtest_discover_tests(test_serialcarve test_ompcarve test_pthreadcarve test_rajacarve)
 
  # Link all to HPImage
  target_link_libraries(test_serialcarve
@@ -36,4 +39,8 @@
  target_link_libraries(test_pthreadcarve
          hpimage
          pthread)
+
+ target_link_libraries(test_rajacarve
+        hpimage
+        raja)
 
