@@ -25,13 +25,15 @@ Carver::Carver(hpimage::Hpimage &image):
 // ***** HORIZONTAL SEAM CALCULATORS ***** //
 
 void Carver::horiz_energy() {
-    for (auto row = 0; row < energy.rows(); ++row) {
+    // Horizontal traversal will go over all rows in each column.
+    RAJA::RangeSegment range(0, energy.rows());
+    // Prime first column with base energies
+    RAJA::forall<policy>(range, [=] (int row) {
         energy.set_energy(0, row, pixel_energy(0, row));
-    }
+    });
 
     // Now set energy to minimum of three neighbors.
     for (auto col = 1; col < energy.cols(); ++col) {
-        RAJA::RangeSegment range(0, energy.rows());
         RAJA::forall<policy>(range, [=] (int row) {
             // No wrapping
             auto neighbor_energies = energy.get_left_predecessors(col, row);
