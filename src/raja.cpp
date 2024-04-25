@@ -165,8 +165,10 @@ std::vector<uint32_t> Carver::min_vert_seam() {
 void Carver::remove_horiz_seam(std::vector<uint32_t> &seam) {
     // Must be exactly one row to remove from each column.
     assert(seam.size() == image.cols());
+    RAJA::RangeSegment range(0, image.cols());
 
-    for (auto col = 0; col < image.cols(); ++col) {
+    // Prime first row with base energies
+    RAJA::forall<policy>(range, [=] (int col) {
         auto index = seam[col];
         assert(index >= 0 && index < image.rows());
 
@@ -175,7 +177,8 @@ void Carver::remove_horiz_seam(std::vector<uint32_t> &seam) {
             hpimage::pixel below = image.get_pixel(col, row + 1);
             image.set_pixel(col, row, below);
         }
-    }
+    });
+
     // Finally, cut the last row from the pixel.
     energy.cut_row();
     image.cut_row();
