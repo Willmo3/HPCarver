@@ -121,10 +121,7 @@ std::vector<uint32_t> Carver::min_vert_seam() {
             min_energy = current_energy;
         }
     }
-
-    // Problem: tight coupling.
-    // This should be generic enough to work for any amount
-
+    
     seam.push_back(min_col);
 
     // Find the rest of the seam, using only the three predecessors of each node.

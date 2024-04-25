@@ -139,9 +139,6 @@ std::vector<uint32_t> Carver::min_vert_seam() {
         }
     }
 
-    // Problem: tight coupling.
-    // This should be generic enough to work for any amount
-
     seam.push_back(min_col);
 
     // OMP: state of seam is loop carried dependency, no opportunity for parallelization.
