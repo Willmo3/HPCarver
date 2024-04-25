@@ -187,10 +187,10 @@ void Carver::remove_horiz_seam(std::vector<uint32_t> &seam) {
 void Carver::remove_vert_seam(std::vector<uint32_t> &seam) {
     // Must be exactly one column to remove from each row.
     assert(seam.size() == image.rows());
+    RAJA::RangeSegment range(0, image.rows());
 
     // Shift every pixel after a given image over.
-    // Then reduce image size by one.
-    for (auto row = 0; row < image.rows(); ++row) {
+    RAJA::forall<policy>(range, [=] (int row) {
         auto index = seam[row];
         assert(index >= 0 && index < image.cols());
 
@@ -199,7 +199,8 @@ void Carver::remove_vert_seam(std::vector<uint32_t> &seam) {
             hpimage::pixel next = image.get_pixel(col + 1, row);
             image.set_pixel(col, row, next);
         }
-    }
+    });
+
     // Finally, with all pixels shifted over, time to trim the image!
     energy.cut_col();
     image.cut_col();
