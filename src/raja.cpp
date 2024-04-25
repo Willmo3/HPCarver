@@ -1,5 +1,5 @@
 /**
- * Serial implementation of HPCarver. This implements API-defined functions in a serial manner.
+ * Raja implementation of HPCarver. This implements API-defined functions using the RAJA performance portability suite.
  *
  * Author: Will Morris
  */
