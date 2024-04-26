@@ -11,8 +11,13 @@
 #include "RAJA/RAJA.hpp"
 
 namespace carver {
-// Starting out with just sequential execution
-using policy = RAJA::seq_exec;
+
+// DEFINE RAJA EXEC POLICY
+#if defined(RAJA_ENABLE_OPENMP)
+    using policy = RAJA::omp_parallel_for_exec;
+#else
+    using policy = RAJA::seq_exec;
+#endif
 
 // Carver constructor
 Carver::Carver(hpimage::Hpimage &image):
