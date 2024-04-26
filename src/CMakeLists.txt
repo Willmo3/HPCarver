@@ -11,6 +11,15 @@ target_link_libraries(pthread carver Threads::Threads)
 add_library(raja raja/raja.cpp)
 target_link_libraries(raja carver RAJA)
 
+# Add CUDA versions of libraries
+# Good news: should be enough to just subclass
+if (ENABLE_CUDA)
+    add_library(cuda_energy cuda/cuda_energy.cu
+            cuda/cuda_energy.h)
+    set_target_properties(cuda_energy PROPERTIES CUDA_ARCHITECTURES "all")
+    target_link_libraries(cuda_energy energy)
+endif ()
+
 # Final entry point executable
 add_executable(hpc_serial hpcarver.cpp)
 target_link_libraries(hpc_serial

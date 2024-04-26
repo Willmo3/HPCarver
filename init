@@ -1,4 +1,4 @@
 #!/usr/bin/env bash
 
 mkdir -p build && cd build
-cmake -DENABLE_OPENMP=On -DRAJA_DIR=raja/lib/cmake/raja ..
+cmake -DENABLE_OPENMP=On -DENABLE_CUDA=On -DRAJA_DIR=raja/lib/cmake/raja ..
