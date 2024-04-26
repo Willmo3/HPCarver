@@ -1,21 +1,21 @@
 # Serial execution library
-add_library(serial serial.cpp)
+add_library(serial serial/serial.cpp)
 target_link_libraries(serial carver)
 
-add_library(omp omp.cpp)
+add_library(omp omp/omp.cpp)
 target_link_libraries(omp carver OpenMP::OpenMP_CXX)
 
-add_library(pthread pthread.cpp)
+add_library(pthread pthread/pthread.cpp)
 target_link_libraries(pthread carver Threads::Threads)
 
-add_library(raja raja.cpp)
+add_library(raja raja/raja.cpp)
 target_link_libraries(raja carver RAJA)
 
 # Final entry point executable
 add_executable(hpc_serial hpcarver.cpp)
 target_link_libraries(hpc_serial
         serial
-        hpimage )
+        hpimage)
 
 add_executable(hpc_omp hpcarver.cpp)
 target_link_libraries(hpc_omp

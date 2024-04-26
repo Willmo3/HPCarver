@@ -7,8 +7,8 @@
 #include <cassert>
 #include <algorithm>
 
-#include "carver.h"
-#include "energy.h"
+#include "../carver.h"
+#include "../energy.h"
 
 namespace carver {
 

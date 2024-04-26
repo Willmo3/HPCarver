@@ -1,45 +1,40 @@
 /**
- * Raja implementation of HPCarver. This implements API-defined functions using the RAJA performance portability suite.
+ * OpenMP implementation of HPCarver. This implements API-defined functions using OpenMP manner.
  *
  * Author: Will Morris
  */
 #include <cassert>
 #include <algorithm>
 
-#include "carver.h"
-#include "energy.h"
-#include "RAJA/RAJA.hpp"
+#include "../carver.h"
+#include "../energy.h"
 
 namespace carver {
 
-// DEFINE RAJA EXEC POLICY
-#if defined(RAJA_ENABLE_OPENMP)
-    using policy = RAJA::omp_parallel_for_exec;
-#else
-    using policy = RAJA::seq_exec;
-#endif
-
 // Carver constructor
 Carver::Carver(hpimage::Hpimage &image):
-    image(image), energy(Energy(image.cols(), image.rows()))
-    {
-        assert_valid_dims();
-    }
+        image(image), energy(Energy(image.cols(), image.rows()))
+{ assert_valid_dims(); }
 
 
 // ***** HORIZONTAL SEAM CALCULATORS ***** //
 
 void Carver::horiz_energy() {
-    // Horizontal traversal will go over all rows in each column.
-    RAJA::RangeSegment range(0, energy.rows());
-    // Prime first column with base energies
-    RAJA::forall<policy>(range, [=] (int row) {
+    // OPENMP: on large images, should see benefit even in first row.
+#   pragma omp parallel for default(none) shared(energy)
+    for (auto row = 0; row < energy.rows(); ++row) {
         energy.set_energy(0, row, pixel_energy(0, row));
-    });
+    }
 
     // Now set energy to minimum of three neighbors.
+
+    // OMP: Loop carried dependency -- previous column must have been initialized
     for (auto col = 1; col < energy.cols(); ++col) {
-        RAJA::forall<policy>(range, [=] (int row) {
+
+        // OMP: col shared bc all parallelization occurs within a given col.
+        // Energy: only reads from behind and writes once to each position in current col
+#       pragma omp parallel for default(none) shared(col, energy)
+        for (auto row = 0; row < energy.rows(); ++row) {
             // No wrapping
             auto neighbor_energies = energy.get_left_predecessors(col, row);
 
@@ -47,12 +42,11 @@ void Carver::horiz_energy() {
             uint32_t local_energy = pixel_energy(col, row);
             local_energy += *std::min_element(neighbor_energies.begin(), neighbor_energies.end());
             energy.set_energy(col, row, local_energy);
-        });
+        }
     }
 }
 
 std::vector<uint32_t> Carver::min_horiz_seam() {
-    // Now, prime the reverse traversal with the minimum above energy.
     uint32_t back_col = energy.cols() - 1;
     auto seam = std::vector<uint32_t>{};
 
@@ -98,16 +92,23 @@ std::vector<uint32_t> Carver::min_horiz_seam() {
 
 void Carver::vert_energy() {
     // Vertical seam direction: top to bottom
-    RAJA::RangeSegment range(0, energy.cols());
-    // Prime first row with base energies
-    RAJA::forall<policy>(range, [=] (int col) {
+    // Prime memo structure with base energies of first pixel row.
+
+    // OMP: initialize energy
+#   pragma omp parallel for default(none) shared(energy)
+    for (auto col = 0; col < energy.cols(); ++col) {
         energy.set_energy(col, 0, pixel_energy(col, 0));
-    });
+    }
 
     // This is one of the larger opportunities for parallelism.
     // Set energy to minimum of three above neighbors.
+
     for (auto row = 1; row < energy.rows(); ++row) {
-        RAJA::forall<policy>(range, [=] (int col) {
+
+        // OMP: row shared bc all parallelization occurs within a given row.
+        // Energy: only reads from above and writes once to each position in current row
+#       pragma omp parallel for default(none) shared(row, energy)
+        for (auto col = 0; col < energy.cols(); ++col) {
             // Note: no wrapping in seams!
             auto neighbor_energies = energy.get_top_predecessors(col, row);
 
@@ -115,11 +116,12 @@ void Carver::vert_energy() {
             uint32_t local_energy = pixel_energy(col, row);
             local_energy += *std::min_element(neighbor_energies.begin(), neighbor_energies.end());
             energy.set_energy(col, row, local_energy);
-        });
+        }
     }
 }
 
 std::vector<uint32_t> Carver::min_vert_seam() {
+    // Now, prime the reverse traversal with the minimum above energy.
     uint32_t bottom_row = energy.rows() - 1;
     auto seam = std::vector<uint32_t>{};
 
@@ -128,6 +130,7 @@ std::vector<uint32_t> Carver::min_vert_seam() {
     uint32_t min_col = 0;
     uint32_t min_energy = energy.get_energy(0, bottom_row);
 
+    // OMP: mutating min_energy, not worth parallelizing -- would need to be basically synchronized.
     for (auto col = 1; col < energy.cols(); ++col) {
         uint32_t current_energy = energy.get_energy(col, bottom_row);
         if (current_energy < min_energy) {
@@ -137,6 +140,8 @@ std::vector<uint32_t> Carver::min_vert_seam() {
     }
 
     seam.push_back(min_col);
+
+    // OMP: state of seam is loop carried dependency, no opportunity for parallelization.
 
     // Find the rest of the seam, using only the three predecessors of each node.
     // Using wider signed form to prevent underflow
@@ -167,21 +172,23 @@ std::vector<uint32_t> Carver::min_vert_seam() {
 void Carver::remove_horiz_seam(std::vector<uint32_t> &seam) {
     // Must be exactly one row to remove from each column.
     assert(seam.size() == image.cols());
-    RAJA::RangeSegment range(0, image.cols());
 
-    // Prime first row with base energies
-    RAJA::forall<policy>(range, [=] (int col) {
+    // OMP: each thread only accesses a single column of the image
+    // And only reads from seam
+#   pragma omp parallel for default(none) shared(image, seam)
+    for (auto col = 0; col < image.cols(); ++col) {
         auto index = seam[col];
-        assert(index >= 0 && index < image.rows());
+        // Due to issues with version of gcc on cluster, commenting out this asssertion.
+        // Refer to: https://stackoverflow.com/questions/47081274/openmp-error-w-13-not-specified-in-enclosing-parallel
+        // assert(index >= 0 && index < image.rows());
 
         // Shift all pixels below this up one.
         for (auto row = index; row < image.rows() - 1; ++row) {
             hpimage::pixel below = image.get_pixel(col, row + 1);
             image.set_pixel(col, row, below);
         }
-    });
-
-    // Finally, cut the last row from the pixel.
+    }
+    // Finally, cut the last row from the image.
     energy.cut_row();
     image.cut_row();
 }
@@ -189,20 +196,22 @@ void Carver::remove_horiz_seam(std::vector<uint32_t> &seam) {
 void Carver::remove_vert_seam(std::vector<uint32_t> &seam) {
     // Must be exactly one column to remove from each row.
     assert(seam.size() == image.rows());
-    RAJA::RangeSegment range(0, image.rows());
 
-    // Shift every pixel after a given image over.
-    RAJA::forall<policy>(range, [=] (int row) {
+    // OMP each thread only accesses a single row of the image
+    // And only reads from seam
+#   pragma omp parallel for default(none) shared(image, seam)
+    for (auto row = 0; row < image.rows(); ++row) {
         auto index = seam[row];
-        assert(index >= 0 && index < image.cols());
+        // Due to issues with version of gcc on cluster, commenting out this asssertion.
+        // Refer to: https://stackoverflow.com/questions/47081274/openmp-error-w-13-not-specified-in-enclosing-parallel
+        // assert(index >= 0 && index < image.cols());
 
         // Shift all pixels after this one back
         for (auto col = index; col < image.cols() - 1; ++col) {
             hpimage::pixel next = image.get_pixel(col + 1, row);
             image.set_pixel(col, row, next);
         }
-    });
-
+    }
     // Finally, with all pixels shifted over, time to trim the image!
     energy.cut_col();
     image.cut_col();
