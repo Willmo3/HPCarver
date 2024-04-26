@@ -7,7 +7,7 @@
 #include "energy.h"
 
 namespace carver {
-    // Default constructor to not die
+    // Default constructor allows for inheritance
     Energy::Energy() {
         base_cols = 0;
         base_rows = 0;
