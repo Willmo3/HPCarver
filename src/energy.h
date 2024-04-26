@@ -26,6 +26,12 @@ private:
 
 public:
     /**
+     * Default energy constructor.
+     * Allows for inheritance
+     */
+    Energy();
+
+    /**
      * Energy constructor.
      * This initializes a block of memory for an energy matrix.
      * @param cols Number of columns to initialize energy block with

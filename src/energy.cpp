@@ -7,6 +7,16 @@
 #include "energy.h"
 
 namespace carver {
+    // Default constructor to not die
+    Energy::Energy() {
+        base_cols = 0;
+        base_rows = 0;
+        current_cols = 0;
+        current_rows = 0;
+
+        energy = nullptr;
+    }
+
     Energy::Energy(uint32_t cols, uint32_t rows) {
         assert(cols > 0 && rows > 0);
         base_cols = cols;
