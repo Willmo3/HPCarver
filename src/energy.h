@@ -17,7 +17,7 @@ namespace carver {
  * @author Will Morris
  */
 class Energy {
-private:
+protected:
     size_t base_cols;
     size_t base_rows;
     size_t current_rows;
