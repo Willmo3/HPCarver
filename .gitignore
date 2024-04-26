@@ -3,7 +3,7 @@
 out/hpc_*
 out/tests/test_*
 
-out.ppm
+out*.ppm
 
 cmake-build-debug
 build
