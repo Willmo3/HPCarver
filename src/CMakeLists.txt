@@ -15,7 +15,7 @@ target_link_libraries(raja carver RAJA)
 add_executable(hpc_serial hpcarver.cpp)
 target_link_libraries(hpc_serial
         serial
-        hpimage)
+        hpimage )
 
 add_executable(hpc_omp hpcarver.cpp)
 target_link_libraries(hpc_omp

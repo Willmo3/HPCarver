@@ -43,9 +43,3 @@
  target_link_libraries(test_rajacarve
         hpimage
         raja)
-
- if (ENABLE_OPENMP)
-  target_link_libraries(test_rajacarve
-          openmp)
- endif()
-
