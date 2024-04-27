@@ -9,14 +9,9 @@
 namespace hpc_cuda {
 
 class CudaEnergy: carver::Energy {
+protected:
+    uint32_t *alloc(uint32_t size) override;
 public:
-    /**
-     * CudaEnergy constructor.
-     * This initializes a block of memory for an energy matrix using cuda
-     * @param cols Number of columns to initialize energy block with
-     * @param rows Number of rows to initialize energy block with
-     */
-    CudaEnergy(uint32_t cols, uint32_t rows);
 
     /**
      * CudaEnergy destructor.
