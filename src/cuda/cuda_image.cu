@@ -1,4 +1,5 @@
 #include "cuda_image.h"
+#include <cassert>
 
 using namespace hpc_cuda;
 
@@ -11,5 +12,5 @@ hpimage::pixel *CudaImage::alloc(int size) {
 CudaImage::~CudaImage() {
     // Ensure all computation is finished prior to freeing.
     cudaDeviceSynchronize();
-    cudaFree(pixels);
+    assert(cudaFree(pixels) == 0);
 }
