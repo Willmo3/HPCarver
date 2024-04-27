@@ -29,7 +29,7 @@ namespace carver {
 
     // Allocation helper.
     uint32_t *Energy::alloc(uint32_t size) {
-        return static_cast<uint32_t *>(malloc(size));
+        return static_cast<uint32_t *>(calloc(size, 1));
     }
 
     /**
