@@ -24,6 +24,14 @@ protected:
     size_t current_cols;
     uint32_t *energy;
 
+    /**
+     * Allocate memory for the energy buffer.
+     * Virtual -- allow for extensibility with libraries like CUDA.
+     * @param size Size of the memory region to allocate.
+     * @return Pointer to allocated memory region.
+     */
+    virtual uint32_t *alloc(uint32_t size);
+
 public:
     /**
      * Default energy constructor.

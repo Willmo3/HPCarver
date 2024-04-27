@@ -24,7 +24,12 @@ namespace carver {
         base_rows = rows;
         current_rows = rows;
 
-        energy = static_cast<uint32_t *>(calloc(rows * cols, sizeof(uint32_t)));
+        energy = alloc(rows * cols * sizeof(uint32_t));
+    }
+
+    // Allocation helper.
+    uint32_t *Energy::alloc(uint32_t size) {
+        return static_cast<uint32_t *>(malloc(size));
     }
 
     /**
