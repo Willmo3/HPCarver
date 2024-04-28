@@ -156,7 +156,7 @@ void Carver::remove_horiz_seam(std::vector<uint32_t> &seam) {
 
     for (auto col = 0; col < image.cols(); ++col) {
         auto index = seam[col];
-        assert(index >= 0 && index < image.rows());
+        assert(index < image.rows());
 
         // Shift all pixels below this up one.
         for (auto row = index; row < image.rows() - 1; ++row) {
@@ -177,7 +177,7 @@ void Carver::remove_vert_seam(std::vector<uint32_t> &seam) {
     // Then reduce image size by one.
     for (auto row = 0; row < image.rows(); ++row) {
         auto index = seam[row];
-        assert(index >= 0 && index < image.cols());
+        assert(index < image.cols());
 
         // Shift all pixels after this one back
         for (auto col = index; col < image.cols() - 1; ++col) {

@@ -180,7 +180,7 @@ void Carver::remove_horiz_seam(std::vector<uint32_t> &seam) {
         auto index = seam[col];
         // Due to issues with version of gcc on cluster, commenting out this asssertion.
         // Refer to: https://stackoverflow.com/questions/47081274/openmp-error-w-13-not-specified-in-enclosing-parallel
-        // assert(index >= 0 && index < image.rows());
+        // assert(index < image.rows());
 
         // Shift all pixels below this up one.
         for (auto row = index; row < image.rows() - 1; ++row) {
@@ -204,7 +204,7 @@ void Carver::remove_vert_seam(std::vector<uint32_t> &seam) {
         auto index = seam[row];
         // Due to issues with version of gcc on cluster, commenting out this asssertion.
         // Refer to: https://stackoverflow.com/questions/47081274/openmp-error-w-13-not-specified-in-enclosing-parallel
-        // assert(index >= 0 && index < image.cols());
+        // assert(index < image.cols());
 
         // Shift all pixels after this one back
         for (auto col = index; col < image.cols() - 1; ++col) {

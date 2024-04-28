@@ -186,7 +186,7 @@ void *shift_horiz(void *data1) {
 
     for (auto col = data->start_col; col < data->end_col; ++col) {
         auto index = data->seam->at(col);
-        assert(index >= 0 && index < image->rows());
+        assert(index < image->rows());
 
         // Shift all pixels below this up one.
         for (auto row = index; row < image->rows() -1; ++row) {
@@ -217,7 +217,7 @@ void *shift_vert(void *data1) {
 
     for (auto row = data->start_row; row < data->end_row; ++row) {
         auto index = data->seam->at(row);
-        assert(index >= 0 && index < image->rows());
+        assert(index < image->rows());
 
         // Shift all pixels to the right of this one left.
         for (auto col = index; col < image->cols() -1; ++col) {
