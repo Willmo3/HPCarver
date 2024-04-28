@@ -21,6 +21,17 @@ if (ENABLE_CUDA)
     add_library(cuda_image cuda/cuda_image.h cuda/cuda_energy.cu)
     set_target_properties(cuda_image PROPERTIES CUDA_ARCHITECTURES "all")
     target_link_libraries(cuda_image hpimage)
+
+    add_library(cu cuda/cuda.cu)
+    set_target_properties(cu PROPERTIES CUDA_ARCHITECTURES "all")
+    target_link_libraries(cu
+                          carver 
+                          cuda_energy 
+                          cuda_image)
+
+    add_executable(hpc_cuda hpcarver.cpp)
+    target_link_libraries(hpc_cuda cu)
+
 endif ()
 
 # Final entry point executable
@@ -43,3 +54,5 @@ add_executable(hpc_raja hpcarver.cpp)
 target_link_libraries(hpc_raja
         raja
         hpimage)
+
+
