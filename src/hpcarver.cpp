@@ -48,9 +48,6 @@ int main(int argc, char *argv[]) {
         exit(EXIT_FAILURE);
     }
 
-    // TODO: coupling is too tight!
-    // Overabstraction: force everything to conform to one image API
-
     // Create carver object to store fields that need to be memoized (i.e. energy)
     // NOTE: the exact type of carver used is implementation specific, and may be a subclass.
     // Therefore, use the prepare_carver fn.
