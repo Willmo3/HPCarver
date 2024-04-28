@@ -25,6 +25,16 @@
  add_executable(test_rajacarve test_carve.cpp)
  target_link_libraries(test_rajacarve GTest::gtest_main)
 
+ if (ENABLE_CUDA)
+   add_executable(test_cudacarve test_carve.cpp)
+   target_link_libraries(test_cudacarve GTest::gtest_main)
+   gtest_discover_tests(test_cudacarve)
+
+   target_link_libraries(test_cudacarve
+           hpimage
+           cu)
+ endif ()
+
  gtest_discover_tests(test_serialcarve test_ompcarve test_pthreadcarve test_rajacarve)
 
  # Link all to HPImage

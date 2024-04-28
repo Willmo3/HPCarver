@@ -7,8 +7,8 @@
 #include "../src/carver.h"
 
 // Testing helper.
-hpimage::Hpimage test() {
-    return hpimage::Hpimage{"3x4.ppm"};
+hpimage::Hpimage *test() {
+    return new hpimage::Hpimage{"3x4.ppm"};
 }
 
 TEST(carver, vertical_carve) {
@@ -23,16 +23,16 @@ TEST(carver, vertical_carve) {
 
     carver.remove_vert_seam(seam);
     // Dimensions should be modified.
-    ASSERT_EQ(2, image.cols());
-    ASSERT_EQ(4, image.rows());
+    ASSERT_EQ(2, image->cols());
+    ASSERT_EQ(4, image->rows());
     // Now, check that each seam removal has occured as expected.
-    ASSERT_EQ(153, image.get_pixel(0, 0).blue);
-    ASSERT_EQ(255, image.get_pixel(1, 0).blue);
-    ASSERT_EQ(255, image.get_pixel(1, 1).blue);
+    ASSERT_EQ(153, image->get_pixel(0, 0).blue);
+    ASSERT_EQ(255, image->get_pixel(1, 0).blue);
+    ASSERT_EQ(255, image->get_pixel(1, 1).blue);
 
-    ASSERT_EQ(255, image.get_pixel(1, 2).blue);
+    ASSERT_EQ(255, image->get_pixel(1, 2).blue);
 
-    ASSERT_EQ(153, image.get_pixel(1, 3).blue);
+    ASSERT_EQ(153, image->get_pixel(1, 3).blue);
 }
 
 TEST(carver, horizontal_carve) {
@@ -45,17 +45,17 @@ TEST(carver, horizontal_carve) {
     seam.push_back(2);
 
     carver.remove_horiz_seam(seam);
-    ASSERT_EQ(3, image.cols());
-    ASSERT_EQ(3, image.rows());
+    ASSERT_EQ(3, image->cols());
+    ASSERT_EQ(3, image->rows());
 
-    ASSERT_EQ(153, image.get_pixel(0, 0).green);
-    ASSERT_EQ(203, image.get_pixel(0, 1).green);
-    ASSERT_EQ(255, image.get_pixel(0, 2).green);
+    ASSERT_EQ(153, image->get_pixel(0, 0).green);
+    ASSERT_EQ(203, image->get_pixel(0, 1).green);
+    ASSERT_EQ(255, image->get_pixel(0, 2).green);
 
-    ASSERT_EQ(204, image.get_pixel(1, 1).green);
-    ASSERT_EQ(255, image.get_pixel(1, 2).green);
+    ASSERT_EQ(204, image->get_pixel(1, 1).green);
+    ASSERT_EQ(255, image->get_pixel(1, 2).green);
 
-    ASSERT_EQ(255, image.get_pixel(2, 2).green);
+    ASSERT_EQ(255, image->get_pixel(2, 2).green);
 }
 
 TEST(carver, energy) {
@@ -96,7 +96,7 @@ TEST(carver, vert_seam) {
 }
 
 TEST(carver, hard_vert_seam) {
-    auto image = hpimage::Hpimage("6x5.ppm");
+    auto image = new hpimage::Hpimage("6x5.ppm");
     auto carver = carver::Carver(image);
 
     auto seam = carver.vertical_seam();
@@ -109,7 +109,7 @@ TEST(carver, hard_vert_seam) {
 }
 
 TEST(carver, hard_horiz_seam) {
-    auto image = hpimage::Hpimage("6x5.ppm");
+    auto image = new hpimage::Hpimage("6x5.ppm");
     auto carver = carver::Carver(image);
 
     auto seam = carver.horiz_seam();
