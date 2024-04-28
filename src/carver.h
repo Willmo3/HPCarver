@@ -27,8 +27,8 @@ class Carver {
 
 // To prevent repeated reallocation, keeping image, energy fields.
 private:
-    hpimage::Hpimage &image;
-    carver::Energy energy;
+    hpimage::Hpimage *image;
+    carver::Energy *energy;
 
     /**
      * An image must be at least 3x3. If not, complain.
@@ -91,15 +91,19 @@ private:
 
 // NOTE: ALL PUBLIC METHODS MUST BE IMPLEMENTED BY VARIOUS LIBRARY IMPLEMENTATIONS!
 public:
+    /**
+     * HPCarver default constructor.
+     * Initialize superclass fields to NULL.
+     *
+     */
+    Carver();
 
     /**
      * HPCarver constructor.
-     * NOTE: while the API is external, its internal policies are implementation specific.
-     * I.E. the pthreads version may need to initialize a thread pool.
      *
      * @param image Image to operate on.
      */
-    explicit Carver(hpimage::Hpimage &image);
+    Carver(hpimage::Hpimage *image, Energy *energy);
 
     /**
      * Return the minimum energy horizontal seam for this image
@@ -143,8 +147,8 @@ public:
     /**
      * ACCESSORS
      */
-     hpimage::Hpimage *get_image();
-     carver::Energy *get_energy();
+     virtual hpimage::Hpimage *get_image();
+     virtual carver::Energy *get_energy();
 
 };
 } // namespace carver
