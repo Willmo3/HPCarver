@@ -8,10 +8,11 @@
 
 namespace hpc_cuda {
 
-class CudaEnergy: carver::Energy {
+class CudaEnergy: public carver::Energy {
 protected:
     uint32_t *alloc(uint32_t size) override;
 public:
+    CudaEnergy(uint32_t cols, uint32_t rows): carver::Energy(cols, rows) {};
 
     /**
      * CudaEnergy destructor.
