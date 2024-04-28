@@ -12,11 +12,12 @@
 
 namespace hpc_cuda {
 
-class CudaImage: hpimage::Hpimage {
+class CudaImage: public hpimage::Hpimage {
 
 protected:
     hpimage::pixel *alloc(uint32_t size) override;
 public:
+    CudaImage(const char *filename): hpimage::Hpimage(filename) {};
     ~CudaImage();
 };
 
