@@ -12,8 +12,6 @@
 
 namespace carver {
 
-
-
 /**
  * Represents the API for a single carver class.
  * Why am I using a class?
