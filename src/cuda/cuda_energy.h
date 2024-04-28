@@ -23,7 +23,7 @@ public:
      */
     ~CudaEnergy();
 };
-}
+} // hpc_cuda
 
 
 
