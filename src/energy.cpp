@@ -6,6 +6,10 @@
 #include <cstdlib>
 #include "energy.h"
 
+uint32_t *mem(uint32_t size) {
+    return static_cast<uint32_t *>(calloc(size, 1));
+}
+
 namespace carver {
     // Default constructor allows for inheritance
     Energy::Energy() {
@@ -17,7 +21,7 @@ namespace carver {
         energy = nullptr;
     }
 
-    Energy::Energy(uint32_t cols, uint32_t rows) {
+    Energy::Energy(uint32_t cols, uint32_t rows, const std::function<uint32_t *(uint32_t)>& alloc) {
         assert(cols > 0 && rows > 0);
         base_cols = cols;
         current_cols = cols;
@@ -27,10 +31,8 @@ namespace carver {
         energy = alloc(rows * cols * sizeof(uint32_t));
     }
 
-    // Allocation helper.
-    uint32_t *Energy::alloc(uint32_t size) {
-        return static_cast<uint32_t *>(calloc(size, 1));
-    }
+    Energy::Energy(uint32_t cols, uint32_t rows):
+        Energy(cols, rows, (std::function<uint32_t *(uint32_t)>) mem) {}
 
     /**
      * Free heap-allocated energy vector

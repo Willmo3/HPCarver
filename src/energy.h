@@ -8,6 +8,7 @@
 #include <cstddef>
 #include <cstdint>
 #include <vector>
+#include <functional>
 
 namespace carver {
 
@@ -24,20 +25,22 @@ protected:
     size_t current_cols;
     uint32_t *energy;
 
-    /**
-     * Allocate memory for the energy buffer.
-     * Virtual -- allow for extensibility with libraries like CUDA.
-     * @param size Size of the memory region to allocate.
-     * @return Pointer to allocated memory region.
-     */
-    virtual uint32_t *alloc(uint32_t size);
-
 public:
     /**
      * Default energy constructor.
      * Allows for inheritance
      */
     Energy();
+
+    /**
+     * Explict allocator function.
+     * Initializes a block of memory for energy matrix using a user-defined allocation fn.
+     *
+     * @param cols Number of columns to initialize energy block with
+     * @param rows Number of rows to initialize energy block with
+     * @param alloc Allocator function
+     */
+    Energy(uint32_t cols, uint32_t rows, const std::function<uint32_t *(uint32_t)>& alloc);
 
     /**
      * Energy constructor.
