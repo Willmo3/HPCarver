@@ -14,10 +14,9 @@ CudaEnergy::CudaEnergy(uint32_t cols, uint32_t rows) : carver::Energy(cols, rows
 
 // Cuda destructor
 CudaEnergy::~CudaEnergy() {
-    std::cout << "dealloc cuda" << std::endl;
     // Ensure that no CUDA ops are in progress as we destruct.
     cudaDeviceSynchronize();
-    assert(cudaFree(&energy) == 0);
+    assert(cudaFree(energy) == 0);
 }
 
 } // End namespace hpc_cuda
