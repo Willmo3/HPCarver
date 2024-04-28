@@ -26,12 +26,13 @@
  target_link_libraries(test_rajacarve GTest::gtest_main)
 
  if (ENABLE_CUDA)
-   add_executable(test_cudacarve test_carve.cpp)
+   add_executable(test_cudacarve test_cudacarve.cpp)
    target_link_libraries(test_cudacarve GTest::gtest_main)
    gtest_discover_tests(test_cudacarve)
 
    target_link_libraries(test_cudacarve
-           hpimage
+           cuda_image
+           cuda_energy
            cu)
  endif ()
 

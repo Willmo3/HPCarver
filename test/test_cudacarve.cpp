@@ -1,6 +1,4 @@
-//
-// Created by morri2wj on 4/5/24.
-//
+// Special case for CUDA
 
 #include <gtest/gtest.h>
 #include "../HPImage/hpimage.h"
