@@ -2,8 +2,8 @@
 #include <cassert>
 
 namespace hpc_cuda {
-uint32_t *img_mem(uint32_t size) {
-    uint32_t *data;
+hpimage::pixel *img_mem(uint32_t size) {
+    hpimage::pixel *data;
     assert(cudaMallocManaged(&data, size) == 0);
     return data;
 }
@@ -16,4 +16,4 @@ CudaImage::~CudaImage() {
     assert(cudaFree(pixels) == 0);
 }
 
-}
+} // hpc_cuda
