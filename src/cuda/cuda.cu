@@ -1,8 +1,81 @@
 #include "../carver.h"
 #include "cuda_energy.h"
+#include "cuda_image.h"
 
 #include <cassert>
 #include <algorithm>
+
+// Print usage data
+void usage();
+
+// Indexes for argument parsing
+#define ARG_COUNT 5
+#define SOURCE_INDEX 1
+#define TARGET_INDEX 2
+#define WIDTH_INDEX 3
+#define HEIGHT_INDEX 4
+
+// ***** PROGRAM ENTRY POINT ***** //
+
+// if we're using CUDA, we want main to create cuda energy and cuda image
+int main(int argc, char *argv[]) {
+    // For now, default to sequential execution
+
+    // There should be 5 options, including executable name
+    if (argc != ARG_COUNT) {
+        usage();
+        exit(EXIT_FAILURE);
+    }
+
+    char *source_path = argv[SOURCE_INDEX];
+    char *out_path = argv[TARGET_INDEX];
+    uint32_t new_width = std::stoi(argv[WIDTH_INDEX]);
+    uint32_t new_height = std::stoi(argv[HEIGHT_INDEX]);
+
+    if (new_width < 3) {
+        std::cerr << "ERROR: Must specify new image width greater than three!" << std::endl;
+        exit(EXIT_FAILURE);
+    }
+    if (new_height < 3) {
+        std::cerr << "ERROR: Must specify new image height greater than three!" << std::endl;
+        exit(EXIT_FAILURE);
+    }
+
+    // Load image
+    auto image = hpc_cuda::CudaImage(source_path);
+
+    // Ensure that image is being shrunk -- for now, this is all that's supported!
+    if (new_width > image.cols() || new_height > image.rows()) {
+        std::cerr << "ERROR: HPCarver supports shrinking. New image dimensions must be smaller!" << std::endl;
+        exit(EXIT_FAILURE);
+    }
+
+    // Create carver object to store fields that need to be memoized (i.e. energy)
+    // NOTE: the exact type of carver used is implementation specific, and may be a subclass.
+    // Therefore, use the prepare_carver fn.
+    auto energy = hpc_cuda::CudaEnergy(image.cols(), image.rows());
+    auto carver = carver::Carver(&image, &energy);
+
+    // Repeatedly vertically shrink it until it fits target width.
+    while (image.cols() != new_width) {
+        auto seam = carver.vertical_seam();
+        carver.remove_vert_seam(seam);
+    }
+
+    // Now, repeatedly horizontally shrink until it fits target height.
+    while (image.rows() != new_height) {
+        auto seam = carver.horiz_seam();
+        carver.remove_horiz_seam(seam);
+    }
+
+    // With image dimensions sufficiently changed, write out the target image.
+    image.write_image(out_path);
+}
+
+void usage() {
+    std::cout << "HPCarver Usage:" << std::endl;
+    std::cout << "hpcarver [source_image.ppm] [out_image.ppm] [new width] [new height]" << std::endl;
+}
 
 namespace carver {
 
@@ -145,7 +218,7 @@ void Carver::remove_horiz_seam(std::vector<uint32_t> &seam) {
 
     for (auto col = 0; col < image->cols(); ++col) {
         auto index = seam[col];
-        assert(index >= 0 && index < image->rows());
+        assert(index < image->rows());
 
         // Shift all pixels below this up one.
         for (auto row = index; row < image->rows() - 1; ++row) {
@@ -166,7 +239,7 @@ void Carver::remove_vert_seam(std::vector<uint32_t> &seam) {
     // Then reduce image size by one.
     for (auto row = 0; row < image->rows(); ++row) {
         auto index = seam[row];
-        assert(index >= 0 && index < image->cols());
+        assert(index < image->cols());
 
         // Shift all pixels after this one back
         for (auto col = index; col < image->cols() - 1; ++col) {
