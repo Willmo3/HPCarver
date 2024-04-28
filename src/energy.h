@@ -25,13 +25,6 @@ protected:
     size_t current_cols;
     uint32_t *energy;
 
-public:
-    /**
-     * Default energy constructor.
-     * Allows for inheritance
-     */
-    Energy();
-
     /**
      * Explict allocator function.
      * Initializes a block of memory for energy matrix using a user-defined allocation fn.
@@ -41,6 +34,13 @@ public:
      * @param alloc Allocator function
      */
     Energy(uint32_t cols, uint32_t rows, const std::function<uint32_t *(uint32_t)>& alloc);
+
+public:
+    /**
+     * Default energy constructor.
+     * Allows for inheritance
+     */
+    Energy();
 
     /**
      * Energy constructor.
