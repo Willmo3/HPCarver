@@ -14,6 +14,7 @@ CudaImage::~CudaImage() {
     // Ensure all computation is finished prior to freeing.
     cudaDeviceSynchronize();
     assert(cudaFree(pixels) == 0);
+    pixels = nullptr;
 }
 
 } // hpc_cuda

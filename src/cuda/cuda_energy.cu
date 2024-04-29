@@ -17,6 +17,7 @@ CudaEnergy::~CudaEnergy() {
     // Ensure that no CUDA ops are in progress as we destruct.
     cudaDeviceSynchronize();
     assert(cudaFree(energy) == 0);
+    energy = nullptr;
 }
 
 } // End namespace hpc_cuda
