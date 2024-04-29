@@ -45,7 +45,7 @@ target_link_libraries(hpc_omp
         omp
         hpimage)
 
-add_executable(hpc_pthread hpcarver.cpp)
+add_executable(hpc_pthread pthread/hpc_pthread.cpp)
 target_link_libraries(hpc_pthread
         pthread
         hpimage)
