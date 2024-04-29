@@ -40,7 +40,7 @@ target_link_libraries(hpc_serial
         serial
         hpimage)
 
-add_executable(hpc_omp hpcarver.cpp)
+add_executable(hpc_omp omp/hpc_omp.cpp)
 target_link_libraries(hpc_omp
         omp
         hpimage)
