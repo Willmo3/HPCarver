@@ -1,6 +1,5 @@
 #include "cuda_energy.h"
 #include <cassert>
-#include <iostream>
 
 namespace hpc_cuda {
 
