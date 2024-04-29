@@ -2,7 +2,7 @@
 // Author: Will Morris
 
 #include "../../HPImage/hpimage.h"
-#include "../carver.h"
+#include "../carver/carver.h"
 
 // Print usage data
 void usage();

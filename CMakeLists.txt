@@ -16,10 +16,10 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ../../out)
 add_library(hpimage HPImage/hpimage.cpp HPImage/hpimage.h)
 
 # Energy matrix library
-add_library(energy src/energy.cpp src/energy.h)
+add_library(energy src/carver/energy.cpp src/carver/energy.h)
 
 # Carver common library
-add_library(carver src/carver.cpp src/carver.h)
+add_library(carver src/carver/carver.cpp src/carver/carver.h)
 target_link_libraries(carver hpimage energy)
 
 # Deferring to cmake

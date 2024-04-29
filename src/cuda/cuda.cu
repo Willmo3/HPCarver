@@ -1,4 +1,4 @@
-#include "../carver.h"
+#include "../carver/carver.h"
 #include "cuda_energy.h"
 #include "cuda_image.h"
 
