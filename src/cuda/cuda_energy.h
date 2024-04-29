@@ -21,7 +21,7 @@ public:
      * CudaEnergy destructor.
      * Will free cuda shared-allocated resources (i.e. the energy block).
      */
-    ~CudaEnergy();
+    ~CudaEnergy() override;
 };
 } // hpc_cuda
 

@@ -16,7 +16,7 @@ class CudaImage: public hpimage::Hpimage {
 
 public:
     CudaImage(const char *filename);
-    ~CudaImage();
+    ~CudaImage() override;
 };
 
 }
