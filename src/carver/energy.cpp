@@ -38,8 +38,10 @@ namespace carver {
      * Free heap-allocated energy vector
      */
     Energy::~Energy() {
-        free(energy);
-        energy = nullptr;
+        if (energy) {
+            free(energy);
+            energy = nullptr;
+        }
     }
 
     // ACCESSORS
