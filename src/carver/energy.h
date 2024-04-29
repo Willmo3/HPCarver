@@ -54,7 +54,7 @@ public:
      * Energy destructor.
      * Will free heap-allocated resources (i.e. the energy block).
      */
-    ~Energy();
+    virtual ~Energy();
 
     // ACCCESSORS
 
