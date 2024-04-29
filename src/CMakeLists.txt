@@ -50,7 +50,7 @@ target_link_libraries(hpc_pthread
         pthread
         hpimage)
 
-add_executable(hpc_raja hpcarver.cpp)
+add_executable(hpc_raja raja/hpc_raja.cpp)
 target_link_libraries(hpc_raja
         raja
         hpimage)
