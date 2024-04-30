@@ -19,4 +19,8 @@ CudaEnergy::~CudaEnergy() {
     energy = nullptr;
 }
 
+uint32_t *CudaEnergy::get_energy_matrix() {
+    return energy;
+}
+
 } // End namespace hpc_cuda

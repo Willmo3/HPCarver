@@ -22,6 +22,13 @@ public:
      * Will free cuda shared-allocated resources (i.e. the energy block).
      */
     ~CudaEnergy() override;
+
+    /**
+     * For CUDA functions, the strict memory protections in the API must be loosened.
+     * We need direct access to the energy matrix!
+     * @return The energy matrix associated with this object.
+     */
+    uint32_t *get_energy_matrix();
 };
 } // hpc_cuda
 
