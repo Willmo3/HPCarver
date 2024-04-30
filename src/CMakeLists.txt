@@ -24,7 +24,7 @@ if (ENABLE_CUDA)
 
     add_library(cu cuda/cuda.cu)
     set_target_properties(cu PROPERTIES CUDA_ARCHITECTURES "all-major")
-    target_link_libraries(cu carver)
+    target_link_libraries(cu carver cuda_energy)
 
     add_executable(hpc_cuda cuda/hpc_cuda.cpp)
     set_target_properties(hpc_cuda PROPERTIES CUDA_ARCHITECTURES "all-major")
