@@ -5,21 +5,50 @@
 #include <cassert>
 #include <algorithm>
 
+// Cuda does not allow calling any functions that are not annotated __global__
+// And functions within a class cannot have that annotation because they're implicitly outside of the global namespac.e
+// Therefore, shadowing key features of energy in order to get it to work.
+
+// support cuda api: turn this object into a struct.
+// all relevant private fields will be exposed.
+
+
 /**
  * Given an energy matrix, compute the minimum energy of col considering previous neighbor's energies.
  *
  * @param energy Energy matrix to use.
  * @param col Column to start from. Must be greater than zero, because we're considering backwards neighbor energies.
  */
-__global__ void horiz_energy_neighbor(uint32_t *energy, uint32_t col, uint32_t rows) {
-    assert(col > 0);
-    assert(rows > 0);
+__global__ void horiz_energy_neighbor(hpc_cuda::CudaStruct c_energy, uint32_t col) {
+    assert(col > 0 && col < c_energy.current_cols);
+    assert(c_energy.current_rows > 0);
 
     int start = blockIdx.x * blockDim.x + threadIdx.x;
     int stride = blockDim.x * gridDim.x;
 
-    for (int i = start; i < rows; i += stride) {
-//        What will we need/
+    for (int row = start; row < c_energy.current_rows; row += stride) {
+        // Get the neighbor energies.
+        uint32_t left_col = col - 1;
+
+        // While we allow wrapping for calculating basic energies, there is no wrapping in seams.
+        // Therefore, each pixel is allowed only to consider the neighbors they have.
+        int64_t min_energy = -1;
+        if (row > 0) {
+            uint32_t top_energy = c_energy.energy[(row - 1) * c_energy.base_cols + left_col];
+            min_energy = top_energy;
+        }
+
+        uint32_t middle_energy = c_energy.energy[row * c_energy.base_cols + left_col];
+        if (min_energy == -1 || middle_energy < min_energy) {
+            min_energy = middle_energy;
+        }
+
+        if (row + 1 < c_energy.current_rows) {
+            uint32_t bottom_energy = c_energy.energy[(row + 1) * c_energy.base_cols + left_col];
+            if (bottom_energy < min_energy) {
+                min_energy = bottom_energy;
+            }
+        }
     }
 }
 
@@ -28,7 +57,7 @@ __global__ void horiz_energy_neighbor(uint32_t *energy, uint32_t col, uint32_t r
  * @param energy Energy matrix to use.
  * @param row Row to start from. Must be greater than zero -- considering predecessor energy.
  */
-__global__ void vert_energy_neighbor(uint32_t *energy, uint32_t row, uint32_t cols) {
+__global__ void vert_energy_neighbor(uint32_t *energy, uint32_t row, uint32_t rows, uint32_t cols) {
     assert(row > 0);
     assert(cols > 0);
 
@@ -51,7 +80,7 @@ void Carver::horiz_energy() {
 
     // Now set energy to minimum of three neighbors.
     for (auto col = 1; col < energy->cols(); ++col) {
-        horiz_energy_neighbor<<<10, 1024>>>(((hpc_cuda::CudaEnergy *) energy)->get_energy_matrix(), col, energy->rows());
+        horiz_energy_neighbor<<<10, 1024>>>(((hpc_cuda::CudaEnergy *) energy)->to_struct(), col);
 
 //        Within a row, we're good.
         for (auto row = 0; row < energy->rows(); ++row) {
@@ -121,7 +150,6 @@ void Carver::vert_energy() {
     // This is one of the larger opportunities for parallelism.
     // Set energy to minimum of three above neighbors.
     for (auto row = 1; row < energy->rows(); ++row) {
-        vert_energy_neighbor<<<10, 1024>>>(((hpc_cuda::CudaEnergy *) energy)->get_energy_matrix(), row, energy->cols());
         for (auto col = 0; col < energy->cols(); ++col) {
             // Note: no wrapping in seams!
             auto neighbor_energies = energy->get_top_predecessors(col, row);
