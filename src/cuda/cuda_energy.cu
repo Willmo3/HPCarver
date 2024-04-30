@@ -19,8 +19,14 @@ CudaEnergy::~CudaEnergy() {
     energy = nullptr;
 }
 
-uint32_t *CudaEnergy::get_energy_matrix() {
-    return energy;
+// Convert to struct, exposing low-level access to CUDA.
+CudaStruct CudaEnergy::to_struct() {
+    return {
+        .energy = energy,
+        .base_cols = base_cols,
+        .current_cols = current_cols,
+        .current_rows = current_rows,
+    };
 }
 
 } // End namespace hpc_cuda

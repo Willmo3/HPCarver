@@ -8,6 +8,16 @@
 
 namespace hpc_cuda {
 
+// CUDA functions cannot call standard energy helpers.
+// This means they need lower-level access to the energy data.
+// cuda_energy thus has a means of exposing these fields in a convenient way.
+struct CudaStruct {
+    uint32_t *energy;
+    uint32_t base_cols;
+    uint32_t current_cols;
+    uint32_t current_rows;
+};
+
 class CudaEnergy: public carver::Energy {
 public:
     /**
@@ -28,10 +38,8 @@ public:
      * We need direct access to the energy matrix!
      * @return The energy matrix associated with this object.
      */
-    uint32_t *get_energy_matrix();
+    CudaStruct to_struct();
 };
 } // hpc_cuda
-
-
 
 #endif //HPCARVER_CUDA_ENERGY_H
