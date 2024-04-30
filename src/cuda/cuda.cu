@@ -27,6 +27,9 @@ __global__ void horiz_energy_neighbor(hpc_cuda::CudaStruct c_energy, uint32_t co
     int stride = blockDim.x * gridDim.x;
 
     for (int row = start; row < c_energy.current_rows; row += stride) {
+        // Need to get local energy of (col, row).
+        // Need static function to do this -- helper must be declared __global__.
+        
         // Get the neighbor energies.
         uint32_t left_col = col - 1;
 
@@ -49,6 +52,9 @@ __global__ void horiz_energy_neighbor(hpc_cuda::CudaStruct c_energy, uint32_t co
                 min_energy = bottom_energy;
             }
         }
+
+        // Sum the local energy of (col, row) and the minimum neighbor energy.
+        // Place this in here.
     }
 }
 
@@ -65,7 +71,6 @@ __global__ void vert_energy_neighbor(uint32_t *energy, uint32_t row, uint32_t ro
     int stride = blockDim.x * gridDim.x;
 
     for (int i = start; i < cols; i += stride) {
-//        What will we need/
     }
 }
 
