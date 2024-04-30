@@ -15,19 +15,19 @@ target_link_libraries(raja carver RAJA)
 # Good news: should be enough to just subclass
 if (ENABLE_CUDA)
     add_library(cuda_energy cuda/cuda_energy.cu cuda/cuda_energy.h)
-    set_target_properties(cuda_energy PROPERTIES CUDA_ARCHITECTURES "all")
+    set_target_properties(cuda_energy PROPERTIES CUDA_ARCHITECTURES "all-major")
     target_link_libraries(cuda_energy energy)
 
     add_library(cuda_image cuda/cuda_image.h cuda/cuda_image.cu)
-    set_target_properties(cuda_image PROPERTIES CUDA_ARCHITECTURES "all")
+    set_target_properties(cuda_image PROPERTIES CUDA_ARCHITECTURES "all-major")
     target_link_libraries(cuda_image hpimage)
 
     add_library(cu cuda/cuda.cu)
-    set_target_properties(cu PROPERTIES CUDA_ARCHITECTURES "all")
+    set_target_properties(cu PROPERTIES CUDA_ARCHITECTURES "all-major")
     target_link_libraries(cu carver)
 
     add_executable(hpc_cuda cuda/hpc_cuda.cpp)
-    set_target_properties(hpc_cuda PROPERTIES CUDA_ARCHITECTURES "all")
+    set_target_properties(hpc_cuda PROPERTIES CUDA_ARCHITECTURES "all-major")
     target_link_libraries(hpc_cuda
                             cu
                             cuda_energy
