@@ -11,11 +11,16 @@
  * @param energy Energy matrix to use.
  * @param col Column to start from. Must be greater than zero, because we're considering backwards neighbor energies.
  */
-__global__ void horiz_energy_neighbor(hpc_cuda::CudaEnergy& energy, int col) {
+__global__ void horiz_energy_neighbor(uint32_t *energy, uint32_t col, uint32_t rows) {
     assert(col > 0);
+    assert(rows > 0);
 
     int start = blockIdx.x * blockDim.x + threadIdx.x;
     int stride = blockDim.x * gridDim.x;
+
+    for (int i = start; i < rows; i += stride) {
+//        What will we need/
+    }
 }
 
 /**
@@ -23,11 +28,16 @@ __global__ void horiz_energy_neighbor(hpc_cuda::CudaEnergy& energy, int col) {
  * @param energy Energy matrix to use.
  * @param row Row to start from. Must be greater than zero -- considering predecessor energy.
  */
-__global__ void vert_energy_neighbor(hpc_cuda::CudaEnergy& energy, int row) {
+__global__ void vert_energy_neighbor(uint32_t *energy, uint32_t row, uint32_t cols) {
     assert(row > 0);
+    assert(cols > 0);
 
     int start = blockIdx.x * blockDim.x + threadIdx.x;
     int stride = blockDim.x * gridDim.x;
+
+    for (int i = start; i < cols; i += stride) {
+//        What will we need/
+    }
 }
 
 namespace carver {
@@ -41,6 +51,8 @@ void Carver::horiz_energy() {
 
     // Now set energy to minimum of three neighbors.
     for (auto col = 1; col < energy->cols(); ++col) {
+        horiz_energy_neighbor<<<10, 1024>>>(((hpc_cuda::CudaEnergy *) energy)->get_energy_matrix(), col, energy->rows());
+
 //        Within a row, we're good.
         for (auto row = 0; row < energy->rows(); ++row) {
             // No wrapping
@@ -109,6 +121,7 @@ void Carver::vert_energy() {
     // This is one of the larger opportunities for parallelism.
     // Set energy to minimum of three above neighbors.
     for (auto row = 1; row < energy->rows(); ++row) {
+        vert_energy_neighbor<<<10, 1024>>>(((hpc_cuda::CudaEnergy *) energy)->get_energy_matrix(), row, energy->cols());
         for (auto col = 0; col < energy->cols(); ++col) {
             // Note: no wrapping in seams!
             auto neighbor_energies = energy->get_top_predecessors(col, row);
