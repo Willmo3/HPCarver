@@ -5,6 +5,31 @@
 #include <cassert>
 #include <algorithm>
 
+/**
+ * Given an energy matrix, compute the minimum energy of col considering previous neighbor's energies.
+ *
+ * @param energy Energy matrix to use.
+ * @param col Column to start from. Must be greater than zero, because we're considering backwards neighbor energies.
+ */
+__global__ void horiz_energy_neighbor(hpc_cuda::CudaEnergy& energy, int col) {
+    assert(col > 0);
+
+    int start = blockIdx.x * blockDim.x + threadIdx.x;
+    int stride = blockDim.x * gridDim.x;
+}
+
+/**
+ * Given an energy matrix, compute the minimum energy of row considering preceeding row energies.
+ * @param energy Energy matrix to use.
+ * @param row Row to start from. Must be greater than zero -- considering predecessor energy.
+ */
+__global__ void vert_energy_neighbor(hpc_cuda::CudaEnergy& energy, int row) {
+    assert(row > 0);
+
+    int start = blockIdx.x * blockDim.x + threadIdx.x;
+    int stride = blockDim.x * gridDim.x;
+}
+
 namespace carver {
 
 // ***** HORIZONTAL SEAM CALCULATORS ***** //
@@ -16,6 +41,7 @@ void Carver::horiz_energy() {
 
     // Now set energy to minimum of three neighbors.
     for (auto col = 1; col < energy->cols(); ++col) {
+//        Within a row, we're good.
         for (auto row = 0; row < energy->rows(); ++row) {
             // No wrapping
             auto neighbor_energies = energy->get_left_predecessors(col, row);
