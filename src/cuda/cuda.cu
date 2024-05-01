@@ -94,6 +94,42 @@ __device__ uint32_t pixel_energy(hpc_cuda::CudaImageStruct c_image, uint32_t col
     return gradient_energy(left, right) + gradient_energy(top, bottom);
 }
 
+/**
+ * Get the minimum energy of the energy struct's left neighbors.
+ * There will be 2-3 neighbors, depending on where in the image the pixel is.
+ *
+ * @param c_energy Energy struct to grab energies from.
+ * @param col Column to get energy from.
+ * @param row Row to get energy from.
+ * @return The minimum energy of the neighbors.
+ */
+__device__ uint32_t min_left_energy(hpc_cuda::CudaEnergyStruct c_energy, uint32_t col, uint32_t row) {
+    // Get the neighbor energies.
+    uint32_t left_col = col - 1;
+
+    // While we allow wrapping for calculating basic energies, there is no wrapping in seams.
+    // Therefore, each pixel is allowed only to consider the neighbors they have.
+    int64_t min_energy = -1;
+    if (row > 0) {
+        uint32_t top_energy = get_energy(c_energy, left_col, row - 1);
+        min_energy = top_energy;
+    }
+
+    uint32_t middle_energy = get_energy(c_energy, left_col, row);
+    if (min_energy == -1 || middle_energy < min_energy) {
+        min_energy = middle_energy;
+    }
+
+    if (row + 1 < c_energy.current_rows) {
+        uint32_t bottom_energy = get_energy(c_energy, left_col, row + 1);
+        if (bottom_energy < min_energy) {
+            min_energy = bottom_energy;
+        }
+    }
+
+    return min_energy;
+}
+
 
 // ***** ENERGY NEIGHBOR CALCULATORS ***** //
 
@@ -112,36 +148,8 @@ __global__ void horiz_energy_neighbor(hpc_cuda::CudaEnergyStruct c_energy,
     int stride = blockDim.x * gridDim.x;
 
     for (int row = start; row < c_energy.current_rows; row += stride) {
-        // Need to get local energy of (col, row).
-        // Need static function to do this -- helper must be declared __global__.
-        
-        // Get the neighbor energies.
-        uint32_t left_col = col - 1;
-
-        // While we allow wrapping for calculating basic energies, there is no wrapping in seams.
-        // Therefore, each pixel is allowed only to consider the neighbors they have.
-        int64_t min_energy = -1;
-        if (row > 0) {
-            uint32_t top_energy = c_energy.energy[(row - 1) * c_energy.base_cols + left_col];
-            min_energy = top_energy;
-        }
-
-        uint32_t middle_energy = c_energy.energy[row * c_energy.base_cols + left_col];
-        if (min_energy == -1 || middle_energy < min_energy) {
-            min_energy = middle_energy;
-        }
-
-        if (row + 1 < c_energy.current_rows) {
-            uint32_t bottom_energy = c_energy.energy[(row + 1) * c_energy.base_cols + left_col];
-            if (bottom_energy < min_energy) {
-                min_energy = bottom_energy;
-            }
-        }
-
-        uint32_t base_energy = pixel_energy(c_image, col, row);
-        // Sum the local energy of (col, row) and the minimum neighbor energy.
-        // Place this in here.
-        set_energy(c_energy, base_energy + min_energy, col, row);
+        uint32_t local_energy = pixel_energy(c_image, col, row) + min_left_energy(c_energy, col, row);
+        set_energy(c_energy, local_energy, col, row);
     }
 }
 
