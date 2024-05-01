@@ -5,12 +5,42 @@
 #include <cassert>
 #include <algorithm>
 
-// Cuda does not allow calling any functions that are not annotated __global__
-// And functions within a class cannot have that annotation because they're implicitly outside of the global namespac.e
-// Therefore, shadowing key features of energy in order to get it to work.
 
-// support cuda api: turn this object into a struct.
-// all relevant private fields will be exposed.
+// **** INDEXING HELPERS: ***** //
+
+// Wrap an index based on length.
+__device__ uint32_t wrap_index(int64_t index, size_t length) {
+    return (index + length) % length;
+}
+
+// Get a pixel from a CudaImage buffer
+__device__ hpimage::pixel get_pixel(hpc_cuda::CudaImageStruct image, uint32_t col, uint32_t row) {
+    assert(col < image.current_cols);
+    assert(row < image.current_rows);
+
+    // Stride: skip through all the columns of previous rows.
+    return image.pixels[row * image.base_cols + col];
+}
+
+// Get an energy value from a CudaImage buffer
+__device__ uint32_t get_energy(hpc_cuda::CudaEnergyStruct energy, uint32_t col, uint32_t row) {
+    assert(col < energy.current_cols);
+    assert(row < energy.current_rows);
+
+    // Stride: skip through all the columns of previous rows.
+    return energy.energy[row * energy.base_cols + col];
+}
+
+// Set an energy value to new_value
+__device__ void set_energy(hpc_cuda::CudaEnergyStruct energy, uint32_t new_value, uint32_t col, uint32_t row) {
+    assert(col < energy.current_cols);
+    assert(row < energy.current_rows);
+
+    energy.energy[row * energy.base_cols + col] = new_value;
+}
+
+
+// ***** ENERGY HELPERS ***** //
 
 /**
  * Get the gradient energy difference between two pixels.
@@ -19,23 +49,53 @@
  * @param p2 Second pixel to consider.
  * @param retval Pointer to integer to place energy in.
  */
-__device__ void gradient_energy(hpimage::pixel p1, hpimage::pixel p2, uint32_t *retval) {
+__device__ uint32_t gradient_energy(hpimage::pixel p1, hpimage::pixel p2) {
+    auto energy = 0;
 
+    auto red_diff = p1.red - p2.red;
+    auto green_diff = p1.green - p2.green;
+    auto blue_diff = p1.blue - p2.blue;
+
+    // Square differences w/o importing pow fn
+    energy += red_diff * red_diff;
+    energy += green_diff * green_diff;
+    energy += blue_diff * blue_diff;
+
+    return energy;
 }
 
 /**
- * Update the specified row and column of a cuda energy to have its basic energy
- * Does not consider neighbor energy.
+ * Get the basic energy of a pixel at col, row.
+ * Does not consider previous neighbor energy in memo structure.
  *
  * @param c_energy Cuda energy struct containing energy matrix.
  * @param col Col to consider.
  * @param row Row to consider.
  */
-__device__ void pixel_energy(hpc_cuda::CudaEnergyStruct c_energy,
-                             hpc_cuda::CudaImageStruct c_image, uint32_t col, uint32_t row) {
+__device__ uint32_t pixel_energy(hpc_cuda::CudaImageStruct c_image, uint32_t col, uint32_t row) {
+    assert(col < c_image.current_cols);
+    assert(row < c_image.current_rows);
 
+    // Casting here to allow the standard uint32_t API for external calls
+    // While avoiding underflow with internal ones.
+    auto signed_col = (int64_t) col;
+    auto signed_row = (int64_t) row;
+
+    uint32_t left_col = wrap_index(signed_col - 1, c_image.current_cols);
+    uint32_t right_col = wrap_index(signed_col + 1, c_image.current_cols);
+    uint32_t top_row = wrap_index(signed_row + 1, c_image.current_rows);
+    uint32_t bottom_row = wrap_index(signed_row - 1, c_image.current_rows);
+
+    hpimage::pixel left = get_pixel(c_image, left_col, row);
+    hpimage::pixel right = get_pixel(c_image, right_col, row);
+    hpimage::pixel top = get_pixel(c_image, col, top_row);
+    hpimage::pixel bottom = get_pixel(c_image, col, bottom_row);
+
+    return gradient_energy(left, right) + gradient_energy(top, bottom);
 }
 
+
+// ***** ENERGY NEIGHBOR CALCULATORS ***** //
 
 /**
  * Given an energy matrix, compute the minimum energy of col considering previous neighbor's energies.
@@ -78,9 +138,10 @@ __global__ void horiz_energy_neighbor(hpc_cuda::CudaEnergyStruct c_energy,
             }
         }
 
-        pixel_energy(c_energy, c_image, col, row);
+        uint32_t base_energy = pixel_energy(c_image, col, row);
         // Sum the local energy of (col, row) and the minimum neighbor energy.
         // Place this in here.
+        set_energy(c_energy, base_energy + min_energy, col, row);
     }
 }
 
@@ -113,17 +174,7 @@ void Carver::horiz_energy() {
     for (auto col = 1; col < energy->cols(); ++col) {
         horiz_energy_neighbor<<<10, 1024>>>(((hpc_cuda::CudaEnergy *) energy)->to_struct(),
                                             ((hpc_cuda::CudaImage *) image)->to_struct(), col);
-
-        // Within a row, we're good.
-        for (auto row = 0; row < energy->rows(); ++row) {
-            // No wrapping
-            auto neighbor_energies = energy->get_left_predecessors(col, row);
-
-            // Energy = local energy + min(neighbors)
-            uint32_t local_energy = pixel_energy(col, row);
-            local_energy += *std::min_element(neighbor_energies.begin(), neighbor_energies.end());
-            energy->set_energy(col, row, local_energy);
-        }
+        cudaDeviceSynchronize();
     }
 }
 
