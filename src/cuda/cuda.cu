@@ -143,7 +143,7 @@ __device__ uint32_t min_top_energy(hpc_cuda::CudaEnergyStruct c_energy, uint32_t
     uint32_t upper_row = row - 1;
 
     int64_t min_energy = -1;
-    if (row > 0) {
+    if (col > 0) {
         uint32_t left_energy = get_energy(c_energy, col - 1, upper_row);
         min_energy = left_energy;
     }
@@ -191,14 +191,17 @@ __global__ void horiz_energy_neighbor(hpc_cuda::CudaEnergyStruct c_energy,
  * @param energy Energy matrix to use.
  * @param row Row to start from. Must be greater than zero -- considering predecessor energy.
  */
-__global__ void vert_energy_neighbor(uint32_t *energy, uint32_t row, uint32_t rows, uint32_t cols) {
-    assert(row > 0);
-    assert(cols > 0);
+__global__ void vert_energy_neighbor(hpc_cuda::CudaEnergyStruct c_energy,
+                                     hpc_cuda::CudaImageStruct c_image, uint32_t row) {
+    assert(row > 0 && row < c_energy.current_rows);
+    assert(c_energy.current_rows > 0);
 
     int start = blockIdx.x * blockDim.x + threadIdx.x;
     int stride = blockDim.x * gridDim.x;
 
-    for (int i = start; i < cols; i += stride) {
+    for (int col = start; col < c_energy.current_cols; col += stride) {
+        uint32_t local_energy = pixel_energy(c_image, col, row) + min_top_energy(c_energy, col, row);
+        set_energy(c_energy, local_energy, col, row);
     }
 }
 
@@ -271,18 +274,11 @@ void Carver::vert_energy() {
         energy->set_energy(col, 0, pixel_energy(col, 0));
     }
 
-    // This is one of the larger opportunities for parallelism.
-    // Set energy to minimum of three above neighbors.
+    // Now, calculate energies, considering neighbors.
     for (auto row = 1; row < energy->rows(); ++row) {
-        for (auto col = 0; col < energy->cols(); ++col) {
-            // Note: no wrapping in seams!
-            auto neighbor_energies = energy->get_top_predecessors(col, row);
-
-            // energy = local energy + min(neighbors)
-            uint32_t local_energy = pixel_energy(col, row);
-            local_energy += *std::min_element(neighbor_energies.begin(), neighbor_energies.end());
-            energy->set_energy(col, row, local_energy);
-        }
+        vert_energy_neighbor<<<10, 1024>>>(((hpc_cuda::CudaEnergy *) energy)->to_struct(),
+                                            ((hpc_cuda::CudaImage *) image)->to_struct(), row);
+        cudaDeviceSynchronize();
     }
 }
 
