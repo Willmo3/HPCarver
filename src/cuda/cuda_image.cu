@@ -2,6 +2,7 @@
 #include <cassert>
 
 namespace hpc_cuda {
+
 hpimage::pixel *img_mem(uint32_t size) {
     hpimage::pixel *data;
     assert(cudaMallocManaged(&data, size) == 0);
@@ -15,6 +16,15 @@ CudaImage::~CudaImage() {
     cudaDeviceSynchronize();
     assert(cudaFree(pixels) == 0);
     pixels = nullptr;
+}
+
+CudaImageStruct CudaImage::to_struct() {
+    return {
+        .pixels = pixels,
+        .base_cols = base_cols,
+        .current_cols = current_cols,
+        .current_rows = current_rows,
+    };
 }
 
 } // hpc_cuda
