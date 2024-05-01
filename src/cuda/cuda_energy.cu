@@ -20,7 +20,7 @@ CudaEnergy::~CudaEnergy() {
 }
 
 // Convert to struct, exposing low-level access to CUDA.
-CudaStruct CudaEnergy::to_struct() {
+CudaEnergyStruct CudaEnergy::to_struct() {
     return {
         .energy = energy,
         .base_cols = base_cols,

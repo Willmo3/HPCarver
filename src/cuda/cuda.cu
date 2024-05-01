@@ -12,6 +12,18 @@
 // support cuda api: turn this object into a struct.
 // all relevant private fields will be exposed.
 
+/**
+ * Update the specified row and column of a cuda energy to have its basic energy
+ * Does not consider neighbor energy.
+ *
+ * @param c_energy Cuda energy struct containing energy matrix.
+ * @param col Col to consider.
+ * @param row Row to consider.
+ */
+__global__ void pixel_energy(hpc_cuda::CudaEnergyStruct c_energy, uint32_t col, uint32_t row) {
+
+}
+
 
 /**
  * Given an energy matrix, compute the minimum energy of col considering previous neighbor's energies.
@@ -19,7 +31,7 @@
  * @param energy Energy matrix to use.
  * @param col Column to start from. Must be greater than zero, because we're considering backwards neighbor energies.
  */
-__global__ void horiz_energy_neighbor(hpc_cuda::CudaStruct c_energy, uint32_t col) {
+__global__ void horiz_energy_neighbor(hpc_cuda::CudaEnergyStruct c_energy, uint32_t col) {
     assert(col > 0 && col < c_energy.current_cols);
     assert(c_energy.current_rows > 0);
 
