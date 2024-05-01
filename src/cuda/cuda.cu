@@ -13,6 +13,17 @@
 // all relevant private fields will be exposed.
 
 /**
+ * Get the gradient energy difference between two pixels.
+ *
+ * @param p1 First pixel to consider.
+ * @param p2 Second pixel to consider.
+ * @param retval Pointer to integer to place energy in.
+ */
+__global__ void gradient_energy(hpimage::pixel p1, hpimage::pixel p2, uint32_t *retval) {
+
+}
+
+/**
  * Update the specified row and column of a cuda energy to have its basic energy
  * Does not consider neighbor energy.
  *
@@ -20,8 +31,9 @@
  * @param col Col to consider.
  * @param row Row to consider.
  */
-__global__ void pixel_energy(hpc_cuda::CudaImageStruct c_image, uint32_t col, uint32_t row) {
-
+__global__ void pixel_energy(hpc_cuda::CudaEnergyStruct c_energy,
+                             hpc_cuda::CudaImageStruct c_image, uint32_t col, uint32_t row) {
+        
 }
 
 
