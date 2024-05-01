@@ -1,17 +1,13 @@
 // Special case for CUDA
 
 #include <gtest/gtest.h>
-#include "../HPImage/hpimage.h"
+#include "../src/cuda/cuda_image.h"
+#include "../src/cuda/cuda_energy.h"
 #include "../src/carver/carver.h"
 
-// Testing helper.
-hpimage::Hpimage test() {
-    return hpimage::Hpimage{"3x4.ppm"};
-}
-
 TEST(carver, vertical_carve) {
-    auto image = test();
-    auto energy = carver::Energy(image.cols(), image.rows());
+    auto image = hpc_cuda::CudaImage{"3x4.ppm"};
+    auto energy = hpc_cuda::CudaEnergy(image.cols(), image.rows());
     auto carver = carver::Carver(&image, &energy);
 
     auto seam = std::vector<uint32_t>();
@@ -35,8 +31,8 @@ TEST(carver, vertical_carve) {
 }
 
 TEST(carver, horizontal_carve) {
-    auto image = test();
-    auto energy = carver::Energy(image.cols(), image.rows());
+    auto image = hpc_cuda::CudaImage{"3x4.ppm"};
+    auto energy = hpc_cuda::CudaEnergy(image.cols(), image.rows());
     auto carver = carver::Carver(&image, &energy);
 
     auto seam = std::vector<uint32_t>();
@@ -59,8 +55,8 @@ TEST(carver, horizontal_carve) {
 }
 
 TEST(carver, energy) {
-    auto image = test();
-    auto energy = carver::Energy(image.cols(), image.rows());
+    auto image = hpc_cuda::CudaImage{"3x4.ppm"};
+    auto energy = hpc_cuda::CudaEnergy(image.cols(), image.rows());
     auto carver = carver::Carver(&image, &energy);
 
     // Should wrap left, top around.
@@ -72,8 +68,8 @@ TEST(carver, energy) {
 }
 
 TEST(carver, horiz_seam) {
-    auto image = test();
-    auto energy = carver::Energy(image.cols(), image.rows());
+    auto image = hpc_cuda::CudaImage{"3x4.ppm"};
+    auto energy = hpc_cuda::CudaEnergy(image.cols(), image.rows());
     auto carver = carver::Carver(&image, &energy);
 
     auto seam = carver.horiz_seam();
@@ -85,8 +81,8 @@ TEST(carver, horiz_seam) {
 }
 
 TEST(carver, vert_seam) {
-    auto image = test();
-    auto energy = carver::Energy(image.cols(), image.rows());
+    auto image = hpc_cuda::CudaImage{"3x4.ppm"};
+    auto energy = hpc_cuda::CudaEnergy(image.cols(), image.rows());
     auto carver = carver::Carver(&image, &energy);
 
     auto seam = carver.vertical_seam();
@@ -99,8 +95,8 @@ TEST(carver, vert_seam) {
 }
 
 TEST(carver, hard_vert_seam) {
-    auto image = hpimage::Hpimage("6x5.ppm");
-    auto energy = carver::Energy(image.cols(), image.rows());
+    auto image = hpc_cuda::CudaImage{"6x5.ppm"};
+    auto energy = hpc_cuda::CudaEnergy(image.cols(), image.rows());
     auto carver = carver::Carver(&image, &energy);
 
     auto seam = carver.vertical_seam();
@@ -113,8 +109,8 @@ TEST(carver, hard_vert_seam) {
 }
 
 TEST(carver, hard_horiz_seam) {
-    auto image = hpimage::Hpimage("6x5.ppm");
-    auto energy = carver::Energy(image.cols(), image.rows());
+    auto image = hpc_cuda::CudaImage{"6x5.ppm"};
+    auto energy = hpc_cuda::CudaEnergy(image.cols(), image.rows());
     auto carver = carver::Carver(&image, &energy);
 
     auto seam = carver.horiz_seam();
