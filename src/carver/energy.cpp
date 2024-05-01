@@ -32,7 +32,7 @@ namespace carver {
     }
 
     Energy::Energy(uint32_t cols, uint32_t rows):
-        Energy(cols, rows, (std::function<uint32_t *(uint32_t)>) mem) {}
+        Energy(cols, rows, mem) {}
 
     /**
      * Free heap-allocated energy vector
