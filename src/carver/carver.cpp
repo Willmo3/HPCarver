@@ -77,8 +77,8 @@ uint32_t Carver::gradient_energy(hpimage::pixel p1, hpimage::pixel p2) {
 }
 
 uint32_t Carver::pixel_energy(uint32_t col, uint32_t row) {
-    assert(col >= 0 && col < image->cols());
-    assert(row >= 0 && row < image->rows());
+    assert(col < image->cols());
+    assert(row < image->rows());
 
     // Casting here to allow the standard uint32_t API for external calls
     // While avoiding underflow with internal ones.
