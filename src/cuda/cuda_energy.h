@@ -13,9 +13,9 @@ namespace hpc_cuda {
 // cuda_energy thus has a means of exposing these fields in a convenient way.
 struct CudaEnergyStruct {
     uint32_t *energy;
-    uint32_t base_cols;
-    uint32_t current_cols;
-    uint32_t current_rows;
+    size_t base_cols;
+    size_t current_cols;
+    size_t current_rows;
 };
 
 class CudaEnergy: public carver::Energy {
