@@ -20,7 +20,7 @@
  * @param col Col to consider.
  * @param row Row to consider.
  */
-__global__ void pixel_energy(hpc_cuda::CudaEnergyStruct c_energy, uint32_t col, uint32_t row) {
+__global__ void pixel_energy(hpc_cuda::CudaImageStruct c_image, uint32_t col, uint32_t row) {
 
 }
 
@@ -31,7 +31,8 @@ __global__ void pixel_energy(hpc_cuda::CudaEnergyStruct c_energy, uint32_t col, 
  * @param energy Energy matrix to use.
  * @param col Column to start from. Must be greater than zero, because we're considering backwards neighbor energies.
  */
-__global__ void horiz_energy_neighbor(hpc_cuda::CudaEnergyStruct c_energy, uint32_t col) {
+__global__ void horiz_energy_neighbor(hpc_cuda::CudaEnergyStruct c_energy,
+                                      hpc_cuda::CudaImageStruct c_image, uint32_t col) {
     assert(col > 0 && col < c_energy.current_cols);
     assert(c_energy.current_rows > 0);
 
@@ -97,9 +98,10 @@ void Carver::horiz_energy() {
 
     // Now set energy to minimum of three neighbors.
     for (auto col = 1; col < energy->cols(); ++col) {
-        horiz_energy_neighbor<<<10, 1024>>>(((hpc_cuda::CudaEnergy *) energy)->to_struct(), col);
+        horiz_energy_neighbor<<<10, 1024>>>(((hpc_cuda::CudaEnergy *) energy)->to_struct(),
+                                            ((hpc_cuda::CudaImage *) image)->to_struct(), col);
 
-//        Within a row, we're good.
+        // Within a row, we're good.
         for (auto row = 0; row < energy->rows(); ++row) {
             // No wrapping
             auto neighbor_energies = energy->get_left_predecessors(col, row);
