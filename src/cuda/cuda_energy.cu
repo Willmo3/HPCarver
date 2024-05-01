@@ -3,13 +3,13 @@
 
 namespace hpc_cuda {
 
-uint32_t *mem(uint32_t size) {
+uint32_t *eng_mem(uint32_t size) {
     uint32_t *data;
     assert(cudaMallocManaged(&data, size) == 0);
     return data;
 }
 
-CudaEnergy::CudaEnergy(uint32_t cols, uint32_t rows) : carver::Energy(cols, rows, mem) {}
+CudaEnergy::CudaEnergy(uint32_t cols, uint32_t rows) : carver::Energy(cols, rows, eng_mem) {}
 
 // Cuda destructor
 CudaEnergy::~CudaEnergy() {
