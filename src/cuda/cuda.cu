@@ -104,7 +104,7 @@ __device__ uint32_t pixel_energy(hpc_cuda::CudaImageStruct c_image, uint32_t col
  * @return The minimum energy of the neighbors.
  */
 __device__ uint32_t min_left_energy(hpc_cuda::CudaEnergyStruct c_energy, uint32_t col, uint32_t row) {
-    // Get the neighbor energies.
+    assert(col > 0);
     uint32_t left_col = col - 1;
 
     // While we allow wrapping for calculating basic energies, there is no wrapping in seams.
@@ -124,6 +124,39 @@ __device__ uint32_t min_left_energy(hpc_cuda::CudaEnergyStruct c_energy, uint32_
         uint32_t bottom_energy = get_energy(c_energy, left_col, row + 1);
         if (bottom_energy < min_energy) {
             min_energy = bottom_energy;
+        }
+    }
+
+    return min_energy;
+}
+
+/**
+ * Get the minimum energy of a cells top neighbors.
+ *
+ * @param c_energy Energy matrix to consider.
+ * @param col column of cell
+ * @param row row of cell
+ * @return The minimum energy of the top neighbors.
+ */
+__device__ uint32_t min_top_energy(hpc_cuda::CudaEnergyStruct c_energy, uint32_t col, uint32_t row) {
+    assert(row > 0);
+    uint32_t upper_row = row - 1;
+
+    int64_t min_energy = -1;
+    if (row > 0) {
+        uint32_t left_energy = get_energy(c_energy, col - 1, upper_row);
+        min_energy = left_energy;
+    }
+
+    uint32_t middle_energy = get_energy(c_energy, col, upper_row);
+    if (min_energy == -1 || middle_energy < min_energy) {
+        min_energy = middle_energy;
+    }
+
+    if (col + 1 < c_energy.current_cols) {
+        uint32_t right_energy = get_energy(c_energy, col + 1, upper_row);
+        if (right_energy < min_energy) {
+            min_energy = right_energy;
         }
     }
 
