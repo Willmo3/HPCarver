@@ -3,16 +3,18 @@
 
 #include "../../HPImage/hpimage.h"
 #include "../carver/carver.h"
+#include "pthread.h"
 
 // Print usage data
 void usage();
 
 // Indexes for argument parsing
-#define ARG_COUNT 5
-#define SOURCE_INDEX 1
-#define TARGET_INDEX 2
-#define WIDTH_INDEX 3
-#define HEIGHT_INDEX 4
+#define ARG_COUNT 6
+#define THREAD_INDEX 1
+#define SOURCE_INDEX 2
+#define TARGET_INDEX 3
+#define WIDTH_INDEX 4
+#define HEIGHT_INDEX 5
 
 // ***** PROGRAM ENTRY POINT ***** //
 
@@ -24,6 +26,14 @@ int main(int argc, char *argv[]) {
         usage();
         exit(EXIT_FAILURE);
     }
+
+    int threads = std::stoi(argv[THREAD_INDEX]);
+    if (threads < 0) {
+        std::cerr << "ERROR: Negative thread count: " << threads << " specified." << std::endl;
+        exit(EXIT_FAILURE);
+    }
+
+    hpc_pthread::hpc_pthread_init(threads);
 
     char *source_path = argv[SOURCE_INDEX];
     char *out_path = argv[TARGET_INDEX];
@@ -72,5 +82,5 @@ int main(int argc, char *argv[]) {
 
 void usage() {
     std::cout << "HPCarver Pthread Usage:" << std::endl;
-    std::cout << "hpc_pthread [source_image.ppm] [out_image.ppm] [new width] [new height]" << std::endl;
+    std::cout << "hpc_pthread [num_threads] [source_image.ppm] [out_image.ppm] [new width] [new height]" << std::endl;
 }

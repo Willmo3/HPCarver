@@ -5,7 +5,7 @@ target_link_libraries(serial carver)
 add_library(omp omp/omp.cpp)
 target_link_libraries(omp carver OpenMP::OpenMP_CXX)
 
-add_library(pthread pthread/pthread.cpp)
+add_library(pthread pthread/pthread.cpp pthread/pthread.h)
 target_link_libraries(pthread carver Threads::Threads)
 
 add_library(raja raja/raja.cpp)

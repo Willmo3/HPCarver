@@ -8,8 +8,7 @@
 #include <algorithm>
 
 #include "../carver/carver.h"
-
-namespace carver {
+#include "pthread.h"
 
 
 // ***** THREADING METADATA ***** //
@@ -18,7 +17,18 @@ namespace carver {
  * This may be updated by an env var.
  * If not, by default use four threads.
  */
-static int num_threads = getenv("HPC_THREADS") ? std::stoi(getenv("HPC_THREADS")) : 4;
+static int num_threads = 4;
+
+namespace hpc_pthread {
+
+void hpc_pthread_init(int thread_count) {
+    num_threads = thread_count;
+}
+
+} // hpc_pthread
+
+
+namespace carver {
 
 /**
  * Data structure passed to a thread during pthread_create.
