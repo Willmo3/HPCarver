@@ -39,6 +39,14 @@ __device__ void set_energy(hpc_cuda::CudaEnergyStruct energy, uint32_t new_value
     energy.energy[row * energy.base_cols + col] = new_value;
 }
 
+// Set an energy value to new_value
+__device__ void set_pixel(hpc_cuda::CudaImageStruct *image, hpimage::pixel new_value, uint32_t col, uint32_t row) {
+    assert(col < image->current_cols);
+    assert(row < image->current_rows);
+
+    image->pixels[row * image->base_cols + col] = new_value;
+}
+
 
 // ***** ENERGY HELPERS ***** //
 
@@ -208,18 +216,8 @@ __global__ void vert_energy_neighbor(hpc_cuda::CudaEnergyStruct c_energy,
 
 // ***** SEAM REMOVERS ***** //
 
-/**
- * Remove a horizontal image from c_image.
- * ASSUMPTION: each row in seam is adjacent.
- *
- * @param c_image image to remove seam from.
- * @param seam Seam to remove.
- * @param seam_len Length of seam to remove; should be equal to c_image->cols.
- * 
- */
-__global__ void remove_horiz_seam(hpc_cuda::CudaImageStruct *c_image, uint32_t *seam, size_t seam_len) {
-    assert(seam_len == c_image->current_cols);
-}
+// These could be implemented in CUDA, but this computation does not appear to be the performance bottleneck
+// Therefore, to save time, I've decided against writing CUDA versions at this point.
 
 /**
  * Remove a vertical seam from c_image.
@@ -360,7 +358,6 @@ void Carver::remove_horiz_seam(std::vector<uint32_t> &seam) {
     // Must be exactly one row to remove from each column.
     assert(seam.size() == image->cols());
 
-    // TODO: We should have the helpers to parallelize this right now
     for (auto col = 0; col < image->cols(); ++col) {
         auto index = seam[col];
         assert(index < image->rows());
