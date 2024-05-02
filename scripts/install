@@ -2,6 +2,8 @@
 
 # INSTALL SCRIPT OPTIONAL -- you are welcome to configure this yourself!
 
+cd ..
+
 # if any required directories are missing, force a clean install
 if [[ ! -d RAJA-install ]] || [[ ! -d RAJA ]] || [[ ! -d RAJA-build ]]; then
     rm -r RAJA-install

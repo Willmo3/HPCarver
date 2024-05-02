@@ -1,4 +1,6 @@
 #!/usr/bin/env bash
 
+cd ..
+
 mkdir -p build && cd build
 cmake -DENABLE_OPENMP=On -DENABLE_CUDA=Off -DRAJA_DIR=RAJA-install/lib/cmake/raja ..
