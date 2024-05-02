@@ -8,4 +8,6 @@ out*.ppm
 cmake-build-debug
 build
 
-raja
+RAJA
+RAJA-build
+RAJA-install
