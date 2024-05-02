@@ -1,0 +1,24 @@
+#!/usr/bin/env bash
+
+cd ../out/tests
+
+if [[ -f test_serialcarve ]]; then
+    ./test_serialcarve
+fi
+
+if [[ -f test_pthreadcarve ]]; then
+    ./test_pthreadcarve
+fi
+
+if [[ -f test_ompcarve ]]; then
+    ./test_ompcarve
+fi
+
+# For now, assumes that all cuda tests are run on the cluster.
+if [[ -f test_cudacarve ]]; then
+    srun --gres=gpu ./test_cudacarve
+fi
+
+if [[ -f test_rajacarve ]]; then
+    ./test_rajacarve
+fi
