@@ -49,6 +49,7 @@ target_link_libraries(hpc_omp
 add_executable(hpc_pthread pthread/hpc_pthread.cpp)
 target_link_libraries(hpc_pthread
         pthread
+        timer
         hpimage)
 
 add_executable(hpc_raja raja/hpc_raja.cpp)
