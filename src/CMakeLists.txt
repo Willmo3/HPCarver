@@ -44,6 +44,7 @@ target_link_libraries(hpc_serial
 add_executable(hpc_omp omp/hpc_omp.cpp)
 target_link_libraries(hpc_omp
         omp
+        timer
         hpimage)
 
 add_executable(hpc_pthread pthread/hpc_pthread.cpp)
