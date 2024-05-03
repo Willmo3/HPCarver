@@ -29,6 +29,7 @@ if (ENABLE_CUDA)
     add_executable(hpc_cuda cuda/hpc_cuda.cpp)
     set_target_properties(hpc_cuda PROPERTIES CUDA_ARCHITECTURES "all-major")
     target_link_libraries(hpc_cuda
+                            timer
                             cu
                             cuda_energy
                             cuda_image)
