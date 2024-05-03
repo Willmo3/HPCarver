@@ -27,17 +27,29 @@ These dependencies are pulled when the project is installed.
 
 Refer to the installation section for more details!
 
-## Installation
-
 ### HPImage
 This project requires the HPImage library for processing. Please do *git clone --recursive* to ensure that HPImage is cloned as well! If the version of HPImage provided is out of date, git submodule update should fix this.
 
 Additionally, you can move a separate version of HPImage into the root of the project. You should not need to build HPImage by itself -- the provided .h and .cpp file are aadequate when properly configured.
 
-## Testing
-I've copied simple examples from the Princeton programming assignment for basic energy. 
+## Installation
+We provide several install scripts for this project. 
+If you are building in a non-cuda ecosystem, please use the "nocuda" or "noncuda" versions of these scripts.
+All scripts can be found in the scripts directory at the root of the project.
 
-To create simple images, I've used the pixilart online editor.
+1. Install RAJA using scripts/install
+2. Build the project using scripts/build
+
+## Timing
+Run ./timing to see timing results!
+
+The structure of our timing tests will be described more extensively in the final deliverable. 
+We run three trials for each test on duke_dog.ppm, carving them down to progressively smaller images (600x600, 500x500, 400x400).
+
+### Correctness
+Run ./correct_tests to quickly evaluate whether the solutions are working!
+
+I've copied simple examples from the Princeton programming assignment for basic energy. 
 
 We will be using the Google Testing framework here. 
 It's designed for cpp (which will be good for RAJA!) but also works for C. 
