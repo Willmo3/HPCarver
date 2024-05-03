@@ -22,6 +22,9 @@ add_library(energy src/carver/energy.cpp src/carver/energy.h)
 add_library(carver src/carver/carver.cpp src/carver/carver.h)
 target_link_libraries(carver hpimage energy)
 
+# Timing utilities
+add_library(timer src/carver/timer.cpp src/carver/timer.h)
+
 # Deferring to cmake
 add_subdirectory(src)
 add_subdirectory(test)
