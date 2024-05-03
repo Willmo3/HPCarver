@@ -1,0 +1,46 @@
+#!/usr/bin/env bash
+
+# Perform timing tests
+# author: Will Morris
+
+# proceeding sequentially for ease of interpretation
+cd ../out
+
+image=duke_dog.ppm
+sizes=(600 500 400)
+
+if [[ -f hpc_serial ]]; then
+    for size in "${sizes[@]}"; do
+        echo "hpc_serial, size $size"
+        srun ./hpc_serial $image out.ppm $size $size
+    done
+fi
+
+if [[ -f hpc_omp ]]; then
+    for size in "${sizes[@]}"; do
+        echo "hpc_omp, size $size"
+        srun ./hpc_omp $image out_omp.ppm $size $size
+    done
+fi
+
+# Running pthread tests with 4 threads
+if [[ -f hpc_pthread ]]; then
+    for size in "${sizes[@]}"; do
+        echo "hpc_pthread, size $size"
+        srun ./hpc_pthread 4 $image out_pth.ppm $size $size
+    done
+fi
+
+if [[ -f hpc_raja ]]; then
+    for size in "${sizes[@]}"; do
+        echo "hpc_raja, size $size"
+        srun ./hpc_raja $image out_raja.ppm $size $size
+    done
+fi
+
+if [[ -f hpc_cuda ]]; then
+    for size in "${sizes[@]}"; do
+        echo "hpc_cuda, size $size"
+        srun --gres=gpu ./hpc_cuda $image out_cu.ppm $size $size
+    done
+fi
