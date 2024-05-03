@@ -12,9 +12,18 @@ Its purpose is not to be used as a production application, but rather, to test t
    (https://dl.acm.org/doi/10.1145/1276377.1276390)
 
 ## Dependencies
--- CMake
--- RAJA
--- HPImage
+
+### Prerequisites
+These dependencies should be installed on your system prior to installing this project.
+
+1. c++ build essentials (makefile, git, g++)
+2. CMake
+
+### Pulled
+These dependencies are pulled when the project is installed.
+
+1. RAJA (you can symlink to the top level of your own RAJA-install directory if you prefer)
+2. HPImage (make sure to clone with git clone --recurse-submodules to get this!)
 
 Refer to the installation section for more details!
 
@@ -25,37 +34,7 @@ This project requires the HPImage library for processing. Please do *git clone -
 
 Additionally, you can move a separate version of HPImage into the root of the project. You should not need to build HPImage by itself -- the provided .h and .cpp file are aadequate when properly configured.
 
-### RAJA
-Install RAJA, building it with support for all desired backends.
-Please refer to the install script for some relevant options (https://github.com/470-research-crew/install) and the RAJA user guide (https://raja.readthedocs.io/en/develop/sphinx/user_guide/index.html).
-
-Once you've done that, create a symlink to the top level of the installed RAJA directory in the hpcarver root. 
-You can also move the RAJA install here, or provide an absolute path to your install in the makefile's DRAJADIR option.
-
-In the provided init script, our symlink to RAJA results in RAJA's include path being raja/lib/cmake/raja. We cannot guarantee that other configurations will work.
-
-### Init
-Running ./init will create a build directory and call cmake from within it. Assuming you've got the dependencies, a makefile should now be available!
-
-## Working Notes
-### RAJA Setup
-Setting up RAJA has been a big ordeal!
-
-Firstly, it's important to note that RAJA should not just be made, it should be *make installed*, with a path for an installation directory provided. Simply making does not appear to be enough!
-
-Crucially, do not allow RAJA to use the default make install directory! This will likely require superuser perms. 
-I ran cmake -DCMAKE_INSTALL_PREFIX=/nfs/home/morri2wj/applications/raja ../ within the build directory to tell RAJA where to install itself when make install is called. You must do this before you even make!
-
-Then, you will be able to link with RAJA using the raja-config.cmake files in that library directory.
-Be sure to pass the path to this library to cmake, NOT what the RAJA people suggest! As far as I can tell, this works.
-
-In my case, I built RAJA to ~/applications/raja, so when I built hpcarver I passed -DRAJADIR="~/applications/raja/lib/cmake/raja". I have not tested this extensively, but it was at least able to find the headers.
-
-#### RAJA Dependencies
-For the most part, RAJA appears to install its own dependencies, such as the blt build system and the camp metaprogramming library (both from Lawrence Livermore).
-If we need these for other purposes, we would need to configure RAJA to use our own installed version. I doubt this will be a problem.
-
-### Testing
+## Testing
 I've copied simple examples from the Princeton programming assignment for basic energy. 
 
 To create simple images, I've used the pixilart online editor.
