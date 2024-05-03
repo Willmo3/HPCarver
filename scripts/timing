@@ -7,40 +7,53 @@
 cd ../out
 
 image=duke_dog.ppm
+# Reducing images to progressively lower sizes
 sizes=(600 500 400)
+# Running three trials
+trials=(1 2 3)
 
 if [[ -f hpc_serial ]]; then
     for size in "${sizes[@]}"; do
-        echo "hpc_serial, size $size"
-        srun ./hpc_serial $image out.ppm $size $size
+        for trial in "${trials[@]}"; do
+            echo "hpc_serial, size $size, trial $trial"
+            srun ./hpc_serial $image out.ppm $size $size
+        done
     done
 fi
 
 if [[ -f hpc_omp ]]; then
     for size in "${sizes[@]}"; do
-        echo "hpc_omp, size $size"
-        srun ./hpc_omp $image out_omp.ppm $size $size
+        for trial in "${trials[@]}"; do
+            echo "hpc_omp, size $size, trial $trial"
+            srun ./hpc_omp $image out_omp.ppm $size $size
+        done
     done
 fi
 
 # Running pthread tests with 4 threads
 if [[ -f hpc_pthread ]]; then
     for size in "${sizes[@]}"; do
-        echo "hpc_pthread, size $size"
-        srun ./hpc_pthread 4 $image out_pth.ppm $size $size
+        for trial in "${trials[@]}"; do
+            echo "hpc_pthread, size $size, trial $trial"
+            srun ./hpc_pthread 4 $image out_pth.ppm $size $size
+        done
     done
 fi
 
 if [[ -f hpc_raja ]]; then
     for size in "${sizes[@]}"; do
-        echo "hpc_raja, size $size"
-        srun ./hpc_raja $image out_raja.ppm $size $size
+        for trial in "${trials[@]}"; do
+            echo "hpc_raja, size $size, trial $trial"
+            srun ./hpc_raja $image out_raja.ppm $size $size
+        done
     done
 fi
 
 if [[ -f hpc_cuda ]]; then
     for size in "${sizes[@]}"; do
-        echo "hpc_cuda, size $size"
-        srun --gres=gpu ./hpc_cuda $image out_cu.ppm $size $size
+        for trial in "${trials[@]}"; do
+            echo "hpc_cuda, size $size, trial $trial"
+            srun --gres=gpu ./hpc_cuda $image out_cu.ppm $size $size
+        done
     done
 fi
