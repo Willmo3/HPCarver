@@ -71,7 +71,7 @@ int main(int argc, char *argv[]) {
         carver.remove_horiz_seam(seam);
     }
 
-    std::cout << "Serial carver: Time elapsed:" << std::endl;
+    std::cout << "HPC serial carving time:" << std::endl;
     std::cout << timer.elapsed() << std::endl;
 
     // With image dimensions sufficiently changed, write out the target image.

@@ -69,7 +69,7 @@ int main(int argc, char *argv[]) {
         carver.remove_horiz_seam(seam);
     }
 
-    std::cout << "HPC omp time:" << std::endl;
+    std::cout << "HPC omp carving time:" << std::endl;
     std::cout << timer.elapsed() << std::endl;
 
     // With image dimensions sufficiently changed, write out the target image.

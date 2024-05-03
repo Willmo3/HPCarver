@@ -79,7 +79,7 @@ int main(int argc, char *argv[]) {
         carver.remove_horiz_seam(seam);
     }
 
-    std::cout << "HPC_Pthread time:" << std::endl;
+    std::cout << "HPC pthread carving time:" << std::endl;
     std::cout << timer.elapsed() << std::endl;
     std::cout << "(num threads: " << threads << ")" << std::endl;
 
