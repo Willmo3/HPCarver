@@ -3,6 +3,7 @@
 
 #include "../../HPImage/hpimage.h"
 #include "../carver/carver.h"
+#include "../carver/timer.h"
 
 // Print usage data
 void usage();
@@ -54,6 +55,8 @@ int main(int argc, char *argv[]) {
     auto energy = carver::Energy(image.cols(), image.rows());
     auto carver = carver::Carver(&image, &energy);
 
+    auto timer = carver::Timer();
+
     // Repeatedly vertically shrink it until it fits target width.
     while (image.cols() != new_width) {
         auto seam = carver.vertical_seam();
@@ -65,6 +68,9 @@ int main(int argc, char *argv[]) {
         auto seam = carver.horiz_seam();
         carver.remove_horiz_seam(seam);
     }
+
+    std::cout << "RAJA time:" << std::endl;
+    std::cout << timer.elapsed() << std::endl;
 
     // With image dimensions sufficiently changed, write out the target image.
     image.write_image(out_path);

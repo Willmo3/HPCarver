@@ -1,6 +1,6 @@
 # Serial execution library
 add_library(serial serial/serial.cpp)
-target_link_libraries(serial carver timer)
+target_link_libraries(serial carver)
 
 add_library(omp omp/omp.cpp)
 target_link_libraries(omp carver OpenMP::OpenMP_CXX)
@@ -38,6 +38,7 @@ endif ()
 add_executable(hpc_serial serial/hpc_serial.cpp)
 target_link_libraries(hpc_serial
         serial
+        timer
         hpimage)
 
 add_executable(hpc_omp omp/hpc_omp.cpp)
@@ -53,6 +54,7 @@ target_link_libraries(hpc_pthread
 add_executable(hpc_raja raja/hpc_raja.cpp)
 target_link_libraries(hpc_raja
         raja
+        timer
         hpimage)
 
 
