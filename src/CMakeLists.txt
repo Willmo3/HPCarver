@@ -1,6 +1,6 @@
 # Serial execution library
 add_library(serial serial/serial.cpp)
-target_link_libraries(serial carver)
+target_link_libraries(serial carver timer)
 
 add_library(omp omp/omp.cpp)
 target_link_libraries(omp carver OpenMP::OpenMP_CXX)
