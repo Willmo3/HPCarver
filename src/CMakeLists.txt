@@ -5,7 +5,7 @@ target_link_libraries(serial carver)
 add_library(omp omp/omp.cpp)
 target_link_libraries(omp carver OpenMP::OpenMP_CXX)
 
-add_library(raja raja/raja.cpp)
+add_library(raja raja/carver/raja_carver.cpp)
 target_link_libraries(raja carver RAJA)
 
 # Add CUDA versions of libraries
