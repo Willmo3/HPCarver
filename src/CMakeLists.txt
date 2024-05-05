@@ -33,7 +33,7 @@ if (ENABLE_CUDA)
 endif ()
 
 # Final entry point executable
-add_executable(hpc_serial serial/hpc_serial.cpp)
+add_executable(hpc_serial serial/serial_main.cpp)
 target_link_libraries(hpc_serial
         serial
         timer
