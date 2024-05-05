@@ -1,5 +1,5 @@
 # Serial execution library
-add_library(serial serial/serial.cpp)
+add_library(serial serial/carver/serial_carver.cpp)
 target_link_libraries(serial carver)
 
 add_library(omp omp/omp.cpp)
