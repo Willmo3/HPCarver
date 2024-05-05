@@ -39,7 +39,7 @@ target_link_libraries(hpc_serial
         timer
         hpimage)
 
-add_executable(hpc_omp omp/hpc_omp.cpp)
+add_executable(hpc_omp omp/omp_main.cpp)
 target_link_libraries(hpc_omp
         omp
         timer
