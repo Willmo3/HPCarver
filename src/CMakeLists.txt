@@ -2,7 +2,7 @@
 add_library(serial serial/carver/serial_carver.cpp)
 target_link_libraries(serial carver)
 
-add_library(omp omp/omp.cpp)
+add_library(omp omp/carver/omp_carver.cpp)
 target_link_libraries(omp carver OpenMP::OpenMP_CXX)
 
 add_library(raja raja/carver/raja_carver.cpp)
