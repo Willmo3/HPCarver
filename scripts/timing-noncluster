@@ -30,16 +30,6 @@ if [[ -f hpc_omp ]]; then
     done
 fi
 
-# Running pthread tests with 4 threads
-if [[ -f hpc_pthread ]]; then
-    for size in "${sizes[@]}"; do
-        for trial in "${trials[@]}"; do
-            echo "hpc_pthread, size $size, trial $trial"
-            ./hpc_pthread 4 $image out_pth.ppm $size $size
-        done
-    done
-fi
-
 if [[ -f hpc_raja ]]; then
     for size in "${sizes[@]}"; do
         for trial in "${trials[@]}"; do

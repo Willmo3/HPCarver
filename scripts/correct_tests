@@ -6,10 +6,6 @@ if [[ -f test_serialcarve ]]; then
     ./test_serialcarve
 fi
 
-if [[ -f test_pthreadcarve ]]; then
-    ./test_pthreadcarve
-fi
-
 if [[ -f test_ompcarve ]]; then
     ./test_ompcarve
 fi
