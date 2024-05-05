@@ -45,7 +45,7 @@ target_link_libraries(hpc_omp
         timer
         hpimage)
 
-add_executable(hpc_raja raja/hpc_raja.cpp)
+add_executable(hpc_raja raja/raja_main.cpp)
 target_link_libraries(hpc_raja
         raja
         timer
