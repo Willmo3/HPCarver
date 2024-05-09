@@ -19,7 +19,7 @@ if (ENABLE_CUDA)
     set_target_properties(cuda_image PROPERTIES CUDA_ARCHITECTURES "all-major")
     target_link_libraries(cuda_image hpimage)
 
-    add_library(cu cuda/carver/cuda.cu)
+    add_library(cu cuda/carver/cuda_carver.cu)
     set_target_properties(cu PROPERTIES CUDA_ARCHITECTURES "all-major")
     target_link_libraries(cu carver cuda_energy)
 
