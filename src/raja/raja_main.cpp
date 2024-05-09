@@ -3,7 +3,7 @@
 
 #include "../../HPImage/hpimage.h"
 #include "../carver/carver.h"
-#include "../carver/timer.h"
+#include "../common/timer.h"
 
 // Print usage data
 void usage();
