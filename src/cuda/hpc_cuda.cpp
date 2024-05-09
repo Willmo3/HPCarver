@@ -4,7 +4,7 @@
 
 #include <iostream>
 #include "cuda_image.h"
-#include "cuda_energy.h"
+#include "carver/cuda_energy.h"
 #include "../carver/carver.h"
 #include "../carver/timer.h"
 

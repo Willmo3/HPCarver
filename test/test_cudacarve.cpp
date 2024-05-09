@@ -2,7 +2,7 @@
 
 #include <gtest/gtest.h>
 #include "../src/cuda/cuda_image.h"
-#include "../src/cuda/cuda_energy.h"
+#include "../src/cuda/carver/cuda_energy.h"
 #include "../src/carver/carver.h"
 
 TEST(carver, vertical_carve) {
