@@ -1,7 +1,7 @@
 // Special case for CUDA
 
 #include <gtest/gtest.h>
-#include "../src/cuda/cuda_image.h"
+#include "../src/cuda/image/cuda_image.h"
 #include "../src/cuda/carver/cuda_energy.h"
 #include "../src/carver/carver.h"
 

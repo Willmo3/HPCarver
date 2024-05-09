@@ -15,7 +15,7 @@ if (ENABLE_CUDA)
     set_target_properties(cuda_energy PROPERTIES CUDA_ARCHITECTURES "all-major")
     target_link_libraries(cuda_energy energy)
 
-    add_library(cuda_image cuda/cuda_image.h cuda/cuda_image.cu)
+    add_library(cuda_image cuda/image/cuda_image.h cuda/image/cuda_image.cu)
     set_target_properties(cuda_image PROPERTIES CUDA_ARCHITECTURES "all-major")
     target_link_libraries(cuda_image hpimage)
 

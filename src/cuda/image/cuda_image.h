@@ -8,7 +8,7 @@
  * Author: Will Morris
  */
 
-#include "../../HPImage/hpimage.h"
+#include "../../../HPImage/hpimage.h"
 
 namespace hpc_cuda {
 

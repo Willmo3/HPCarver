@@ -1,6 +1,6 @@
 #include "../../carver/carver.h"
 #include "cuda_energy.h"
-#include "../cuda_image.h"
+#include "../image/cuda_image.h"
 
 #include <cassert>
 #include <algorithm>
