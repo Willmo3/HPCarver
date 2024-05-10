@@ -1,12 +1,12 @@
 # Energy matrix library
-add_library(energy common/carver/energy.cpp common/carver/energy.h)
+add_library(energy common/carver/energy.cpp)
 
 # Carver common library
-add_library(carver common/carver/carver.cpp common/carver/carver.h)
+add_library(carver common/carver/carver.cpp)
 target_link_libraries(carver hpimage energy)
 
 # Timing utilities
-add_library(timer common/timer/timer.cpp common/timer/timer.h)
+add_library(timer common/timer/timer.cpp)
 
 # Serial execution library
 add_library(serial serial/carver/serial_carver.cpp)
@@ -21,11 +21,11 @@ target_link_libraries(raja carver RAJA)
 # Add CUDA versions of libraries
 # Good news: should be enough to just subclass
 if (ENABLE_CUDA)
-    add_library(cuda_energy cuda/carver/cuda_energy.cu cuda/carver/cuda_energy.h)
+    add_library(cuda_energy cuda/carver/cuda_energy.cu)
     set_target_properties(cuda_energy PROPERTIES CUDA_ARCHITECTURES "all-major")
     target_link_libraries(cuda_energy energy)
 
-    add_library(cuda_image cuda/image/cuda_image.h cuda/image/cuda_image.cu)
+    add_library(cuda_image cuda/image/cuda_image.cu)
     set_target_properties(cuda_image PROPERTIES CUDA_ARCHITECTURES "all-major")
     target_link_libraries(cuda_image hpimage)
 
