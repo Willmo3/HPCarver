@@ -1,6 +1,19 @@
 #!/usr/bin/env bash
 
-cd ../out/tests
+# Try to run at the root of your HPCarver install.
+dir=$(basename `pwd`)
+while [[ "$dir" != "HPCarver" ]] && [[ "$dir" != "/" ]]
+do
+    cd ..
+    dir=$(basename `pwd`)
+done
+
+if [[ "$dir" != "HPCarver" ]]; then
+    echo "Please run script from HPCarver directory!"
+    exit 1
+fi
+
+cd out/tests
 
 if [[ -f test_serialcarve ]]; then
     ./test_serialcarve
