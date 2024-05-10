@@ -3,8 +3,21 @@
 # Perform timing tests
 # author: Will Morris
 
+# Try to run at the root of your HPCarver install.
+dir=$(basename `pwd`)
+while [[ "$dir" != "HPCarver" ]] && [[ "$dir" != "/" ]]
+do
+    cd ..
+    dir=$(basename `pwd`)
+done
+
+if [[ "$dir" != "HPCarver" ]]; then
+    echo "Please run script from HPCarver directory!"
+    exit 1
+fi
+
 # proceeding sequentially for ease of interpretation
-cd ../out
+cd out
 
 image=duke_dog.ppm
 # Reducing images to progressively lower sizes
