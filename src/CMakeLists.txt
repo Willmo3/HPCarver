@@ -6,7 +6,7 @@ add_library(carver common/carver/carver.cpp common/carver/carver.h)
 target_link_libraries(carver hpimage energy)
 
 # Timing utilities
-add_library(timer common/timer.cpp common/timer.h)
+add_library(timer common/timer/timer.cpp common/timer/timer.h)
 
 # Serial execution library
 add_library(serial serial/carver/serial_carver.cpp)
