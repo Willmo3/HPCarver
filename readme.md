@@ -33,21 +33,20 @@ This project requires the HPImage library for processing. Please do *git clone -
 Additionally, you can move a separate version of HPImage into the root of the project. You should not need to build HPImage by itself -- the provided .h and .cpp file are aadequate when properly configured.
 
 ## Installation
-We provide several install scripts for this project. 
-If you are building in a non-cuda ecosystem, please use the "nocuda" or "noncuda" versions of these scripts.
-All scripts can be found in the scripts directory at the root of the project.
+We provide several install scripts for this project, all of which can be found in the scripts directory of this project.
+Additional information can be found in the readme file located there!
 
-1. Install RAJA using scripts/install
-2. Build the project using scripts/build
+1. Install RAJA using scripts/install [use cuda (true/anything else)]
+2. Build the project using scripts/build [use cuda (true/anything else)]
 
 ## Timing
-Run ./timing to see timing results!
+Run scripts/timing [use slurm (slurm/anything else)] to see timing results! 
 
 The structure of our timing tests will be described more extensively in the final deliverable. 
-We run three trials for each test on duke_dog.ppm, carving them down to progressively smaller images (600x600, 500x500, 400x400).
+We run three trials for each test on duke\_dog.ppm, carving them down to progressively smaller images (600x600, 500x500, 400x400).
 
 ### Correctness
-Run ./correct_tests to quickly evaluate whether the solutions are working!
+Run scripts/correct\_tests to quickly evaluate whether the solutions are working!
 
 I've copied simple examples from the Princeton programming assignment for basic energy. 
 
