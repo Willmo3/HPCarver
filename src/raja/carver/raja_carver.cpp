@@ -7,7 +7,6 @@
 #include <algorithm>
 
 #include "../../carver/carver.h"
-#include "../../carver/energy.h"
 #include "RAJA/RAJA.hpp"
 
 namespace carver {
