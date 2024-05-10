@@ -8,6 +8,9 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 find_package(RAJA REQUIRED)
 find_package(OpenMP REQUIRED)
 
+# HPImage library
+add_library(hpimage HPImage/hpimage.cpp HPImage/hpimage.h)
+
 # Done because of nested cmake structure
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ../../out)
 
