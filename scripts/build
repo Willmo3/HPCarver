@@ -19,6 +19,8 @@ if [[ $1 == "true" ]]; then
     build_options="$build_options -DENABLE_CUDA=On"
 else
     echo "no true command line arg, building without CUDA support"
+    # It appears necessary to explicitly disable CUDA
+    build_options="$build_options -DENABLE_CUDA=Off"
 fi
 
 mkdir -p build && cd build
