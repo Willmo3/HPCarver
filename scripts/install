@@ -4,13 +4,14 @@
 
 # Try to place the install at the root of your RAJA.
 dir=$(basename `pwd`)
-if [[ "$dir" == "scripts" ]]; then
+while [[ "$dir" != "HPCarver" ]] && [[ "$dir" != "/" ]]
+do
     cd ..
-fi
+    dir=$(basename `pwd`)
+done
 
-dir=$(basename `pwd`)
 if [[ "$dir" != "HPCarver" ]]; then
-    echo "Please run script from HPCarver root or scripts directory!"
+    echo "Please run script from HPCarver directory!"
     exit 1
 fi
 
