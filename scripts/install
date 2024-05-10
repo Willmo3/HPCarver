@@ -15,6 +15,16 @@ if [[ "$dir" != "HPCarver" ]]; then
     exit 1
 fi
 
+# Parse install options
+build_options="-DRAJA_ENABLE_TESTS=Off -DRAJA_ENABLE_EXAMPLES=Off -DRAJA_ENABLE_EXERCISES=Off -DCMAKE_INSTALL_PREFIX=../RAJA-install -DENABLE_OPENMP=On"
+if [[ $1 == "true" ]]; then
+    echo "saw option true; building with CUDA support"
+    build_options="$build_options -DENABLE_CUDA=On"
+else
+    echo "did not see option true; building without CUDA support"
+fi
+
+
 # if any required directories are missing, force a clean install
 if [[ ! -d RAJA-install ]] || [[ ! -d RAJA ]] || [[ ! -d RAJA-build ]]; then
     rm -r RAJA-install
@@ -27,6 +37,6 @@ if [[ ! -d RAJA-install ]] || [[ ! -d RAJA ]] || [[ ! -d RAJA-build ]]; then
 
     # build RAJA 
     cd RAJA-build
-    cmake -DRAJA_ENABLE_TESTS=Off -DRAJA_ENABLE_EXAMPLES=Off -DRAJA_ENABLE_EXERCISES=Off -DCMAKE_INSTALL_PREFIX=../RAJA-install -DENABLE_CUDA=On -DENABLE_OPENMP=On ../RAJA
+    cmake $build_options ../RAJA
     make -j && make install
 fi
