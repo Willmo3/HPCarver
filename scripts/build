@@ -1,6 +1,25 @@
 #!/usr/bin/env bash
 
-cd ..
+# Try to build at the root of your RAJA.
+dir=$(basename `pwd`)
+while [[ "$dir" != "HPCarver" ]] && [[ "$dir" != "/" ]]
+do
+    cd ..
+    dir=$(basename `pwd`)
+done
+
+if [[ "$dir" != "HPCarver" ]]; then
+    echo "Please run script from HPCarver directory!"
+    exit 1
+fi
+
+build_options="-DENABLE_OPENMP=On -DRAJA_DIR=RAJA-install/lib/cmake/raja"
+if [[ $1 == "true" ]]; then
+    echo "saw true command line arg, building with CUDA support"
+    build_options="$build_options -DENABLE_CUDA=On"
+else
+    echo "no true command line arg, building without CUDA support"
+fi
 
 mkdir -p build && cd build
-cmake -DENABLE_OPENMP=On -DENABLE_CUDA=On -DRAJA_DIR=RAJA-install/lib/cmake/raja .. && make
+cmake $build_options .. && make
