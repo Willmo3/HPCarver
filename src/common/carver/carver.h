@@ -5,7 +5,7 @@
 #ifndef HPCARVER_CARVER_H
 #define HPCARVER_CARVER_H
 
-#include "../../HPImage/hpimage.h"
+#include "../../../HPImage/hpimage.h"
 #include "energy.h"
 #include <vector>
 #include <iostream>

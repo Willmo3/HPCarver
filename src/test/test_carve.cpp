@@ -4,7 +4,7 @@
 
 #include <gtest/gtest.h>
 #include "../../HPImage/hpimage.h"
-#include "../carver/carver.h"
+#include "../common/carver/carver.h"
 
 // Testing helper.
 hpimage::Hpimage test() {

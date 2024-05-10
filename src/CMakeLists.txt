@@ -1,8 +1,8 @@
 # Energy matrix library
-add_library(energy carver/energy.cpp carver/energy.h)
+add_library(energy common/carver/energy.cpp common/carver/energy.h)
 
 # Carver common library
-add_library(carver carver/carver.cpp carver/carver.h)
+add_library(carver common/carver/carver.cpp common/carver/carver.h)
 target_link_libraries(carver hpimage energy)
 
 # Timing utilities

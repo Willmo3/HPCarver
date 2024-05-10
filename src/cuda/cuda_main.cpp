@@ -5,7 +5,7 @@
 #include <iostream>
 #include "image/cuda_image.h"
 #include "carver/cuda_energy.h"
-#include "../carver/carver.h"
+#include "../common/carver/carver.h"
 #include "../common/timer.h"
 
 void usage();

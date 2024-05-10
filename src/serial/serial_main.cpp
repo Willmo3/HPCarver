@@ -2,7 +2,7 @@
 // Author: Will Morris
 
 #include "../../HPImage/hpimage.h"
-#include "../carver/carver.h"
+#include "../common/carver/carver.h"
 #include "../common/timer.h"
 
 // Print usage data

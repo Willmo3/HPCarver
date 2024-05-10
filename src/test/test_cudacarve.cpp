@@ -3,7 +3,7 @@
 #include <gtest/gtest.h>
 #include "../cuda/image/cuda_image.h"
 #include "../cuda/carver/cuda_energy.h"
-#include "../carver/carver.h"
+#include "../common/carver/carver.h"
 
 TEST(carver, vertical_carve) {
     auto image = hpc_cuda::CudaImage{"3x4.ppm"};
