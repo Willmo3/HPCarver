@@ -3,8 +3,8 @@
 //
 
 #include <gtest/gtest.h>
-#include "../HPImage/hpimage.h"
-#include "../src/carver/carver.h"
+#include "../../HPImage/hpimage.h"
+#include "../carver/carver.h"
 
 // Testing helper.
 hpimage::Hpimage test() {

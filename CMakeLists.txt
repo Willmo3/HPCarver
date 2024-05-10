@@ -11,21 +11,4 @@ find_package(OpenMP REQUIRED)
 # Done because of nested cmake structure
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ../../out)
 
-# HPImage library
-add_library(hpimage HPImage/hpimage.cpp HPImage/hpimage.h)
-
-# Energy matrix library
-add_library(energy src/carver/energy.cpp src/carver/energy.h)
-
-# Carver common library
-add_library(carver src/carver/carver.cpp src/carver/carver.h)
-target_link_libraries(carver hpimage energy)
-
-# Timing utilities
-add_library(timer src/common/timer.cpp src/common/timer.h)
-
-# Deferring to cmake
 add_subdirectory(src)
-add_subdirectory(test)
-
-# For right now, ignore tests -- see if it fixes the issue!

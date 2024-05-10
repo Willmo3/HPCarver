@@ -1,3 +1,13 @@
+# Energy matrix library
+add_library(energy carver/energy.cpp carver/energy.h)
+
+# Carver common library
+add_library(carver carver/carver.cpp carver/carver.h)
+target_link_libraries(carver hpimage energy)
+
+# Timing utilities
+add_library(timer common/timer.cpp common/timer.h)
+
 # Serial execution library
 add_library(serial serial/carver/serial_carver.cpp)
 target_link_libraries(serial carver)
@@ -50,5 +60,8 @@ target_link_libraries(hpc_raja
         raja
         timer
         hpimage)
+
+# Tests have their own CMakeLists
+add_subdirectory(test)
 
 

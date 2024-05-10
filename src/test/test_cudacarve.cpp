@@ -1,9 +1,9 @@
 // Special case for CUDA
 
 #include <gtest/gtest.h>
-#include "../src/cuda/image/cuda_image.h"
-#include "../src/cuda/carver/cuda_energy.h"
-#include "../src/carver/carver.h"
+#include "../cuda/image/cuda_image.h"
+#include "../cuda/carver/cuda_energy.h"
+#include "../carver/carver.h"
 
 TEST(carver, vertical_carve) {
     auto image = hpc_cuda::CudaImage{"3x4.ppm"};
