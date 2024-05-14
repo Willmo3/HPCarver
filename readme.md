@@ -74,19 +74,19 @@ This is where all of the executables, as well as some test images to run them on
 #### HPCarver/scripts:
 This directory contains a number of shell scripts useful for handling the project.
 
-1. install [use cuda (true/anything else for false)]
+##### install [use cuda (true/anything else for false)]
 
 This script gets a RAJA install. You can also link to your own RAJA install. If you do so, you should link to the root of your *installed* RAJA directory (the one produ    ced by make install), not the root of the RAJA git repository. Make sure to name the link "raja-install" and place it at the root of HPCarver!
 
-2. build [use cuda (true/anything else for false)]
+##### build [use cuda (true/anything else for false)]
 
 This configures CMake to use our raja-install directory, then builds the project.
 
-3. correct\_tests
+##### correct\_tests
 
 These are quick sanity tests to make sure that all algorithms are working.
 
-4. timing\_tests [job manager (slurm/anything else for no manager)]
+##### timing\_tests [job manager (slurm/anything else for no manager)]
 
 These time the different algorithms shrinking the duke\_dog.ppm image, as described above. Currently, support is only avaliable for slurm job management. A future plan is to turn this into an sbatch script!
  
