@@ -10,6 +10,21 @@
 
 namespace carver {
 
+// Private helper to get dimensions based on col, row.
+static void assert_valid_dims(uint32_t cols, uint32_t rows) {
+    if (cols < 3) {
+        std::cerr <<
+                  "ERROR: Carving: minimum image width three"
+                  << std::endl;
+        exit(EXIT_FAILURE);
+    } else if (rows < 2) {
+        std::cerr <<
+                  "ERROR: Carving: minimum image height three"
+                  << std::endl;
+        exit(EXIT_FAILURE);
+    }
+}
+
 Carver::Carver() {
     // Initialize image with tombstone hpimage.
     image = nullptr;
@@ -30,10 +45,11 @@ Carver::Carver(hpimage::Hpimage *image, Energy *energy) {
 void Carver::resize(uint32_t new_width, uint32_t new_height) {
     // Invariant: resized image must be shrunk from original.
     assert(new_width < image->cols() && new_height < image->rows());
+    // Check whether the resized image will fit.
+    carver::assert_valid_dims(new_width, new_height);
 
     // Repeatedly vertically shrink it until it fits target width.
     while (image->cols() != new_width) {
-        assert_valid_dims();
         vert_energy();
         auto seam = min_vert_seam();
         remove_vert_seam(seam);
@@ -41,7 +57,6 @@ void Carver::resize(uint32_t new_width, uint32_t new_height) {
 
     // Now, repeatedly horizontally shrink until it fits target height.
     while (image->rows() != new_height) {
-        assert_valid_dims();
         horiz_energy();
         auto seam = min_horiz_seam();
         remove_horiz_seam(seam);
@@ -50,17 +65,8 @@ void Carver::resize(uint32_t new_width, uint32_t new_height) {
 
 // Assorted helpers
 void Carver::assert_valid_dims() {
-    if (image->cols() < 3) {
-        std::cerr <<
-                  "ERROR: Carving: minimum image width three"
-                  << std::endl;
-        exit(EXIT_FAILURE);
-    } else if (image->rows() < 2) {
-        std::cerr <<
-                  "ERROR: Carving: minimum image height three"
-                  << std::endl;
-        exit(EXIT_FAILURE);
-    }
+    // Just call the static helper with the number of cols we currently have.
+    carver::assert_valid_dims(image->cols(), image->rows());
 }
 
 uint32_t Carver::wrap_index(int64_t index, uint32_t length) {
