@@ -13,7 +13,7 @@ if [[ "$dir" != "HPCarver" ]]; then
     exit 1
 fi
 
-build_options="-DENABLE_OPENMP=On -DRAJA_DIR=RAJA-install/lib/cmake/raja"
+build_options="-DRAJA_DIR=RAJA-install/lib/cmake/raja"
 if [[ $1 == "true" ]]; then
     echo "saw true command line arg, building with CUDA support"
     build_options="$build_options -DENABLE_CUDA=On"
