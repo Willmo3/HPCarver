@@ -34,7 +34,7 @@ private:
      * An image must be at least 3x3. If not, complain.
      * @param hpimage image to perform assertions on
      */
-    void assert_valid_dims();
+    void assert_valid_dims() const;
 
     /**
      * Calculate a wrapped index over a dimension.

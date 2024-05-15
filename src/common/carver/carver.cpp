@@ -64,7 +64,7 @@ void Carver::resize(uint32_t new_width, uint32_t new_height) {
 }
 
 // Assorted helpers
-void Carver::assert_valid_dims() {
+void Carver::assert_valid_dims() const {
     // Just call the static helper with the number of cols we currently have.
     carver::assert_valid_dims(image->cols(), image->rows());
 }
