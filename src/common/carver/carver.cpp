@@ -50,7 +50,6 @@ static uint32_t wrap_index(int64_t index, uint32_t length) {
     return (index + length) % length;
 }
 
-
 // Private helper to get dimensions based on col, row.
 static void assert_valid_dims(uint32_t cols, uint32_t rows) {
     if (cols < 3) {
