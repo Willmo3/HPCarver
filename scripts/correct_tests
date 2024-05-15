@@ -1,11 +1,11 @@
 #!/usr/bin/env bash
 
 # Try to run at the root of your HPCarver install.
-dir=$(basename `pwd`)
+dir=$(basename "$(pwd)")
 while [[ "$dir" != "HPCarver" ]] && [[ "$dir" != "/" ]]
 do
     cd ..
-    dir=$(basename `pwd`)
+    dir=$(basename "$(pwd)")
 done
 
 if [[ "$dir" != "HPCarver" ]]; then
@@ -13,7 +13,7 @@ if [[ "$dir" != "HPCarver" ]]; then
     exit 1
 fi
 
-cd out/tests
+cd out/tests || exit
 
 if [[ -f test_serialcarve ]]; then
     ./test_serialcarve
