@@ -72,7 +72,7 @@ TEST(carver, horiz_seam) {
     auto energy = hpc_cuda::CudaEnergy(image.cols(), image.rows());
     auto carver = carver::Carver(&image, &energy);
 
-    auto seam = carver.horiz_seam();
+    auto seam = carver.min_horiz_seam();
 
     // The lowest energy horizontal seam should finish at index 2
     ASSERT_EQ(0, seam.at(0));
@@ -83,9 +83,9 @@ TEST(carver, horiz_seam) {
 TEST(carver, vert_seam) {
     auto image = hpc_cuda::CudaImage{"3x4.ppm"};
     auto energy = hpc_cuda::CudaEnergy(image.cols(), image.rows());
-    auto carver = carver::Carver(&image, &energy);
+    auto carver = carver::Carvhoriz_seamer(&image, &energy);
 
-    auto seam = carver.vertical_seam();
+    auto seam = carver.min_vert_seam();
 
     // The lowest energy vertical seam should finish at index 0.
     ASSERT_EQ(0, seam.at(0));
@@ -99,7 +99,7 @@ TEST(carver, hard_vert_seam) {
     auto energy = hpc_cuda::CudaEnergy(image.cols(), image.rows());
     auto carver = carver::Carver(&image, &energy);
 
-    auto seam = carver.vertical_seam();
+    auto seam = carver.min_vert_seam();
 
     ASSERT_EQ(3, seam.at(0));
     ASSERT_EQ(4, seam.at(1));
@@ -113,7 +113,7 @@ TEST(carver, hard_horiz_seam) {
     auto energy = hpc_cuda::CudaEnergy(image.cols(), image.rows());
     auto carver = carver::Carver(&image, &energy);
 
-    auto seam = carver.horiz_seam();
+    auto seam = carver.min_horiz_seam();
 
     ASSERT_EQ(2, seam.at(0));
     ASSERT_EQ(2, seam.at(1));

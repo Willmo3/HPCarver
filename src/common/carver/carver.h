@@ -66,28 +66,9 @@ private:
     void horiz_energy();
 
     /**
-     * Given an end index and a carver, traverse the carver's energy matrix
-     * Finding the minimum connected index at each point.
-     * <b>Implemented by libraries!</b>
-     *
-     * @param carver carver to use.
-     * @return The minimum seam, in the correct direction.
-     */
-    std::vector<uint32_t> min_horiz_seam();
-
-    /**
      * Compute the minimum energy of each pixel in the vertical direction, storing in carver's energy memo structure.
      */
     void vert_energy();
-
-    /**
-     * Given an end index and a carver, traverse the carver's energy matrix
-     * Finding the minimum connected index at each point.
-     * <b>Implemented by libraries!</b>
-     *
-     * @return The minimum seam, in the correct direction.
-     */
-    std::vector<uint32_t> min_vert_seam();
 
 // NOTE: ALL PUBLIC METHODS MUST BE IMPLEMENTED BY VARIOUS LIBRARY IMPLEMENTATIONS!
 public:
@@ -114,16 +95,23 @@ public:
     void resize(uint32_t new_width, uint32_t new_height);
 
     /**
-     * Return the minimum energy horizontal seam for this image
-     * @return Minimum energy horizontal seam
+     * Given an end index and a carver, traverse the carver's energy matrix
+     * Finding the minimum connected index at each point.
+     * <b>Implemented by libraries!</b>
+     *
+     * @return The minimum seam, in the correct direction.
      */
-    std::vector<uint32_t> horiz_seam();
+    std::vector<uint32_t> min_vert_seam();
 
     /**
-     * Given an image, return the minimum energy vertical seam
-     * @return Minimum energy vertical seam
+     * Given an end index and a carver, traverse the carver's energy matrix
+     * Finding the minimum connected index at each point.
+     * <b>Implemented by libraries!</b>
+     *
+     * @param carver carver to use.
+     * @return The minimum seam, in the correct direction.
      */
-    std::vector<uint32_t> vertical_seam();
+    std::vector<uint32_t> min_horiz_seam();
 
     /**
      * Get the base energy of a single pixel.
