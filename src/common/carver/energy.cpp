@@ -14,7 +14,6 @@ namespace carver {
     // Default constructor allows for inheritance
     Energy::Energy() {
         base_cols = 0;
-        base_rows = 0;
         current_cols = 0;
         current_rows = 0;
 
@@ -25,7 +24,6 @@ namespace carver {
         assert(cols > 0 && rows > 0);
         base_cols = cols;
         current_cols = cols;
-        base_rows = rows;
         current_rows = rows;
 
         energy = alloc(rows * cols * sizeof(uint32_t));

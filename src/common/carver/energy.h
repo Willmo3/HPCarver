@@ -20,7 +20,6 @@ namespace carver {
 class Energy {
 protected:
     size_t base_cols;
-    size_t base_rows;
     size_t current_rows;
     size_t current_cols;
     uint32_t *energy;
