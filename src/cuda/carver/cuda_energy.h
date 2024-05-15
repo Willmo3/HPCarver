@@ -4,7 +4,7 @@
 // Cuda energy. Overrides regular energy to perform CudaManagedMalloc allocations.
 // Author: Will Morris
 
-#include "../../carver/energy.h"
+#include "../../common/carver/energy.h"
 
 namespace hpc_cuda {
 
