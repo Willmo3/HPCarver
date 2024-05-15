@@ -4,11 +4,11 @@
 # author: Will Morris
 
 # Try to run at the root of your HPCarver install.
-dir=$(basename `pwd`)
+dir=$(basename "$(pwd)")
 while [[ "$dir" != "HPCarver" ]] && [[ "$dir" != "/" ]]
 do
     cd ..
-    dir=$(basename `pwd`)
+    dir=$(basename "$(pwd)")
 done
 
 if [[ "$dir" != "HPCarver" ]]; then
@@ -17,7 +17,7 @@ if [[ "$dir" != "HPCarver" ]]; then
 fi
 
 # proceeding sequentially for ease of interpretation
-cd out
+cd out || exit
 
 image=duke_dog.ppm
 # Reducing images to progressively lower sizes
