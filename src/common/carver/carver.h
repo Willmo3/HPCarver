@@ -122,7 +122,7 @@ public:
      * @param col Column of pixel whose energy we're calculating
      * @return the energy
      */
-    uint32_t pixel_energy(uint32_t col, uint32_t row);
+    uint32_t pixel_energy(uint32_t col, uint32_t row) const;
 
     /**
      * Remove a horizontal seam from the image.

@@ -89,7 +89,7 @@ uint32_t Carver::gradient_energy(hpimage::pixel p1, hpimage::pixel p2) {
     return energy;
 }
 
-uint32_t Carver::pixel_energy(uint32_t col, uint32_t row) {
+uint32_t Carver::pixel_energy(uint32_t col, uint32_t row) const {
     assert(col < image->cols());
     assert(row < image->rows());
 
