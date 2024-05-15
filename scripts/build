@@ -1,11 +1,11 @@
 #!/usr/bin/env bash
 
 # Try to build at the root of your RAJA.
-dir=$(basename `pwd`)
+dir=$(basename "$(pwd)")
 while [[ "$dir" != "HPCarver" ]] && [[ "$dir" != "/" ]]
 do
     cd ..
-    dir=$(basename `pwd`)
+    dir=$(basename "$(pwd)")
 done
 
 if [[ "$dir" != "HPCarver" ]]; then
@@ -23,5 +23,5 @@ else
     build_options="$build_options -DENABLE_CUDA=Off"
 fi
 
-mkdir -p build && cd build
-cmake $build_options .. && make
+mkdir -p build && cd build || exit
+cmake "$build_options" .. && make
