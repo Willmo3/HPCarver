@@ -1,22 +1,17 @@
 # Energy matrix library
 add_library(energy common/carver/energy.cpp)
 
-# Carver common library
-add_library(carver common/carver/carver.cpp)
-target_link_libraries(carver hpimage energy)
-
 # Timing utilities
 add_library(timer common/timer/timer.cpp)
 
 # Serial execution library
-add_library(serial serial/carver/serial_carver.cpp)
-target_link_libraries(serial carver)
+add_library(serial common/carver/carver.cpp serial/carver/serial_carver.cpp)
 
-add_library(omp omp/carver/omp_carver.cpp)
-target_link_libraries(omp carver OpenMP::OpenMP_CXX)
+add_library(omp common/carver/carver.cpp omp/carver/omp_carver.cpp)
+target_link_libraries(omp OpenMP::OpenMP_CXX)
 
-add_library(raja raja/carver/raja_carver.cpp)
-target_link_libraries(raja carver RAJA)
+add_library(raja common/carver/carver.cpp raja/carver/raja_carver.cpp)
+target_link_libraries(raja RAJA)
 
 # Add CUDA versions of libraries
 # Good news: should be enough to just subclass
@@ -29,7 +24,7 @@ if (ENABLE_CUDA)
     set_target_properties(cuda_image PROPERTIES CUDA_ARCHITECTURES "all-major")
     target_link_libraries(cuda_image hpimage)
 
-    add_library(cu cuda/carver/cuda_carver.cu)
+    add_library(cu common/carver/carver.cpp cuda/carver/cuda_carver.cu)
     set_target_properties(cu PROPERTIES CUDA_ARCHITECTURES "all-major")
     target_link_libraries(cu carver cuda_energy)
 
@@ -45,18 +40,21 @@ endif ()
 # Final entry point executable
 add_executable(hpc_serial serial/serial_main.cpp)
 target_link_libraries(hpc_serial
+        energy
         serial
         timer
         hpimage)
 
 add_executable(hpc_omp omp/omp_main.cpp)
 target_link_libraries(hpc_omp
+        energy
         omp
         timer
         hpimage)
 
 add_executable(hpc_raja raja/raja_main.cpp)
 target_link_libraries(hpc_raja
+        energy
         raja
         timer
         hpimage)

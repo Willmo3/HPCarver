@@ -106,6 +106,14 @@ public:
     Carver(hpimage::Hpimage *image, Energy *energy);
 
     /**
+     * Resize this carver's image.
+     *
+     * @param new_width Width of image after resizing
+     * @param new_height Height of image after resizing
+     */
+    void resize(uint32_t new_width, uint32_t new_height);
+
+    /**
      * Return the minimum energy horizontal seam for this image
      * @return Minimum energy horizontal seam
      */

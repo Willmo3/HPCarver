@@ -56,19 +56,7 @@ int main(int argc, char *argv[]) {
     auto carver = carver::Carver(&image, &energy);
 
     auto timer = carver::Timer();
-
-    // Repeatedly vertically shrink it until it fits target width.
-    while (image.cols() != new_width) {
-        auto seam = carver.vertical_seam();
-        carver.remove_vert_seam(seam);
-    }
-
-    // Now, repeatedly horizontally shrink until it fits target height.
-    while (image.rows() != new_height) {
-        auto seam = carver.horiz_seam();
-        carver.remove_horiz_seam(seam);
-    }
-
+    carver.resize(new_width, new_height);
     std::cout << "HPC RAJA carving time:" << std::endl;
     std::cout << timer.elapsed() << std::endl;
     std::cout << "(Using backend: OpenMP)" << std::endl;

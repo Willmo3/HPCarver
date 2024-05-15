@@ -38,12 +38,15 @@ gtest_discover_tests(test_serialcarve test_ompcarve test_rajacarve)
 # Link all to HPImage
 target_link_libraries(test_serialcarve
         hpimage
+        energy
         serial)
 
 target_link_libraries(test_ompcarve
         hpimage
+        energy
         omp)
 
 target_link_libraries(test_rajacarve
        hpimage
+       energy
        raja)

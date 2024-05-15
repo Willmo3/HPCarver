@@ -27,6 +27,23 @@ Carver::Carver(hpimage::Hpimage *image, Energy *energy) {
     assert_valid_dims();
 }
 
+void Carver::resize(uint32_t new_width, uint32_t new_height) {
+    // Invariant: resized image must be shrunk from original.
+    assert(new_width < image->cols() && new_height < image->rows());
+
+    // Repeatedly vertically shrink it until it fits target width.
+    while (image->cols() != new_width) {
+        auto seam = vertical_seam();
+        remove_vert_seam(seam);
+    }
+
+    // Now, repeatedly horizontally shrink until it fits target height.
+    while (image->rows() != new_height) {
+        auto seam = horiz_seam();
+        remove_horiz_seam(seam);
+    }
+}
+
 // Basic decomposition of seam removal algorithms identical regardless of threading impl.
 std::vector<uint32_t> Carver::horiz_seam() {
     assert_valid_dims();

@@ -58,19 +58,7 @@ int main(int argc, char *argv[]) {
     // Start timing during seam removal.
     // This way, we aren't as impacted by file IO.
     auto timer = carver::Timer();
-
-    // Repeatedly vertically shrink it until it fits target width.
-    while (image.cols() != new_width) {
-        auto seam = carver.vertical_seam();
-        carver.remove_vert_seam(seam);
-    }
-
-    // Now, repeatedly horizontally shrink until it fits target height.
-    while (image.rows() != new_height) {
-        auto seam = carver.horiz_seam();
-        carver.remove_horiz_seam(seam);
-    }
-
+    carver.resize(new_width, new_height);
     std::cout << "HPC serial carving time:" << std::endl;
     std::cout << timer.elapsed() << std::endl;
 
