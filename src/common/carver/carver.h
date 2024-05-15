@@ -49,6 +49,8 @@ private:
 
 // NOTE: ALL PUBLIC METHODS MUST BE IMPLEMENTED BY VARIOUS LIBRARY IMPLEMENTATIONS!
 public:
+    // ***** CONSTRUCTORS ***** //
+
     /**
      * HPCarver default constructor.
      * Initialize superclass fields to NULL.
@@ -63,13 +65,38 @@ public:
      */
     Carver(hpimage::Hpimage *image, Energy *energy);
 
+
+    // ***** ACCESSORS ***** //
+    virtual hpimage::Hpimage *get_image();
+
+    virtual carver::Energy *get_energy();
+
+    // ***** MISC HELPER METHODS ***** //
+
     /**
      * Resize this carver's image.
+     * Repeatedly recalculates the energy matrix and removes the minimum energy seam.
      *
      * @param new_width Width of image after resizing
      * @param new_height Height of image after resizing
      */
     void resize(uint32_t new_width, uint32_t new_height);
+
+    /**
+     * Get the base energy of a single pixel.
+     * This is calculated using an energy gradient approach
+     * considering the differences of adjacent colors
+     *
+     * @param row Row of pixel whose energy we're calculating
+     * @param col Column of pixel whose energy we're calculating
+     * @return the energy
+     */
+    uint32_t pixel_energy(uint32_t col, uint32_t row) const;
+
+    // ***** IMPLEMENTED BY VARIOUS LIBRARIES *****//
+
+    // These functions require the most computation
+    // And offer the most opportunities for parallelization.
 
     /**
      * Given an end index and a carver, traverse the carver's energy matrix
@@ -91,17 +118,6 @@ public:
     std::vector<uint32_t> min_horiz_seam();
 
     /**
-     * Get the base energy of a single pixel.
-     * This is calculated using an energy gradient approach
-     * considering the differences of adjacent colors
-     *
-     * @param row Row of pixel whose energy we're calculating
-     * @param col Column of pixel whose energy we're calculating
-     * @return the energy
-     */
-    uint32_t pixel_energy(uint32_t col, uint32_t row) const;
-
-    /**
      * Remove a horizontal seam from the image.
      * Updates the given image object.
      *
@@ -116,13 +132,6 @@ public:
      * @param seam Seam to remove.
      */
     void remove_vert_seam(std::vector<uint32_t> &seam);
-
-    /**
-     * ACCESSORS
-     */
-     virtual hpimage::Hpimage *get_image();
-     virtual carver::Energy *get_energy();
-
 };
 } // namespace carver
 
