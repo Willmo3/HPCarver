@@ -10,6 +10,23 @@
 
 namespace carver {
 
+// ***** STATIC HELPERS ***** //
+
+static uint32_t gradient_energy(hpimage::pixel p1, hpimage::pixel p2) {
+    auto energy = 0;
+
+    auto red_diff = p1.red - p2.red;
+    auto green_diff = p1.green - p2.green;
+    auto blue_diff = p1.blue - p2.blue;
+
+    // Square differences w/o importing pow fn
+    energy += red_diff * red_diff;
+    energy += green_diff * green_diff;
+    energy += blue_diff * blue_diff;
+
+    return energy;
+}
+
 // Private helper to get dimensions based on col, row.
 static void assert_valid_dims(uint32_t cols, uint32_t rows) {
     if (cols < 3) {
@@ -24,6 +41,8 @@ static void assert_valid_dims(uint32_t cols, uint32_t rows) {
         exit(EXIT_FAILURE);
     }
 }
+
+// ***** CLASS IMPLS ***** //
 
 Carver::Carver() {
     // Initialize image with tombstone hpimage.
@@ -72,21 +91,6 @@ void Carver::assert_valid_dims() const {
 uint32_t Carver::wrap_index(int64_t index, uint32_t length) {
     // Any negative value wraps around the other side.
     return (index + length) % length;
-}
-
-uint32_t Carver::gradient_energy(hpimage::pixel p1, hpimage::pixel p2) {
-    auto energy = 0;
-
-    auto red_diff = p1.red - p2.red;
-    auto green_diff = p1.green - p2.green;
-    auto blue_diff = p1.blue - p2.blue;
-
-    // Square differences w/o importing pow fn
-    energy += red_diff * red_diff;
-    energy += green_diff * green_diff;
-    energy += blue_diff * blue_diff;
-
-    return energy;
 }
 
 uint32_t Carver::pixel_energy(uint32_t col, uint32_t row) const {

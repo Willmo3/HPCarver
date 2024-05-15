@@ -49,17 +49,6 @@ private:
     static uint32_t wrap_index(int64_t index, uint32_t length);
 
     /**
-     * Calculate the gradient energy of two pixels.
-     * This is simply the energy difference of their corresponding RGB color fields
-     * Squared to ensure positivity and penalize small differences.
-     *
-     * @param p1 First pixel to consider.
-     * @param p2 Second pixel to consider.
-     * @return The gradient energy.
-     */
-    static uint32_t gradient_energy(hpimage::pixel p1, hpimage::pixel p2);
-
-    /**
      * Traverses the carver's energy matrix from left to right, updating energy based on base_energy + predecessors.
      * <b>Implemented by libraries!</b>
      */
