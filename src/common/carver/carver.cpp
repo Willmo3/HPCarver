@@ -12,6 +12,14 @@ namespace carver {
 
 // ***** STATIC HELPERS ***** //
 
+/**
+ * Calculate the gradient energy of a pixel.
+ * This is the difference in RGB values squared.
+ *
+ * @param p1 Pixel to compare
+ * @param p2 Pixel to compare
+ * @return Gradient energy of the two pixels.
+ */
 static uint32_t gradient_energy(hpimage::pixel p1, hpimage::pixel p2) {
     auto energy = 0;
 
@@ -26,6 +34,22 @@ static uint32_t gradient_energy(hpimage::pixel p1, hpimage::pixel p2) {
 
     return energy;
 }
+
+/**
+ * Calculate a wrapped index over a dimension.
+ * The formula is (index + length) % length
+ * So that indexes of length will wrap to 0
+ * And indexes of -1 will wrap to length -1.
+ *
+ * @param index Base index to wrap. Int64_t sizing prevents underflow.
+ * @param length Length of dimension
+ * @return The wrapped index
+ */
+static uint32_t wrap_index(int64_t index, uint32_t length) {
+    // Any negative value wraps around the other side.
+    return (index + length) % length;
+}
+
 
 // Private helper to get dimensions based on col, row.
 static void assert_valid_dims(uint32_t cols, uint32_t rows) {
@@ -88,10 +112,6 @@ void Carver::assert_valid_dims() const {
     carver::assert_valid_dims(image->cols(), image->rows());
 }
 
-uint32_t Carver::wrap_index(int64_t index, uint32_t length) {
-    // Any negative value wraps around the other side.
-    return (index + length) % length;
-}
 
 uint32_t Carver::pixel_energy(uint32_t col, uint32_t row) const {
     assert(col < image->cols());

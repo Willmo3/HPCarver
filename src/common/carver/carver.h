@@ -37,18 +37,6 @@ private:
     void assert_valid_dims() const;
 
     /**
-     * Calculate a wrapped index over a dimension.
-     * The formula is (index + length) % length
-     * So that indexes of length will wrap to 0
-     * And indexes of -1 will wrap to length -1.
-     *
-     * @param index Base index to wrap. Int64_t sizing prevents underflow.
-     * @param length Length of dimension
-     * @return The wrapped index
-     */
-    static uint32_t wrap_index(int64_t index, uint32_t length);
-
-    /**
      * Traverses the carver's energy matrix from left to right, updating energy based on base_energy + predecessors.
      * <b>Implemented by libraries!</b>
      */
